@@ -1,6 +1,6 @@
 
 <script setup>
-import NavbarPremio from '../components/NavbarPremio.vue'
+import NavbarPremio from '../../NavbarPremio.vue'
 </script>
 
 <template>

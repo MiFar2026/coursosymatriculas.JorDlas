@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '../views/HomeView.vue'
-import CursosGeneralesView from '../views/CursosGeneralesView.vue'
-import CastellanoView from '../views/CastellanoView.vue'
-import CatalanView from '../views/CatalanView.vue'
-import AlfabetizacionView from '../views/AlfabetizacionView.vue'
-import AlfabetoView from '../views/AlfabetoView.vue'
-import MatriculaView from '../views/MatriculaView.vue'
+import HomeView from '../views/ExAequo/HomeView.vue'
+import CursosGeneralesView from '../views/cursosymatricula/CursosGeneralesView.vue'
+import CastellanoView from '../views/cursosymatricula/castellano/CastellanoView.vue'
+import CatalanView from '../views/cursosymatricula/catalan/CatalanView.vue'
+import AlfabetizacionView from '../views/cursosymatricula/alfabetizacion/AlfabetizacionView.vue'
+import AlfabetoView from '../views/cursosymatricula/alfabetizacion/AlfabetoView.vue'
+import MatriculaView from '../views/cursosymatricula/matricula/MatriculaView.vue'
+import ParticiparPremioView from '../views/premio/participar/ParticiparPremioView.vue'
+
 
 const routes = [
 
@@ -50,9 +52,9 @@ const routes = [
     },
 
     {
-    path: '/alfabetizacion/alfabeto',
-    component: AlfabetoView
-},
+        path: '/alfabetizacion/alfabeto',
+        component: AlfabetoView
+    },
 
 
     // =========================
@@ -71,57 +73,43 @@ const routes = [
 
     {
         path: '/joan-miro',
-        component: () => import('../views/JoanMiroView.vue')
+        component: () => import('../views/joanmiro/JoanMiroView.vue')
     },
 
     {
         path: '/ateneu',
-        component: () => import('../views/AteneuView.vue')
+        component: () => import('../views/ateneu/AteneuView.vue')
     },
 
     {
         path: '/premio',
-        component: () => import('../views/PremioView.vue')
+        component: () => import('../views/premio/PremioView.vue')
     },
 
 
-
-
-
-  // =========================
+    // =========================
     // PREMIO
     // =========================
 
-
+    {
+        path: '/premio/tesoro-literario',
+        component: () => import('../views/premio/tesoro/TesoroLiterarioView.vue')
+    },
 
     {
-    path: '/premio/tesoro-literario',
-    component: () => import('../views/TesoroLiterarioView.vue')
-},
+        path: '/premio/participar',
+        component: ParticiparPremioView
+    },
 
-{
-    path: '/premio/participar',
-    component: () => import('../views/ParticiparPremioView.vue')
-},
+    {
+        path: '/premio/requisitos',
+        component: () => import('../views/premio/requisitos/RequisitosPremioView.vue')
+    },
 
-{
-    path: '/premio/requisitos',
-    component: () => import('../views/RequisitosPremioView.vue')
-},
-
-{
-    path: '/premio/ganadores',
-    component: () => import('../views/GanadoresPremioView.vue')
-},
-
-{
-    path: '/premio/tesoro-literario',
-    component: () => import('../views/TesoroLiterarioView.vue')
-}
-
-
-
-
+    {
+        path: '/premio/ganadores',
+        component: () => import('../views/premio/ganadores/GanadoresPremioView.vue')
+    }
 
 ]
 

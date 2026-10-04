@@ -181,6 +181,5 @@
 
 <script setup>
 
-import NavbarPrincipal from '../components/NavbarPrincipal.vue'
-
+import NavbarPrincipal from '../../components/NavbarPrincipal.vue'
 </script>

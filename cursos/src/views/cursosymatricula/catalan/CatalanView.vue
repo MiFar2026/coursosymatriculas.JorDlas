@@ -13,6 +13,5 @@
 
 <script setup>
 
-import NavbarCursos from '../components/NavbarCursos.vue'
-
+import NavbarCursos from '../../../components/cursosymatricula/NavbarCursos.vue'
 </script>

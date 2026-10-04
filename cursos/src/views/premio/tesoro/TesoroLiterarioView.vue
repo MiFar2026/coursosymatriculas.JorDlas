@@ -1,6 +1,6 @@
 <script setup>
 
-import NavbarPremio from '../components/NavbarPremio.vue'
+import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
 </script>
 
@@ -172,21 +172,21 @@ import NavbarPremio from '../components/NavbarPremio.vue'
           <div class="lectura">
 
             <h4>
-              Cuentos de la selva — Horacio Quiroga
+              Las fábulas de Esopo — Esopo
             </h4>
 
             <p>
-              Relatos breves sobre animales y naturaleza.
-              Su estructura permite practicar vocabulario
-              y verbos en pasado.
+              Historias breves protagonizadas por animales que permiten
+              trabajar la comprensión lectora, el vocabulario y la
+              expresión oral a través de relatos sencillos.
             </p>
 
             <a
-              href="https://www.gutenberg.org/browse/languages/es"
+              href="https://campuseducativo.santafe.edu.ar/wp-content/uploads/adjuntos/recursos/20180419/campus_20180320150123phpFtNzv8.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Leer en Project Gutenberg →
+              Leer en Campus Educativo →
             </a>
 
           </div>
@@ -205,20 +205,11 @@ import NavbarPremio from '../components/NavbarPremio.vue'
             </p>
 
             <a
-              href="https://www.gutenberg.org/ebooks/bookshelf/420"
+              href="https://www.cervantesvirtual.com/buscador/?q=Leyendas+%E2%80%94+Gustavo+Adolfo+B%C3%A9cquer"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Ver en Project Gutenberg →
-            </a>
-
-            <a
-              href="https://www.cervantesvirtual.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="enlace-secundario"
-            >
-              Biblioteca Virtual Miguel de Cervantes →
+              Leer en Biblioteca Virtual Miguel de Cervantes →
             </a>
 
           </div>
@@ -240,7 +231,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
               target="_blank"
               rel="noopener noreferrer"
             >
-              Leer el libro →
+              Leer en Project Gutenberg →
             </a>
 
           </div>
@@ -289,7 +280,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
             </p>
 
             <a
-              href="https://www.cervantesvirtual.com/"
+              href="https://www.cervantesvirtual.com/buscador/?q=La+casa+de+Bernarda+Alba"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -307,6 +298,8 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
           <h3>🌳 Avanzado</h3>
 
+
+          <!-- EL LAZARILLO -->
 
           <div class="lectura">
 
@@ -326,6 +319,32 @@ import NavbarPremio from '../components/NavbarPremio.vue'
               rel="noopener noreferrer"
             >
               Leer en Project Gutenberg →
+            </a>
+
+          </div>
+
+
+          <!-- VIDAS DE LOS FILÓSOFOS -->
+
+          <div class="lectura">
+
+            <h4>
+              Vidas de los filósofos más ilustres — Diógenes Laercio
+            </h4>
+
+            <p>
+              Relatos sobre la vida, las ideas y las enseñanzas
+              de los principales filósofos de la Antigüedad.
+              Un recurso para practicar la lectura, ampliar el
+              vocabulario y acercarse a la historia de la filosofía.
+            </p>
+
+            <a
+              href="https://www.cristoraul.org/SPANISH/sala-de-lectura/BIBLIOTECATERCERMILENIO/CLASICOS/ROMANOS/DiogenesLaercio-VidadelosFilosofosMasIlustres.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Leer en Cristoraul.org →
             </a>
 
           </div>
@@ -532,7 +551,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 
           <a
-            href="https://www.gutenberg.org/ebooks/17219"
+            href="https://www.gutenberg.org/cache/epub/17219/pg17219-images.html"
             target="_blank"
             rel="noopener noreferrer"
             class="libro"
@@ -546,7 +565,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 
           <a
-            href="https://www.gutenberg.org/ebooks/35817"
+            href="https://www.gutenberg.org/cache/epub/35817/pg35817-images.html"
             target="_blank"
             rel="noopener noreferrer"
             class="libro"
@@ -615,7 +634,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    PÁGINA GENERAL
-========================= */
+========================== */
 
 .tesoro-page {
   min-height: 100vh;
@@ -645,7 +664,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    HERO
-========================= */
+========================== */
 
 .hero {
   padding: 75px 25px 65px;
@@ -750,7 +769,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    RECURSOS
-========================= */
+========================== */
 
 .recursos {
   width: 90%;
@@ -865,7 +884,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    LECTURAS
-========================= */
+========================== */
 
 .lecturas {
   width: 90%;
@@ -943,7 +962,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    RECOMENDACIONES
-========================= */
+========================== */
 
 .lectura {
   padding: 18px 0;
@@ -1008,7 +1027,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    BIBLIOTECA
-========================= */
+========================== */
 
 .literatura-container {
   width: 90%;
@@ -1045,7 +1064,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    IDIOMAS
-========================= */
+========================== */
 
 .idioma-section {
   margin-bottom: 45px;
@@ -1114,7 +1133,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    LIBROS
-========================= */
+========================== */
 
 .libros {
   display: grid;
@@ -1173,7 +1192,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    NOTA LEGAL
-========================= */
+========================== */
 
 .nota-legal {
   width: 90%;
@@ -1210,7 +1229,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    FOOTER
-========================= */
+========================== */
 
 .footer {
   margin-top: 70px;
@@ -1236,7 +1255,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    TABLET
-========================= */
+========================== */
 
 @media (max-width: 900px) {
 
@@ -1253,7 +1272,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    MÓVIL
-========================= */
+========================== */
 
 @media (max-width: 768px) {
 
@@ -1300,7 +1319,7 @@ import NavbarPremio from '../components/NavbarPremio.vue'
 
 /* =========================
    MÓVIL PEQUEÑO
-========================= */
+========================== */
 
 @media (max-width: 480px) {
 
@@ -1329,4 +1348,5 @@ import NavbarPremio from '../components/NavbarPremio.vue'
   }
 
 }
+
 </style>
