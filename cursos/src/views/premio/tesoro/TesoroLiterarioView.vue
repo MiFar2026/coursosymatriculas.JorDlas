@@ -1,6 +1,24 @@
 <script setup>
 
+import { ref } from 'vue'
 import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
+
+/*
+|--------------------------------------------------------------------------
+| ACORDEÓN
+|--------------------------------------------------------------------------
+| Solo una sección puede estar abierta al mismo tiempo.
+*/
+
+const seccionAbierta = ref(null)
+
+function toggleSeccion(seccion) {
+  if (seccionAbierta.value === seccion) {
+    seccionAbierta.value = null
+  } else {
+    seccionAbierta.value = seccion
+  }
+}
 
 </script>
 
@@ -9,28 +27,33 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   <main class="tesoro-page">
 
-    <!-- =========================
-         NAVBAR PREMIO
-    ========================== -->
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
 
     <NavbarPremio />
 
 
-    <!-- =========================
+    <!-- =====================================================
          CABECERA
-    ========================== -->
+    ====================================================== -->
 
     <section class="hero">
 
       <div class="hero-content">
 
-        <h1>El Tesoro Literario del Mundo</h1>
+        <h1>
+          Inspírate leyendo el Tesoro Literario del Mundo
+        </h1>
 
         <p class="subtitulo">
           Literatura, cultura y aprendizaje de idiomas
         </p>
 
         <p>
+          La literatura universal es un inmenso mapa de tesoros
+          donde cada libro es una joya que expande nuestra mente
+          y alimenta nuestra imaginación.
           La literatura nos permite conocer otras épocas, culturas,
           ideas y formas de pensar. Leer también ayuda a ampliar el
           vocabulario, mejorar la comprensión y aprender un idioma
@@ -48,545 +71,822 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
     </section>
 
 
-    <!-- =========================
-         LUGARES PARA LEER GRATIS
-    ========================== -->
 
-    <section class="recursos">
+    <!-- =====================================================
+         CONTENEDOR PRINCIPAL DE LAS 5 SECCIONES
+    ====================================================== -->
 
-      <h2>📚 Dónde encontrar libros gratuitos</h2>
-
-      <p class="recursos-intro">
-        Estas bibliotecas digitales ofrecen libros y recursos
-        gratuitos que pueden ser útiles para leer, aprender idiomas
-        y conocer diferentes culturas.
-      </p>
+    <div class="acordeon-container">
 
 
-      <div class="recursos-grid">
+      <!-- ===================================================
+           1. DÓNDE ENCONTRAR LIBROS GRATUITOS
+      ==================================================== -->
 
-        <a
-          href="https://www.gutenberg.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="recurso"
+      <section class="acordeon-seccion">
+
+        <button
+          class="acordeon-header"
+          :class="{ activo: seccionAbierta === 'recursos' }"
+          @click="toggleSeccion('recursos')"
+          type="button"
         >
-          <h3>Project Gutenberg</h3>
 
-          <p>
-            Biblioteca digital con miles de libros gratuitos,
-            especialmente obras de dominio público.
-          </p>
-        </a>
+          <img
+  :src="'/fotos/premio/tesoro/dondeEncontrar.png'"
+  alt="Dónde encontrar libros gratuitos"
+  class="foto-acordeon"
+/>
 
+          <div class="titulo-foto">
 
-        <a
-          href="https://www.cervantesvirtual.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="recurso"
-        >
-          <h3>Biblioteca Virtual Miguel de Cervantes</h3>
+            <h2>
+              Dónde encontrar libros gratuitos
+            </h2>
 
-          <p>
-            Biblioteca especializada en literatura y cultura
-            hispánica.
-          </p>
-        </a>
-
-
-        <a
-          href="https://atenas.cervantes.es/es/cursos_espanol/recursos_didacticos_en_linea_gratuitos.htm"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="recurso"
-        >
-          <h3>Instituto Cervantes</h3>
-
-          <p>
-            Recursos gratuitos para aprender español y conocer
-            la cultura en español.
-          </p>
-        </a>
-
-
-        <a
-          href="https://babel.hathitrust.org/cgi/ls?a=srchls;c=1959461780;q1=*;facet=language008_full:%22Spanish%22"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="recurso"
-        >
-          <h3>HathiTrust</h3>
-
-          <p>
-            Colecciones digitales de libros y documentos,
-            con recursos en español.
-          </p>
-        </a>
-
-
-        <a
-          href="https://archive.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="recurso"
-        >
-          <h3>Internet Archive</h3>
-
-          <p>
-            Gran biblioteca digital donde se pueden consultar
-            libros, documentos y otros materiales.
-          </p>
-        </a>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         LECTURAS PARA APRENDER ESPAÑOL
-    ========================== -->
-
-    <section class="lecturas">
-
-      <h2>📖 Lecturas para aprender español</h2>
-
-      <p class="lecturas-intro">
-        Algunas obras pueden ser especialmente útiles para practicar
-        la lectura en español, desde textos sencillos hasta clásicos
-        más avanzados.
-      </p>
-
-
-      <div class="niveles">
-
-
-        <!-- PRINCIPIANTE - INTERMEDIO -->
-
-        <div class="nivel">
-
-          <h3>🌱 Principiante – Intermedio</h3>
-
-
-          <div class="lectura">
-
-            <h4>
-              Las fábulas de Esopo — Esopo
-            </h4>
-
-            <p>
-              Historias breves protagonizadas por animales que permiten
-              trabajar la comprensión lectora, el vocabulario y la
-              expresión oral a través de relatos sencillos.
-            </p>
-
-            <a
-              href="https://campuseducativo.santafe.edu.ar/wp-content/uploads/adjuntos/recursos/20180419/campus_20180320150123phpFtNzv8.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Leer en Campus Educativo →
-            </a>
+            <span class="flecha">
+              {{ seccionAbierta === 'recursos' ? '▲' : '▼' }}
+            </span>
 
           </div>
 
+        </button>
 
-          <div class="lectura">
 
-            <h4>
-              Leyendas — Gustavo Adolfo Bécquer
-            </h4>
+        <div
+          class="acordeon-contenido"
+          :class="{ abierto: seccionAbierta === 'recursos' }"
+        >
 
-            <p>
-              Historias independientes de misterio, romance
-              y elementos sobrenaturales que pueden leerse
-              poco a poco.
+          <div class="contenido-interior">
+
+            <p class="recursos-intro">
+
+              Estas bibliotecas digitales ofrecen libros y recursos
+              gratuitos que pueden ser útiles para leer, aprender idiomas
+              y conocer diferentes culturas.
+
             </p>
 
-            <a
-              href="https://www.cervantesvirtual.com/buscador/?q=Leyendas+%E2%80%94+Gustavo+Adolfo+B%C3%A9cquer"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Leer en Biblioteca Virtual Miguel de Cervantes →
-            </a>
 
-          </div>
+            <div class="recursos-grid">
 
 
-          <div class="lectura">
+              <a
+                href="https://www.gutenberg.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="recurso"
+              >
 
-            <h4>
-              Spanish Tales for Beginners
-            </h4>
+                <h3>
+                  Project Gutenberg
+                </h3>
 
-            <p>
-              Colección de relatos seleccionados para estudiantes
-              de español y pensada para facilitar la lectura.
-            </p>
+                <p>
+                  Biblioteca digital con miles de libros gratuitos,
+                  especialmente obras de dominio público.
+                </p>
 
-            <a
-              href="https://www.gutenberg.org/ebooks/36805"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Leer en Project Gutenberg →
-            </a>
+              </a>
+
+
+              <a
+                href="https://www.cervantesvirtual.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="recurso"
+              >
+
+                <h3>
+                  Biblioteca Virtual Miguel de Cervantes
+                </h3>
+
+                <p>
+                  Biblioteca especializada en literatura y cultura
+                  hispánica.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://atenas.cervantes.es/es/cursos_espanol/recursos_didacticos_en_linea_gratuitos.htm"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="recurso"
+              >
+
+                <h3>
+                  Instituto Cervantes
+                </h3>
+
+                <p>
+                  Recursos gratuitos para aprender español y conocer
+                  la cultura en español.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://babel.hathitrust.org/cgi/ls?a=srchls;c=1959461780;q1=*;facet=language008_full:%22Spanish%22"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="recurso"
+              >
+
+                <h3>
+                  HathiTrust
+                </h3>
+
+                <p>
+                  Colecciones digitales de libros y documentos,
+                  con recursos en español.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://archive.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="recurso"
+              >
+
+                <h3>
+                  Internet Archive
+                </h3>
+
+                <p>
+                  Gran biblioteca digital donde se pueden consultar
+                  libros, documentos y otros materiales.
+                </p>
+
+              </a>
+
+
+            </div>
 
           </div>
 
         </div>
 
-
-        <!-- INTERMEDIO -->
-
-        <div class="nivel">
-
-          <h3>🌿 Intermedio</h3>
+      </section>
 
 
-          <div class="lectura">
 
-            <h4>
-              El sombrero de tres picos — Pedro Antonio de Alarcón
-            </h4>
+      <!-- ===================================================
+           2. LECTURAS PARA APRENDER ESPAÑOL
+      ==================================================== -->
 
-            <p>
-              Novela breve y de argumento ágil que permite acercarse
-              progresivamente a la literatura española clásica.
-            </p>
+      <section class="acordeon-seccion">
 
-            <a
-              href="https://www.gutenberg.org/ebooks/29506"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Leer en Project Gutenberg →
-            </a>
+        <button
+          class="acordeon-header"
+          :class="{ activo: seccionAbierta === 'lecturas' }"
+          @click="toggleSeccion('lecturas')"
+          type="button"
+        >
+
+          <img
+  :src="'/fotos/premio/tesoro/lecturaEspañol.png'"
+  alt="Lecturas para aprender español"
+  class="foto-acordeon"
+/>
+
+          <div class="titulo-foto">
+
+            <h2>
+              Lecturas para aprender español
+            </h2>
+
+            <span class="flecha">
+              {{ seccionAbierta === 'lecturas' ? '▲' : '▼' }}
+            </span>
 
           </div>
 
+        </button>
 
-          <div class="lectura">
 
-            <h4>
-              La casa de Bernarda Alba — Federico García Lorca
-            </h4>
+        <div
+          class="acordeon-contenido"
+          :class="{ abierto: seccionAbierta === 'lecturas' }"
+        >
 
-            <p>
-              Obra teatral formada principalmente por diálogos,
-              útil para trabajar expresiones y conversaciones.
+          <div class="contenido-interior">
+
+            <p class="lecturas-intro">
+
+              Algunas obras pueden ser especialmente útiles para practicar
+              la lectura en español, desde textos sencillos hasta clásicos
+              más avanzados.
+
             </p>
 
-            <a
-              href="https://www.cervantesvirtual.com/buscador/?q=La+casa+de+Bernarda+Alba"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Consultar en Biblioteca Virtual Miguel de Cervantes →
-            </a>
+
+            <div class="niveles">
+
+
+              <!-- PRINCIPIANTE - INTERMEDIO -->
+
+              <div class="nivel">
+
+                <h3>
+                  🌱 Principiante – Intermedio
+                </h3>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    Las fábulas de Esopo — Esopo
+                  </h4>
+
+                  <p>
+                    Historias breves protagonizadas por animales que permiten
+                    trabajar la comprensión lectora, el vocabulario y la
+                    expresión oral a través de relatos sencillos.
+                  </p>
+
+                  <a
+                    href="https://campuseducativo.santafe.edu.ar/wp-content/uploads/adjuntos/recursos/20180419/campus_20180320150123phpFtNzv8.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Leer en Campus Educativo →
+                  </a>
+
+                </div>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    Leyendas — Gustavo Adolfo Bécquer
+                  </h4>
+
+                  <p>
+                    Historias independientes de misterio, romance
+                    y elementos sobrenaturales que pueden leerse
+                    poco a poco.
+                  </p>
+
+                  <a
+                    href="https://www.cervantesvirtual.com/buscador/?q=Leyendas+%E2%80%94+Gustavo+Adolfo+B%C3%A9cquer"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Leer en Biblioteca Virtual Miguel de Cervantes →
+                  </a>
+
+                </div>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    Spanish Tales for Beginners
+                  </h4>
+
+                  <p>
+                    Colección de relatos seleccionados para estudiantes
+                    de español y pensada para facilitar la lectura.
+                  </p>
+
+                  <a
+                    href="https://www.gutenberg.org/ebooks/36805"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Leer en Project Gutenberg →
+                  </a>
+
+                </div>
+
+              </div>
+
+
+
+              <!-- INTERMEDIO -->
+
+              <div class="nivel">
+
+                <h3>
+                  🌿 Intermedio
+                </h3>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    El sombrero de tres picos — Pedro Antonio de Alarcón
+                  </h4>
+
+                  <p>
+                    Novela breve y de argumento ágil que permite acercarse
+                    progresivamente a la literatura española clásica.
+                  </p>
+
+                  <a
+                    href="https://www.gutenberg.org/ebooks/29506"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Leer en Project Gutenberg →
+                  </a>
+
+                </div>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    La casa de Bernarda Alba — Federico García Lorca
+                  </h4>
+
+                  <p>
+                    Obra teatral formada principalmente por diálogos,
+                    útil para trabajar expresiones y conversaciones.
+                  </p>
+
+                  <a
+                    href="https://www.cervantesvirtual.com/buscador/?q=La+casa+de+Bernarda+Alba"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Consultar en Biblioteca Virtual Miguel de Cervantes →
+                  </a>
+
+                </div>
+
+              </div>
+
+
+
+              <!-- AVANZADO -->
+
+              <div class="nivel">
+
+                <h3>
+                  🌳 Avanzado
+                </h3>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    El Lazarillo de Tormes
+                  </h4>
+
+                  <p>
+                    Obra fundamental de la literatura española.
+                    Su lenguaje pertenece a otra época, por lo que
+                    resulta adecuada para lectores avanzados.
+                  </p>
+
+                  <a
+                    href="https://www.gutenberg.org/ebooks/320"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Leer en Project Gutenberg →
+                  </a>
+
+                </div>
+
+
+                <div class="lectura">
+
+                  <h4>
+                    Vidas de los filósofos más ilustres — Diógenes Laercio
+                  </h4>
+
+                  <p>
+                    Relatos sobre la vida, las ideas y las enseñanzas
+                    de los principales filósofos de la Antigüedad.
+                    Un recurso para practicar la lectura, ampliar el
+                    vocabulario y acercarse a la historia de la filosofía.
+                  </p>
+
+                  <a
+                    href="https://www.cristoraul.org/SPANISH/sala-de-lectura/BIBLIOTECATERCERMILENIO/CLASICOS/ROMANOS/DiogenesLaercio-VidadelosFilosofosMasIlustres.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Leer en Cristoraul.org →
+                  </a>
+
+                </div>
+
+              </div>
+
+
+            </div>
 
           </div>
 
         </div>
 
-
-        <!-- AVANZADO -->
-
-        <div class="nivel">
-
-          <h3>🌳 Avanzado</h3>
+      </section>
 
 
-          <!-- EL LAZARILLO -->
 
-          <div class="lectura">
+      <!-- ===================================================
+           3. BIBLIOTECA LITERARIA
+      ==================================================== -->
 
-            <h4>
-              El Lazarillo de Tormes
-            </h4>
+      <section class="acordeon-seccion">
 
-            <p>
-              Obra fundamental de la literatura española.
-              Su lenguaje pertenece a otra época, por lo que
-              resulta adecuada para lectores avanzados.
-            </p>
+        <button
+          class="acordeon-header"
+          :class="{ activo: seccionAbierta === 'biblioteca' }"
+          @click="toggleSeccion('biblioteca')"
+          type="button"
+        >
 
-            <a
-              href="https://www.gutenberg.org/ebooks/320"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Leer en Project Gutenberg →
-            </a>
+          <img
+  :src="'/fotos/premio/tesoro/bibliotecaLi.png'"
+  alt="Biblioteca literaria"
+  class="foto-acordeon"
+/>
+
+          <div class="titulo-foto">
+
+            <h2>
+              Biblioteca literaria
+            </h2>
+
+            <span class="flecha">
+              {{ seccionAbierta === 'biblioteca' ? '▲' : '▼' }}
+            </span>
 
           </div>
 
+        </button>
 
-          <!-- VIDAS DE LOS FILÓSOFOS -->
 
-          <div class="lectura">
+        <div
+          class="acordeon-contenido"
+          :class="{ abierto: seccionAbierta === 'biblioteca' }"
+        >
 
-            <h4>
-              Vidas de los filósofos más ilustres — Diógenes Laercio
-            </h4>
+          <div class="contenido-interior biblioteca-presentacion">
 
             <p>
-              Relatos sobre la vida, las ideas y las enseñanzas
-              de los principales filósofos de la Antigüedad.
-              Un recurso para practicar la lectura, ampliar el
-              vocabulario y acercarse a la historia de la filosofía.
+              Selección de obras disponibles para leer gratuitamente
+              en línea.
             </p>
 
-            <a
-              href="https://www.cristoraul.org/SPANISH/sala-de-lectura/BIBLIOTECATERCERMILENIO/CLASICOS/ROMANOS/DiogenesLaercio-VidadelosFilosofosMasIlustres.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Leer en Cristoraul.org →
-            </a>
+            <div class="biblioteca-info">
+
+              <h3>
+                📚 Explora nuestra biblioteca
+              </h3>
+
+              <p>
+                Puedes consultar las obras organizadas por idioma.
+                Utiliza las secciones de literatura en castellano
+                y literatura en catalán para acceder directamente
+                a los libros.
+              </p>
+
+            </div>
 
           </div>
 
         </div>
 
-      </div>
-
-    </section>
+      </section>
 
 
-    <!-- =========================
-         BIBLIOTECA LITERARIA
-    ========================== -->
 
-    <section class="literatura-container">
+      <!-- ===================================================
+           4. LITERATURA EN CASTELLANO
+      ==================================================== -->
 
-      <h2>📚 Biblioteca literaria</h2>
+      <section class="acordeon-seccion">
 
-      <p class="introduccion">
-        Selección de obras disponibles para leer gratuitamente
-        en línea.
-      </p>
+        <button
+          class="acordeon-header"
+          :class="{ activo: seccionAbierta === 'castellano' }"
+          @click="toggleSeccion('castellano')"
+          type="button"
+        >
+
+          <img
+  :src="'/fotos/premio/tesoro/Licastellano.png'"
+  alt="Literatura en castellano"
+  class="foto-acordeon"
+/>
+
+          <div class="titulo-foto">
+
+            <h2>
+              Literatura en castellano
+            </h2>
+
+            <span class="flecha">
+              {{ seccionAbierta === 'castellano' ? '▲' : '▼' }}
+            </span>
+
+          </div>
+
+        </button>
 
 
-      <!-- CASTELLANO -->
+        <div
+          class="acordeon-contenido"
+          :class="{ abierto: seccionAbierta === 'castellano' }"
+        >
 
-      <section class="idioma-section castellano-section">
+          <div class="contenido-interior">
 
-        <div class="idioma-header">
-
-          <span class="icono">📘</span>
-
-          <div>
-
-            <h2>Literatura en castellano</h2>
-
-            <p>
+            <p class="idioma-descripcion">
               Obras para practicar el español y conocer diferentes
               autores, épocas y tradiciones literarias.
             </p>
 
+
+            <div class="libros">
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/15353/pg15353-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  A First Spanish Reader
+                </h3>
+
+                <p>
+                  Lecturas para estudiantes de español.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/36805/pg36805-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  Spanish Tales for Beginners
+                </h3>
+
+                <p>
+                  Relatos para comenzar a leer en español.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/2000/pg2000-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  Don Quijote de la Mancha
+                </h3>
+
+                <p>
+                  Miguel de Cervantes.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/57303/pg57303-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  La Divina Comedia
+                </h3>
+
+                <p>
+                  Dante Alighieri.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/61851/pg61851-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  El crimen y el castigo
+                </h3>
+
+                <p>
+                  Fiódor Dostoyevski.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/75739/pg75739-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  Los miserables — Tomo 1
+                </h3>
+
+                <p>
+                  Victor Hugo.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/78068/pg78068-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  Los miserables — Tomo 2
+                </h3>
+
+                <p>
+                  Victor Hugo.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/58221/pg58221-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  La Odisea
+                </h3>
+
+                <p>
+                  Homero.
+                </p>
+
+              </a>
+
+
+            </div>
+
           </div>
-
-        </div>
-
-
-        <div class="libros">
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/15353/pg15353-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>A First Spanish Reader</h3>
-
-            <p>
-              Lecturas para estudiantes de español.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/36805/pg36805-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>Spanish Tales for Beginners</h3>
-
-            <p>
-              Relatos para comenzar a leer en español.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/2000/pg2000-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>Don Quijote de la Mancha</h3>
-
-            <p>
-              Miguel de Cervantes.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/57303/pg57303-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>La Divina Comedia</h3>
-
-            <p>
-              Dante Alighieri.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/61851/pg61851-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>El crimen y el castigo</h3>
-
-            <p>
-              Fiódor Dostoyevski.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/75739/pg75739-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>Los miserables — Tomo 1</h3>
-
-            <p>
-              Victor Hugo.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/78068/pg78068-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>Los miserables — Tomo 2</h3>
-
-            <p>
-              Victor Hugo.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/58221/pg58221-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>La Odisea</h3>
-
-            <p>
-              Homero.
-            </p>
-          </a>
 
         </div>
 
       </section>
 
 
-      <!-- CATALÁN -->
 
-      <section class="idioma-section catalan-section">
+      <!-- ===================================================
+           5. LITERATURA EN CATALÁN
+      ==================================================== -->
 
-        <div class="idioma-header">
+      <section class="acordeon-seccion">
 
-          <span class="icono">📗</span>
+        <button
+          class="acordeon-header"
+          :class="{ activo: seccionAbierta === 'catalan' }"
+          @click="toggleSeccion('catalan')"
+          type="button"
+        >
 
-          <div>
+          <img
+  :src="'/fotos/premio/tesoro/Licatalan.png'"
+  alt="Literatura en catalán"
+  class="foto-acordeon"
+/>
 
-            <h2>Literatura en catalán</h2>
+          <div class="titulo-foto">
 
-            <p>
+            <h2>
+              Literatura en catalán
+            </h2>
+
+            <span class="flecha">
+              {{ seccionAbierta === 'catalan' ? '▲' : '▼' }}
+            </span>
+
+          </div>
+
+        </button>
+
+
+        <div
+          class="acordeon-contenido"
+          :class="{ abierto: seccionAbierta === 'catalan' }"
+        >
+
+          <div class="contenido-interior">
+
+            <p class="idioma-descripcion">
               Obras en catalán para practicar la lengua y conocer
               la cultura y la tradición literaria catalana.
             </p>
 
+
+            <div class="libros">
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/30890/pg30890-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  Les aventures de Tom Sawyer
+                </h3>
+
+                <p>
+                  Mark Twain.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/17219/pg17219-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  La creació d'Eva i altres contes
+                </h3>
+
+                <p>
+                  Josep Carner.
+                </p>
+
+              </a>
+
+
+              <a
+                href="https://www.gutenberg.org/cache/epub/35817/pg35817-images.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="libro"
+              >
+
+                <h3>
+                  Tradicions religioses de Catalunya
+                </h3>
+
+                <p>
+                  Literatura i tradicions de Catalunya.
+                </p>
+
+              </a>
+
+
+            </div>
+
           </div>
-
-        </div>
-
-
-        <div class="libros">
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/30890/pg30890-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>Les aventures de Tom Sawyer</h3>
-
-            <p>
-              Mark Twain.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/17219/pg17219-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>La creació d'Eva i altres contes</h3>
-
-            <p>
-              Josep Carner.
-            </p>
-          </a>
-
-
-          <a
-            href="https://www.gutenberg.org/cache/epub/35817/pg35817-images.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="libro"
-          >
-            <h3>Tradicions religioses de Catalunya</h3>
-
-            <p>
-              Literatura i tradicions de Catalunya.
-            </p>
-          </a>
 
         </div>
 
       </section>
 
-    </section>
+
+    </div>
 
 
-    <!-- =========================
-         NOTA SOBRE DOMINIO PÚBLICO
-    ========================== -->
+
+    <!-- =====================================================
+         NOTA LEGAL
+    ====================================================== -->
 
     <section class="nota-legal">
 
@@ -604,9 +904,10 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
     </section>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          FOOTER
-    ========================== -->
+    ====================================================== -->
 
     <footer class="footer">
 
@@ -620,29 +921,27 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
     </footer>
 
+
   </main>
 
 </template>
 
 
+
 <style scoped>
+
+/* =========================================================
+   GENERAL
+========================================================= */
 
 * {
   box-sizing: border-box;
 }
 
-
-/* =========================
-   PÁGINA GENERAL
-========================== */
-
 .tesoro-page {
   min-height: 100vh;
-
   color: #3f3932;
-
   font-family: Arial, Helvetica, sans-serif;
-
   overflow-x: hidden;
 
   background-image:
@@ -650,21 +949,18 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
       rgba(246, 241, 232, 0.86),
       rgba(246, 241, 232, 0.86)
     ),
-    url("/fotos/premio/tesoro/lectura.gratis.png");
+    url("'/fotos/premio/tesoro/lectura.gratis.png'");
 
   background-size: cover;
-
   background-position: center;
-
   background-attachment: fixed;
-
   background-repeat: no-repeat;
 }
 
 
-/* =========================
+/* =========================================================
    HERO
-========================== */
+========================================================= */
 
 .hero {
   padding: 75px 25px 65px;
@@ -678,125 +974,261 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
     );
 
   border-bottom: 1px solid #d8c8b2;
-
   position: relative;
 }
 
-
-/* Detalle decorativo */
-
 .hero::before {
   content: "✦";
-
   position: absolute;
-
   top: 25px;
-
   left: 8%;
-
   font-size: 2rem;
-
   color: #b28a5a;
-
   opacity: 0.5;
 }
-
 
 .hero::after {
   content: "✦";
-
   position: absolute;
-
   bottom: 25px;
-
   right: 8%;
-
   font-size: 1.6rem;
-
   color: #b28a5a;
-
   opacity: 0.5;
 }
 
-
 .hero-content {
   max-width: 900px;
-
   margin: 0 auto;
-
   padding: 0 20px;
-
   text-align: center;
 }
 
-
 .hero h1 {
   margin: 0 0 18px;
-
   font-size: 2.8rem;
-
   line-height: 1.2;
-
   color: #55402b;
-
   letter-spacing: 0.5px;
 }
 
-
 .subtitulo {
   font-size: 1.3rem;
-
   color: #9a7045;
-
   margin: 0 0 28px;
-
   font-weight: bold;
 }
 
-
 .hero p:not(.subtitulo) {
   max-width: 820px;
-
   margin: 18px auto;
-
   line-height: 1.8;
-
   font-size: 1.05rem;
-
   color: #5f5952;
 }
 
 
-/* =========================
-   RECURSOS
-========================== */
+/* =========================================================
+   CONTENEDOR DEL ACORDEÓN
+========================================================= */
 
-.recursos {
+.acordeon-container {
   width: 90%;
-
   max-width: 1150px;
-
   margin: 65px auto;
-
-  padding: 0 10px;
 }
 
 
-.recursos h2 {
-  text-align: center;
+/* =========================================================
+   CADA SECCIÓN
+========================================================= */
+
+.acordeon-seccion {
+  margin-bottom: 28px;
+  background: #fffdf9;
+  border-radius: 20px;
+  overflow: hidden;
+
+  border: 1px solid #dfd1bd;
+
+  box-shadow:
+    0 7px 25px rgba(92, 67, 40, 0.09);
+
+  transition: box-shadow 0.3s ease;
+}
+
+.acordeon-seccion:hover {
+  box-shadow:
+    0 10px 30px rgba(92, 67, 40, 0.14);
+}
+
+
+/* =========================================================
+   FOTO QUE SE PULSA
+========================================================= */
+
+.acordeon-header {
+  width: 100%;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+
+  background: #fffdf9;
+
+  display: block;
+  position: relative;
+
+  text-align: left;
+
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.acordeon-header:hover {
+  filter: brightness(1.03);
+}
+
+.acordeon-header:focus-visible {
+  outline: 4px solid rgba(178, 138, 90, 0.35);
+  outline-offset: -4px;
+}
+
+
+/* =========================================================
+   IMAGEN
+========================================================= */
+
+.foto-acordeon {
+  width: 100%;
+  height: 260px;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    height 0.4s ease,
+    filter 0.3s ease;
+}
+
+
+/*
+   Cuando la sección está abierta,
+   la fotografía queda un poco más pequeña.
+*/
+
+.acordeon-header.activo .foto-acordeon {
+  height: 210px;
+}
+
+
+/* =========================================================
+   TITULO ENCIMA DE LA FOTO
+========================================================= */
+
+.titulo-foto {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 35px 30px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(35, 25, 15, 0.82),
+      rgba(35, 25, 15, 0.35),
+      transparent
+    );
+
+  color: white;
+}
+
+.titulo-foto h2 {
+  margin: 0;
+
+  font-size: 2rem;
+  line-height: 1.2;
+
+  text-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.flecha {
+  flex-shrink: 0;
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.92);
 
   color: #59432d;
 
-  font-size: 2rem;
+  font-size: 0.95rem;
 
-  margin-bottom: 15px;
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 
-.recursos-intro {
+/* =========================================================
+   CONTENIDO DESPLEGABLE
+========================================================= */
+
+.acordeon-contenido {
+  display: grid;
+  grid-template-rows: 0fr;
+
+  opacity: 0;
+
+  transition:
+    grid-template-rows 0.45s ease,
+    opacity 0.35s ease;
+}
+
+.acordeon-contenido.abierto {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.contenido-interior {
+  min-height: 0;
+  overflow: hidden;
+
+  padding: 0 35px;
+  transition: padding 0.4s ease;
+}
+
+.acordeon-contenido.abierto .contenido-interior {
+  padding-top: 35px;
+  padding-bottom: 35px;
+}
+
+
+/* =========================================================
+   RECURSOS
+========================================================= */
+
+.recursos-intro,
+.lecturas-intro,
+.idioma-descripcion {
   max-width: 800px;
 
-  margin: 0 auto 40px;
+  margin: 0 auto 35px;
 
   text-align: center;
 
@@ -806,35 +1238,18 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* Línea decorativa */
-
-.recursos h2::after,
-.lecturas > h2::after,
-.literatura-container > h2::after {
-  content: "";
-
-  display: block;
-
-  width: 70px;
-
-  height: 3px;
-
-  margin: 15px auto 0;
-
-  background: #b28a5a;
-
-  border-radius: 10px;
-}
-
+/* =========================================================
+   TARJETAS DE RECURSOS
+========================================================= */
 
 .recursos-grid {
   display: grid;
 
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns:
+    repeat(3, 1fr);
 
   gap: 25px;
 }
-
 
 .recurso {
   padding: 28px;
@@ -847,22 +1262,22 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   text-decoration: none;
 
-  transition: all 0.3s ease;
-
-  box-shadow: 0 4px 12px rgba(92, 67, 40, 0.05);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
-
 
 .recurso:hover {
   transform: translateY(-6px);
 
   border-color: #c8a77c;
 
-  box-shadow: 0 10px 25px rgba(92, 67, 40, 0.12);
+  box-shadow:
+    0 10px 25px rgba(92, 67, 40, 0.12);
 
   background: #ffffff;
 }
-
 
 .recurso h3 {
   margin: 0 0 12px;
@@ -871,7 +1286,6 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   font-size: 1.15rem;
 }
-
 
 .recurso p {
   margin: 0;
@@ -882,59 +1296,18 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
-   LECTURAS
-========================== */
-
-.lecturas {
-  width: 90%;
-
-  max-width: 1150px;
-
-  margin: 75px auto;
-
-  padding: 45px 35px;
-
-  background: #eee5d6;
-
-  border: 1px solid #dfd0bc;
-
-  border-radius: 22px;
-}
-
-
-.lecturas > h2 {
-  text-align: center;
-
-  color: #59432d;
-
-  font-size: 2rem;
-
-  margin-top: 0;
-}
-
-
-.lecturas-intro {
-  max-width: 750px;
-
-  margin: 15px auto 40px;
-
-  text-align: center;
-
-  color: #70685f;
-
-  line-height: 1.7;
-}
-
+/* =========================================================
+   NIVELES DE LECTURA
+========================================================= */
 
 .niveles {
   display: grid;
 
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns:
+    repeat(3, 1fr);
 
   gap: 25px;
 }
-
 
 .nivel {
   background: #fffdf9;
@@ -945,9 +1318,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   border: 1px solid #dfd3c2;
 
-  box-shadow: 0 4px 12px rgba(92, 67, 40, 0.06);
+  box-shadow:
+    0 4px 12px rgba(92, 67, 40, 0.06);
 }
-
 
 .nivel > h3 {
   color: #694d30;
@@ -960,9 +1333,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
-   RECOMENDACIONES
-========================== */
+/* =========================================================
+   LECTURAS
+========================================================= */
 
 .lectura {
   padding: 18px 0;
@@ -970,11 +1343,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
   border-bottom: 1px solid #e6ddd0;
 }
 
-
 .lectura:last-child {
   border-bottom: none;
 }
-
 
 .lectura h4 {
   margin: 0 0 8px;
@@ -986,7 +1357,6 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
   font-size: 1.05rem;
 }
 
-
 .lectura p {
   color: #706a63;
 
@@ -994,7 +1364,6 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   margin: 0 0 10px;
 }
-
 
 .lectura a {
   display: inline-block;
@@ -1008,7 +1377,6 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
   font-weight: bold;
 }
 
-
 .lectura a:hover {
   text-decoration: underline;
 
@@ -1016,133 +1384,63 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-.lectura .enlace-secundario {
-  color: #777067;
-
-  font-size: 0.92rem;
-
-  font-weight: normal;
-}
-
-
-/* =========================
+/* =========================================================
    BIBLIOTECA
-========================== */
+========================================================= */
 
-.literatura-container {
-  width: 90%;
-
-  max-width: 1150px;
-
-  margin: 75px auto;
+.biblioteca-presentacion {
+  text-align: center;
 }
 
-
-.literatura-container > h2 {
-  text-align: center;
-
-  color: #59432d;
-
-  font-size: 2rem;
-
-  margin-bottom: 15px;
-}
-
-
-.introduccion {
-  max-width: 800px;
-
-  margin: 0 auto 45px;
-
-  text-align: center;
-
+.biblioteca-presentacion > p {
   color: #70685f;
+
+  font-size: 1.1rem;
 
   line-height: 1.7;
 }
 
+.biblioteca-info {
+  max-width: 750px;
 
-/* =========================
-   IDIOMAS
-========================== */
+  margin: 30px auto 0;
 
-.idioma-section {
-  margin-bottom: 45px;
+  padding: 25px;
 
-  padding: 35px;
+  background: #eee5d6;
 
-  background: #fffdf9;
+  border-radius: 16px;
 
-  border: 1px solid #e1d5c4;
+  border: 1px solid #dfd0bc;
+}
 
-  border-radius: 20px;
+.biblioteca-info h3 {
+  margin-top: 0;
 
-  box-shadow: 0 6px 20px rgba(92, 67, 40, 0.07);
+  color: #59432d;
+}
+
+.biblioteca-info p {
+  margin-bottom: 0;
+
+  line-height: 1.7;
+
+  color: #70685f;
 }
 
 
-.idioma-header {
-  display: flex;
-
-  align-items: center;
-
-  gap: 20px;
-
-  margin-bottom: 30px;
-
-  padding-bottom: 20px;
-
-  border-bottom: 1px solid #e6ddd0;
-}
-
-
-.icono {
-  font-size: 2.7rem;
-
-  width: 65px;
-
-  height: 65px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  background: #eee3d2;
-
-  border-radius: 50%;
-}
-
-
-.idioma-header h2 {
-  margin: 0 0 8px;
-
-  color: #59452d;
-}
-
-
-.idioma-header p {
-  margin: 0;
-
-  color: #706a63;
-
-  line-height: 1.6;
-}
-
-
-/* =========================
+/* =========================================================
    LIBROS
-========================== */
+========================================================= */
 
 .libros {
   display: grid;
 
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns:
+    repeat(2, 1fr);
 
   gap: 22px;
 }
-
 
 .libro {
   display: block;
@@ -1157,9 +1455,12 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   text-decoration: none;
 
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
-
 
 .libro:hover {
   transform: translateY(-5px);
@@ -1168,9 +1469,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   border-color: #c8a77c;
 
-  box-shadow: 0 8px 20px rgba(92, 67, 40, 0.1);
+  box-shadow:
+    0 8px 20px rgba(92, 67, 40, 0.1);
 }
-
 
 .libro h3 {
   margin: 0 0 10px;
@@ -1179,7 +1480,6 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   font-size: 1.15rem;
 }
-
 
 .libro p {
   margin: 0;
@@ -1190,13 +1490,12 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
+/* =========================================================
    NOTA LEGAL
-========================== */
+========================================================= */
 
 .nota-legal {
   width: 90%;
-
   max-width: 1050px;
 
   margin: 30px auto 60px;
@@ -1209,14 +1508,13 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 
   border-radius: 10px;
 
-  box-shadow: 0 3px 10px rgba(92, 67, 40, 0.05);
+  box-shadow:
+    0 3px 10px rgba(92, 67, 40, 0.05);
 }
-
 
 .nota-legal strong {
   color: #59452d;
 }
-
 
 .nota-legal p {
   margin: 8px 0 0;
@@ -1227,9 +1525,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
+/* =========================================================
    FOOTER
-========================== */
+========================================================= */
 
 .footer {
   margin-top: 70px;
@@ -1245,7 +1543,6 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
   border-top: 5px solid #b28a5a;
 }
 
-
 .footer p {
   margin: 7px 0;
 
@@ -1253,9 +1550,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
+/* =========================================================
    TABLET
-========================== */
+========================================================= */
 
 @media (max-width: 900px) {
 
@@ -1270,9 +1567,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
+/* =========================================================
    MÓVIL
-========================== */
+========================================================= */
 
 @media (max-width: 768px) {
 
@@ -1288,26 +1585,38 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
     font-size: 1.1rem;
   }
 
-  .recursos,
-  .lecturas,
-  .literatura-container {
+  .acordeon-container {
     width: 94%;
   }
 
-  .lecturas {
-    padding: 35px 20px;
+  .foto-acordeon {
+    height: 190px;
+  }
+
+  .acordeon-header.activo .foto-acordeon {
+    height: 160px;
+  }
+
+  .titulo-foto {
+    padding: 30px 20px 18px;
+  }
+
+  .titulo-foto h2 {
+    font-size: 1.45rem;
+  }
+
+  .flecha {
+    width: 36px;
+    height: 36px;
+  }
+
+  .contenido-interior {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 
   .recursos-grid {
     grid-template-columns: 1fr;
-  }
-
-  .idioma-section {
-    padding: 25px 18px;
-  }
-
-  .idioma-header {
-    align-items: flex-start;
   }
 
   .libros {
@@ -1317,9 +1626,9 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
 }
 
 
-/* =========================
+/* =========================================================
    MÓVIL PEQUEÑO
-========================== */
+========================================================= */
 
 @media (max-width: 480px) {
 
@@ -1331,22 +1640,132 @@ import NavbarPremio from '../../../components/premio/NavbarPremio.vue'
     font-size: 0.98rem;
   }
 
-  .recursos h2,
-  .lecturas > h2,
-  .literatura-container > h2 {
-    font-size: 1.65rem;
+  .foto-acordeon {
+    height: 155px;
   }
 
-  .idioma-header {
-    flex-direction: column;
+  .acordeon-header.activo .foto-acordeon {
+    height: 135px;
   }
 
-  .icono {
-    width: 55px;
-    height: 55px;
-    font-size: 2.2rem;
+  .titulo-foto {
+    padding: 25px 15px 15px;
+
+    gap: 10px;
+  }
+
+  .titulo-foto h2 {
+    font-size: 1.2rem;
+  }
+
+  .flecha {
+    width: 32px;
+    height: 32px;
+
+    font-size: 0.75rem;
   }
 
 }
 
+
+/* =========================================================
+   IMPRESIÓN
+========================================================= */
+
+@media print {
+
+  /*
+   * Al imprimir:
+   * - se muestran TODAS las secciones
+   * - no importa cuál estaba abierta
+   * - desaparece la animación
+   * - se imprime todo el contenido
+   */
+
+  .tesoro-page {
+    background: white !important;
+  }
+
+  .hero {
+    background: white !important;
+    padding: 30px 20px;
+  }
+
+  .acordeon-container {
+    width: 100%;
+    max-width: none;
+    margin: 20px 0;
+  }
+
+  .acordeon-seccion {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+
+    margin-bottom: 25px;
+
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  /*
+   * Todas las secciones aparecen abiertas
+   * aunque el usuario no las haya abierto.
+   */
+
+  .acordeon-contenido,
+  .acordeon-contenido.abierto {
+    display: block !important;
+
+    grid-template-rows: 1fr !important;
+
+    opacity: 1 !important;
+
+    overflow: visible !important;
+  }
+
+  .contenido-interior,
+  .acordeon-contenido.abierto .contenido-interior {
+    padding: 25px !important;
+    overflow: visible !important;
+  }
+
+  /*
+   * Las fotos siguen apareciendo al imprimir.
+   */
+
+  .foto-acordeon,
+  .acordeon-header.activo .foto-acordeon {
+    height: 180px !important;
+  }
+
+  .acordeon-header {
+    cursor: default;
+  }
+
+  .flecha {
+    display: none;
+  }
+
+  .titulo-foto {
+    position: absolute;
+  }
+
+  .recursos-grid,
+  .niveles,
+  .libros {
+    break-inside: auto;
+  }
+
+  .recurso,
+  .nivel,
+  .libro,
+  .lectura {
+    break-inside: avoid;
+  }
+
+  .footer {
+    margin-top: 30px;
+  }
+
+}
 </style>

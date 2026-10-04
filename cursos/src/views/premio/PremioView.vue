@@ -18,7 +18,7 @@ const abrirMenu = () => {
 
     <!-- IMAGEN PRINCIPAL -->
     <img
-      src="/fotos/premio/Biblioteca de sueños junto al mar.png"
+      :src="'/fotos/premio/Biblioteca de sueños junto al mar.png'"
       alt="Biblioteca de sueños junto al mar"
       class="imagen-fondo"
     />
@@ -107,7 +107,7 @@ const abrirMenu = () => {
           @click="menuAbierto = false"
         >
           <span>5.</span>
-          <span>El tesoro literario del mundo</span>
+          <span>Inspírate: Tesoro Literario del Mundo</span>
         </RouterLink>
 
       </div>

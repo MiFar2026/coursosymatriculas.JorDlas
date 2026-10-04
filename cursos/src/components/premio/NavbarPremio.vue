@@ -72,7 +72,7 @@
       <!-- TESORO LITERARIO -->
 
       <router-link to="/premio/tesoro-literario">
-        El Tesoro Literario
+        Inspírate: Tesoro Literario del Mundo
       </router-link>
 
     </div>
@@ -244,4 +244,5 @@ const menuAbierto = ref(false)
   }
 
 }
+
 </style>
