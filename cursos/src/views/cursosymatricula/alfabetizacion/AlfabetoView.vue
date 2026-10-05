@@ -229,7 +229,7 @@ function reproducirAudio() {
         <div class="relative mx-auto w-full max-w-4xl">
 
           <img
-            src="/fotos/cursos/alfabeto/alfabeto.png"
+            src="/fotos/cursos/alfabetizacion/alfabeto/alfabeto.png"
             alt="El alfabeto"
             class="w-full h-auto block rounded-lg shadow-lg"
           />

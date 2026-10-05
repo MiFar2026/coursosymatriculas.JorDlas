@@ -1,6 +1,6 @@
 <template>
 
-    <nav class="bg-blue-600 text-white p-4">
+    <nav class="bg-red-900 text-white p-4">
 
         <div class="flex gap-6">
 
