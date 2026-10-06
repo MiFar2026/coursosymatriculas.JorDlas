@@ -40,7 +40,9 @@ import PalabrasEscrituraView from '../views/cursosymatricula/alfabetizacion/prac
 
 import A1EscrituraView from '../views/cursosymatricula/alfabetizacion/practicarescritura/A1EscrituraView.vue'
 
+import GramaticaView from '../views/cursosymatricula/alfabetizacion/practicarescritura/GramaticaView.vue'
 
+import AvanzadoView from '../views/cursosymatricula/alfabetizacion/practicarescritura/AvanzadoView.vue'
 // ======================================================
 // MATRÍCULA
 // ======================================================
@@ -130,6 +132,24 @@ const routes = [
         component: PracticarEscrituraView
     },
 
+// ==================================================
+// GRAMÁTICA
+// ==================================================
+
+{
+    path: '/alfabetizacion/practicar-escritura/gramatica',
+    component: GramaticaView
+},
+
+
+// ==================================================
+// NIVELES AVANZADOS
+// ==================================================
+
+{
+    path: '/alfabetizacion/practicar-escritura/avanzados',
+    component: AvanzadoView
+},
 
     // ==================================================
     // ALFABETIZACIÓN - ESCRITURA

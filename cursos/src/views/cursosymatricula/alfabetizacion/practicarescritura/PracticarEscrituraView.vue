@@ -1,968 +1,747 @@
-<template>
 
+<template>
   <main class="escritura-page">
 
-    <!-- =====================================
-         NAVBAR
-    ====================================== -->
-
+    <!-- NAVBAR -->
     <NavbarCursos />
 
-
-    <!-- =====================================
-         CABECERA
-    ====================================== -->
-
+    <!-- CABECERA -->
     <section class="intro">
+      <div class="intro-icon">✍️</div>
 
-      <span class="etiqueta">
-        PRACTICA A TU RITMO
-      </span>
-
-      <h1>
-        Practicar escritura
-      </h1>
+      <h1>Practicar escritura</h1>
 
       <p>
-        Aprende, escribe y practica paso a paso.
-        Hemos preparado diferentes recursos para que puedas
-        empezar desde las letras y avanzar poco a poco
-        hacia palabras, gramática y niveles más avanzados.
+        Elige un recurso para practicar y mejorar tu escritura en español.
       </p>
-
     </section>
 
+    <!-- RECURSOS -->
+    <section class="recursos-section">
 
-    <!-- =====================================
-         CÍRCULO DE RECURSOS
-    ====================================== -->
+      <div class="recursos">
 
-    <section class="recursos">
-
-      <div class="circulo-central">
-
+        <!-- CENTRO -->
         <div class="centro">
-
-          <span>✎</span>
-
-          <strong>
-            ESCRITURA
-          </strong>
-
-          <small>
-            Practica y aprende
-          </small>
-
+          <span class="centro-icono">✍️</span>
+          <span class="centro-texto">Practica<br />tu español</span>
         </div>
-
 
         <!-- ALFABETIZACIÓN -->
-
         <RouterLink
-          to="/practicar-escritura/alfabetizacion"
+          to="/alfabetizacion/escritura"
           class="recurso recurso-1"
         >
-
-          <div class="icono">
-            Aa
-          </div>
-
-          <strong>
-            Alfabetización
-          </strong>
-
-          <small>
-            Letras y trazos
-          </small>
-
+          <span class="recurso-icono">🔤</span>
+          <span class="recurso-titulo">Alfabetización</span>
+          <span class="recurso-descripcion">
+            Aprende a escribir
+          </span>
         </RouterLink>
-
 
         <!-- PALABRAS -->
-
         <RouterLink
-          to="/practicar-escritura/palabras"
+          to="/alfabetizacion/palabras"
           class="recurso recurso-2"
         >
-
-          <div class="icono">
-            ABC
-          </div>
-
-          <strong>
-            Palabras básicas
-          </strong>
-
-          <small>
-            Escribe tus primeras palabras
-          </small>
-
+          <span class="recurso-icono">📝</span>
+          <span class="recurso-titulo">Palabras</span>
+          <span class="recurso-descripcion">
+            Practica vocabulario
+          </span>
         </RouterLink>
-
 
         <!-- A1 -->
-
         <RouterLink
-          to="/practicar-escritura/a1"
+          to="/alfabetizacion/a1"
           class="recurso recurso-3"
         >
-
-          <div class="icono">
-            A1
-          </div>
-
-          <strong>
-            Nivel A1
-          </strong>
-
-          <small>
-            Un paso más
-          </small>
-
+          <span class="recurso-icono">🌱</span>
+          <span class="recurso-titulo">Nivel A1</span>
+          <span class="recurso-descripcion">
+            Empieza a practicar
+          </span>
         </RouterLink>
 
-
         <!-- GRAMÁTICA -->
-
-        <a
-          href="https://pigquiz.com/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <RouterLink
+          to="/alfabetizacion/practicar-escritura/gramatica"
           class="recurso recurso-4"
         >
-
-          <div class="icono">
-            ✓
-          </div>
-
-          <strong>
-            Gramática básica
-          </strong>
-
-          <small>
-            Practica online
-          </small>
-
-        </a>
-
+          <span class="recurso-icono">📚</span>
+          <span class="recurso-titulo">Gramática básica</span>
+          <span class="recurso-descripcion">
+            Reglas y ejercicios
+          </span>
+        </RouterLink>
 
         <!-- NIVELES AVANZADOS -->
-
-        <a
-          href="https://aprenderespanol.org/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <RouterLink
+          to="/alfabetizacion/practicar-escritura/avanzados"
           class="recurso recurso-5"
         >
-
-          <div class="icono">
-            ★
-          </div>
-
-          <strong>
-            Niveles avanzados
-          </strong>
-
-          <small>
-            Practica online
-          </small>
-
-        </a>
-
+          <span class="recurso-icono">🚀</span>
+          <span class="recurso-titulo">Niveles avanzados</span>
+          <span class="recurso-descripcion">
+            Practica más
+          </span>
+        </RouterLink>
 
         <!-- MATERIALES -->
+        <div class="materiales-wrap">
 
-        <div
-          class="recurso recurso-6"
-          @click="mostrarMateriales = !mostrarMateriales"
-        >
+          <button
+            type="button"
+            class="recurso recurso-6"
+            @click="mostrarMateriales = !mostrarMateriales"
+          >
+            <span class="recurso-icono">📦</span>
+            <span class="recurso-titulo">Materiales</span>
+            <span class="recurso-descripcion">
+              Recursos descargables
+            </span>
+          </button>
 
-          <div class="icono">
-            ↓
+          <!-- DOS CÍRCULOS LATERALES -->
+          <div
+            v-if="mostrarMateriales"
+            class="materiales-opciones"
+          >
+
+            <a
+              href="https://refuerzoeducativo.es/espanol-para-extranjeros/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="material-circle material-circle-1"
+              aria-label="Material de español para extranjeros"
+              title="Español para extranjeros"
+            >
+              📖
+            </a>
+
+            <a
+              href="https://fedele.org/material-descargable/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="material-circle material-circle-2"
+              aria-label="Material descargable FEDELE"
+              title="Material descargable FEDELE"
+            >
+              📥
+            </a>
+
           </div>
-
-          <strong>
-            Materiales
-          </strong>
-
-          <small>
-            Recursos educativos
-          </small>
 
         </div>
 
       </div>
-
     </section>
 
-
-    <!-- =====================================
-         MATERIAL EXTERNO
-    ====================================== -->
-
-    <section
-      v-if="mostrarMateriales"
-      class="materiales"
-    >
-
-      <div class="materiales-cabecera">
-
-        <span class="etiqueta">
-          RECURSOS GRATUITOS
-        </span>
-
-        <h2>
-          Más materiales para aprender
-        </h2>
-
-        <p>
-          También puedes encontrar materiales educativos
-          preparados por otras organizaciones.
-        </p>
-
-      </div>
-
-
-      <div class="materiales-grid">
-
-        <a
-          href="https://refuerzoeducativo.es/espanol-para-extranjeros/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="material-card"
-        >
-
-          <span class="material-icon">
-            📚
-          </span>
-
-          <h3>
-            Refuerzo Educativo
-          </h3>
-
-          <p>
-            Materiales de español para personas extranjeras.
-          </p>
-
-          <span class="ir">
-            Ver materiales →
-          </span>
-
-        </a>
-
-
-        <a
-          href="https://fedele.org/material-descargable/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="material-card"
-        >
-
-          <span class="material-icon">
-            📖
-          </span>
-
-          <h3>
-            FEDELE
-          </h3>
-
-          <p>
-            Material educativo descargable para aprender español.
-          </p>
-
-          <span class="ir">
-            Ver materiales →
-          </span>
-
-        </a>
-
-      </div>
-
-    </section>
-
-
-    <!-- =====================================
-         MENSAJE FINAL
-    ====================================== -->
-
-    <section class="final">
-
-      <span class="etiqueta">
-        PASO A PASO
-      </span>
-
-      <h2>
-        No importa desde dónde empiezas
-      </h2>
-
+    <!-- PIE -->
+    <section class="final-text">
       <p>
-        Empieza por las letras, continúa con palabras
-        y avanza a tu propio ritmo.
-        Lo importante es practicar.
+        🌟 Elige una opción y comienza a practicar.
       </p>
-
     </section>
-
 
   </main>
-
 </template>
 
-
 <script setup>
-
 import { ref } from 'vue'
-
 import NavbarCursos from '../../../../components/cursosymatricula/NavbarCursos.vue'
 const mostrarMateriales = ref(false)
-
 </script>
-
 
 <style scoped>
 
-/* =========================================
+/* =====================================================
    PÁGINA
-========================================= */
+===================================================== */
 
 .escritura-page {
-
   min-height: 100vh;
-
+  padding-bottom: 60px;
   background:
     radial-gradient(
-      circle at top,
-      #fffaf3 0%,
-      #f5eee3 45%,
-      #eee4d6 100%
-    );
-
-  color: #40372f;
-
+      circle at top left,
+      rgba(255, 221, 230, 0.8),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(211, 234, 255, 0.8),
+      transparent 35%
+    ),
+    #fffaf4;
+  color: #333;
 }
 
 
-/* =========================================
+/* =====================================================
    INTRO
-========================================= */
+===================================================== */
 
 .intro {
-
   text-align: center;
-
-  max-width: 800px;
-
-  margin: 0 auto;
-
-  padding: 80px 25px 20px;
-
+  padding: 110px 20px 35px;
 }
 
-
-.etiqueta {
-
-  display: inline-block;
-
-  margin-bottom: 14px;
-
-  font-size: 0.75rem;
-
-  font-weight: 700;
-
-  letter-spacing: 3px;
-
-  color: #a05f3d;
-
+.intro-icon {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  animation: flotar 3s ease-in-out infinite;
 }
-
 
 .intro h1 {
-
   margin: 0;
-
-  font-family: Georgia, serif;
-
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-
-  font-weight: 500;
-
-  color: #40342c;
-
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  color: #573c8f;
+  font-weight: 800;
 }
-
 
 .intro p {
-
   max-width: 650px;
-
-  margin: 25px auto 0;
-
-  font-size: 1.08rem;
-
-  line-height: 1.8;
-
-  color: #71665c;
-
+  margin: 15px auto 0;
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 
-/* =========================================
-   CÍRCULO
-========================================= */
+/* =====================================================
+   ZONA DE RECURSOS
+===================================================== */
+
+.recursos-section {
+  display: flex;
+  justify-content: center;
+  padding: 25px 20px 50px;
+}
 
 .recursos {
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  padding: 60px 20px 100px;
-
-}
-
-
-.circulo-central {
-
   position: relative;
-
-  width: 680px;
-
-  height: 680px;
-
+  width: 700px;
+  height: 700px;
 }
 
 
-/* =========================================
-   CENTRO
-========================================= */
+/* =====================================================
+   CÍRCULO CENTRAL
+===================================================== */
 
 .centro {
-
   position: absolute;
-
+  top: 50%;
   left: 50%;
 
-  top: 50%;
+  width: 210px;
+  height: 210px;
 
   transform: translate(-50%, -50%);
 
-  width: 210px;
-
-  height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   border-radius: 50%;
 
-  background: #fffaf3;
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #f3eaff
+  );
 
-  border: 2px solid #d6c4ae;
+  border: 8px solid rgba(255, 255, 255, 0.9);
 
   box-shadow:
-    0 15px 40px rgba(70, 50, 35, 0.12),
-    inset 0 0 0 12px rgba(216, 194, 169, 0.18);
+    0 15px 35px rgba(80, 60, 100, 0.18),
+    inset 0 0 20px rgba(150, 120, 200, 0.08);
 
-  display: flex;
+  z-index: 2;
+}
 
-  flex-direction: column;
+.centro-icono {
+  font-size: 3.5rem;
+  margin-bottom: 5px;
+}
 
-  justify-content: center;
-
-  align-items: center;
-
+.centro-texto {
   text-align: center;
-
+  color: #573c8f;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  font-weight: 800;
 }
 
 
-.centro span {
-
-  font-size: 2.4rem;
-
-  margin-bottom: 8px;
-
-}
-
-
-.centro strong {
-
-  font-family: Georgia, serif;
-
-  font-size: 1.35rem;
-
-  letter-spacing: 2px;
-
-}
-
-
-.centro small {
-
-  margin-top: 8px;
-
-  color: #897b6d;
-
-}
-
-
-/* =========================================
-   RECURSOS CIRCULARES
-========================================= */
+/* =====================================================
+   RECURSOS
+===================================================== */
 
 .recurso {
-
   position: absolute;
 
-  width: 170px;
-
-  height: 170px;
+  width: 175px;
+  height: 175px;
 
   border-radius: 50%;
 
-  background: rgba(255, 250, 243, 0.92);
-
-  border: 1px solid #d9c7b2;
-
-  box-shadow: 0 10px 30px rgba(70, 50, 35, 0.09);
-
   display: flex;
-
   flex-direction: column;
-
-  justify-content: center;
-
   align-items: center;
-
-  text-align: center;
-
-  text-decoration: none;
-
-  color: #493d35;
+  justify-content: center;
 
   padding: 20px;
 
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background 0.3s ease;
+  box-sizing: border-box;
 
-}
-
-
-.recurso:hover {
-
-  transform: scale(1.08);
-
-  background: #fffdf9;
-
-  box-shadow: 0 18px 40px rgba(70, 50, 35, 0.17);
-
-}
-
-
-.recurso .icono {
-
-  font-family: Georgia, serif;
-
-  font-size: 1.5rem;
-
-  font-weight: bold;
-
-  margin-bottom: 9px;
-
-  color: #a05f3d;
-
-}
-
-
-.recurso strong {
-
-  font-family: Georgia, serif;
-
-  font-size: 1rem;
-
-  line-height: 1.2;
-
-}
-
-
-.recurso small {
-
-  margin-top: 7px;
-
-  font-size: 0.75rem;
-
-  line-height: 1.3;
-
-  color: #897b6d;
-
-}
-
-
-/* =========================================
-   POSICIONES
-========================================= */
-
-.recurso-1 {
-
-  top: 0;
-
-  left: 50%;
-
-  transform: translateX(-50%);
-
-}
-
-
-.recurso-1:hover {
-
-  transform: translateX(-50%) scale(1.08);
-
-}
-
-
-.recurso-2 {
-
-  top: 18%;
-
-  right: 2%;
-
-}
-
-
-.recurso-3 {
-
-  bottom: 18%;
-
-  right: 2%;
-
-}
-
-
-.recurso-4 {
-
-  bottom: 0;
-
-  left: 50%;
-
-  transform: translateX(-50%);
-
-}
-
-
-.recurso-4:hover {
-
-  transform: translateX(-50%) scale(1.08);
-
-}
-
-
-.recurso-5 {
-
-  bottom: 18%;
-
-  left: 2%;
-
-}
-
-
-.recurso-6 {
-
-  top: 18%;
-
-  left: 2%;
-
-  cursor: pointer;
-
-}
-
-
-/* =========================================
-   MATERIALES
-========================================= */
-
-.materiales {
-
-  max-width: 1000px;
-
-  margin: 0 auto;
-
-  padding: 20px 25px 100px;
-
-}
-
-
-.materiales-cabecera {
+  border: 6px solid rgba(255, 255, 255, 0.9);
 
   text-align: center;
-
-  margin-bottom: 40px;
-
-}
-
-
-.materiales-cabecera h2 {
-
-  margin: 5px 0 15px;
-
-  font-family: Georgia, serif;
-
-  font-size: 2.2rem;
-
-  font-weight: 500;
-
-}
-
-
-.materiales-cabecera p {
-
-  color: #71665c;
-
-}
-
-
-/* =========================================
-   CARDS
-========================================= */
-
-.materiales-grid {
-
-  display: grid;
-
-  grid-template-columns: repeat(2, 1fr);
-
-  gap: 25px;
-
-}
-
-
-.material-card {
-
-  display: block;
-
-  padding: 35px;
-
-  background: rgba(255, 250, 243, 0.9);
-
-  border: 1px solid #ddcdbb;
-
-  border-radius: 22px;
 
   text-decoration: none;
 
-  color: #493d35;
+  cursor: pointer;
+
+  color: #333;
+
+  box-shadow:
+    0 12px 28px rgba(70, 50, 80, 0.16);
 
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
 
+.recurso:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 18px 35px rgba(70, 50, 80, 0.23);
+  z-index: 10;
+}
+
+.recurso-icono {
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+}
+
+.recurso-titulo {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.recurso-descripcion {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  opacity: 0.75;
 }
 
 
-.material-card:hover {
+/* =====================================================
+   COLORES
+===================================================== */
 
-  transform: translateY(-6px);
+/* Alfabetización */
+.recurso-1 {
+  top: 25px;
+  left: 262px;
 
-  box-shadow: 0 15px 35px rgba(70, 50, 35, 0.12);
+  background: linear-gradient(
+    135deg,
+    #ffd1dc,
+    #ffb3c6
+  );
+}
 
+/* Palabras */
+.recurso-2 {
+  top: 150px;
+  right: 35px;
+
+  background: linear-gradient(
+    135deg,
+    #c9f7d5,
+    #91e6aa
+  );
+}
+
+/* A1 */
+.recurso-3 {
+  bottom: 120px;
+  right: 40px;
+
+  background: linear-gradient(
+    135deg,
+    #c7e7ff,
+    #91cfff
+  );
+}
+
+/* Gramática */
+.recurso-4 {
+  bottom: 25px;
+  left: 262px;
+
+  background: linear-gradient(
+    135deg,
+    #ffe9a8,
+    #ffd56a
+  );
+}
+
+/* Avanzados */
+.recurso-5 {
+  bottom: 120px;
+  left: 40px;
+
+  background: linear-gradient(
+    135deg,
+    #dfc7ff,
+    #c29aff
+  );
+}
+
+/* Materiales */
+.recurso-6 {
+  top: 150px;
+  left: 35px;
+
+  background: linear-gradient(
+    135deg,
+    #ffd3a5,
+    #ffb56b
+  );
+
+  font-family: inherit;
 }
 
 
-.material-icon {
+/* =====================================================
+   MATERIALES
+===================================================== */
 
-  font-size: 2rem;
+.materiales-wrap {
+  position: absolute;
 
+  top: 150px;
+  left: 35px;
+
+  width: 175px;
+  height: 175px;
+
+  z-index: 4;
+}
+
+.materiales-wrap .recurso-6 {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 
-.material-card h3 {
+/* Contenedor de los dos círculos */
 
-  margin: 15px 0 10px;
+.materiales-opciones {
+  position: absolute;
 
-  font-family: Georgia, serif;
+  top: 45px;
+  left: -105px;
 
-  font-size: 1.4rem;
+  display: flex;
+  flex-direction: column;
 
+  gap: 12px;
+
+  z-index: 20;
+
+  animation: aparecer 0.25s ease;
 }
 
 
-.material-card p {
+/* Círculos pequeños */
 
-  line-height: 1.7;
+.material-circle {
+  width: 58px;
+  height: 58px;
 
-  color: #71665c;
+  border-radius: 50%;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-decoration: none;
+
+  font-size: 1.5rem;
+
+  background: white;
+
+  border: 4px solid white;
+
+  box-shadow:
+    0 8px 20px rgba(60, 45, 70, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.material-circle:hover {
+  transform: scale(1.15);
+  box-shadow:
+    0 12px 25px rgba(60, 45, 70, 0.25);
+}
+
+.material-circle-1 {
+  background: #fff0b8;
+}
+
+.material-circle-2 {
+  background: #bde8ff;
 }
 
 
-.ir {
+/* =====================================================
+   TEXTO FINAL
+===================================================== */
 
+.final-text {
+  text-align: center;
+  padding: 0 20px;
+}
+
+.final-text p {
   display: inline-block;
 
-  margin-top: 15px;
+  margin: 0;
 
-  font-weight: 700;
+  padding: 12px 22px;
 
-  color: #a05f3d;
+  border-radius: 30px;
 
+  background: white;
+
+  color: #6b5a78;
+
+  box-shadow:
+    0 6px 18px rgba(80, 60, 90, 0.08);
+
+  font-weight: 600;
 }
 
 
-/* =========================================
-   FINAL
-========================================= */
+/* =====================================================
+   ANIMACIONES
+===================================================== */
 
-.final {
-
-  max-width: 750px;
-
-  margin: 0 auto;
-
-  padding: 50px 25px 120px;
-
-  text-align: center;
-
-}
-
-
-.final h2 {
-
-  font-family: Georgia, serif;
-
-  font-size: 2.3rem;
-
-  font-weight: 500;
-
-  margin: 5px 0 20px;
-
-}
-
-
-.final p {
-
-  color: #71665c;
-
-  line-height: 1.8;
-
-}
-
-
-/* =========================================
-   MÓVIL
-========================================= */
-
-@media (max-width: 750px) {
-
-  .intro {
-
-    padding-top: 55px;
-
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translateY(0);
   }
 
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateX(10px) scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 800px) {
+
+  .recursos-section {
+    padding: 20px 10px 40px;
+  }
 
   .recursos {
-
-    padding-top: 40px;
-
+    width: 560px;
+    height: 560px;
+    transform: scale(0.9);
+    transform-origin: top center;
+    margin-bottom: -60px;
   }
-
-
-  .circulo-central {
-
-    width: 360px;
-
-    height: 720px;
-
-  }
-
 
   .centro {
-
-    width: 160px;
-
-    height: 160px;
-
+    width: 180px;
+    height: 180px;
   }
-
 
   .recurso {
-
-    width: 125px;
-
-    height: 125px;
-
-    padding: 12px;
-
+    width: 145px;
+    height: 145px;
   }
 
-
-  .recurso strong {
-
-    font-size: 0.85rem;
-
+  .materiales-wrap {
+    width: 145px;
+    height: 145px;
   }
 
-
-  .recurso small {
-
-    font-size: 0.68rem;
-
+  .materiales-wrap .recurso-6 {
+    width: 145px;
+    height: 145px;
   }
 
+  .recurso-icono {
+    font-size: 2rem;
+  }
+
+  .recurso-titulo {
+    font-size: 0.9rem;
+  }
+
+  .recurso-descripcion {
+    font-size: 0.7rem;
+  }
 
   .recurso-1 {
-
-    top: 0;
-
+    left: 207px;
   }
-
 
   .recurso-2 {
-
-    top: 18%;
-
-    right: 0;
-
+    right: 20px;
   }
-
 
   .recurso-3 {
-
-    bottom: 18%;
-
-    right: 0;
-
+    right: 20px;
   }
-
 
   .recurso-4 {
-
-    bottom: 0;
-
+    left: 207px;
   }
-
 
   .recurso-5 {
-
-    bottom: 18%;
-
-    left: 0;
-
+    left: 20px;
   }
 
-
-  .recurso-6 {
-
-    top: 18%;
-
-    left: 0;
-
+  .materiales-wrap {
+    left: 20px;
   }
 
+  .materiales-opciones {
+    left: -75px;
+  }
+}
 
-  .materiales-grid {
 
-    grid-template-columns: 1fr;
+@media (max-width: 600px) {
 
+  .intro {
+    padding-top: 100px;
+  }
+
+  .intro h1 {
+    font-size: 2.2rem;
+  }
+
+  .intro p {
+    font-size: 1rem;
+  }
+
+  .recursos {
+    width: 430px;
+    height: 430px;
+    transform: scale(0.78);
+    margin-bottom: -90px;
+  }
+
+  .centro {
+    width: 160px;
+    height: 160px;
+  }
+
+  .centro-icono {
+    font-size: 2.7rem;
+  }
+
+  .centro-texto {
+    font-size: 1rem;
+  }
+
+  .recurso {
+    width: 130px;
+    height: 130px;
+  }
+
+  .materiales-wrap {
+    width: 130px;
+    height: 130px;
+  }
+
+  .materiales-wrap .recurso-6 {
+    width: 130px;
+    height: 130px;
+  }
+
+  .recurso-1 {
+    left: 150px;
+  }
+
+  .recurso-2 {
+    right: 0;
+  }
+
+  .recurso-3 {
+    right: 0;
+  }
+
+  .recurso-4 {
+    left: 150px;
+  }
+
+  .recurso-5 {
+    left: 0;
+  }
+
+  .materiales-wrap {
+    left: 0;
+  }
+
+  .materiales-opciones {
+    left: -65px;
+  }
+
+  .material-circle {
+    width: 52px;
+    height: 52px;
+    font-size: 1.3rem;
+  }
+}
+
+
+@media (max-width: 450px) {
+
+  .recursos {
+    width: 360px;
+    height: 360px;
+    transform: scale(0.68);
+    margin-bottom: -115px;
+  }
+
+  .recurso-1 {
+    left: 115px;
+  }
+
+  .recurso-4 {
+    left: 115px;
   }
 
 }
