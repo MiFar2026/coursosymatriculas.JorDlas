@@ -516,7 +516,7 @@ function toggleSeccion(seccion) {
           <div class="titulo-foto">
 
             <h2>
-              Biblioteca literaria
+              Bibliotecas de Ciudad
             </h2>
 
             <span class="flecha">
@@ -536,21 +536,22 @@ function toggleSeccion(seccion) {
           <div class="contenido-interior biblioteca-presentacion">
 
             <p>
-              Selección de obras disponibles para leer gratuitamente
-              en línea.
-            </p>
+              
+              Las bibliotecas de Barcelona son mucho más que refugios climáticos: son espacios culturales, acogedores y abiertos a todos. En ellas puedes utilizar ordenadores y otros recursos digitales, y también disfrutar de una selección de obras disponibles para leer gratuitamente, tanto en línea como en las propias bibliotecas.
+  </p>
 
             <div class="biblioteca-info">
 
               <h3>
-                📚 Explora nuestra biblioteca
+                 <a href="https://ajuntament.barcelona.cat/biblioteques/es/bibliotecas/" target="_blank" rel="noopener noreferrer"> Explora las bibliotecas de Barcelona    Visitar bibliotecas de Barcelona →
+                </a>
               </h3>
 
               <p>
                 Puedes consultar las obras organizadas por idioma.
                 Utiliza las secciones de literatura en castellano
                 y literatura en catalán para acceder directamente
-                a los libros.
+                a los libros. 
               </p>
 
             </div>

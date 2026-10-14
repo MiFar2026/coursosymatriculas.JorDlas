@@ -1,30 +1,65 @@
 
 <template>
-  <main class="escritura-page">
-
+    <main
+    class="escritura-page min-h-screen bg-cover bg-center bg-fixed"
+    :style="{
+      backgroundImage: `
+        linear-gradient(
+          rgba(177, 146, 67, 0.80),
+          rgba(177, 146, 67, 0.80)
+        ),
+        url('/fotos/cursos/alfabetizacion/aprender.escritura/lamina.png')
+      `
+    }"
+  >
     <!-- NAVBAR -->
     <NavbarCursos />
+    <br />
+
+       <RouterLink
+                    to="/alfabetizacion"
+                    class="inline-flex items-center gap-3 bg-white/90 hover:bg-red-950 hover:text-white text-red-900 px-5 py-3 rounded-xl shadow-md transition-all duration-300 font-bold mb-8"
+                >
+                    <span class="text-2xl leading-none">←</span>
+
+                    <span>
+                        Volver a Alfabetización
+                    </span>
+                </RouterLink>
 
     <!-- CABECERA -->
-    <section class="intro">
-      <div class="intro-icon">✍️</div>
+    
+<section
+  class="intro max-w-4xl mx-auto my-10 px-6 py-8
+         text-center bg-[#fff8e8]/50
+         rounded-3xl shadow-lg
+         border border-[#e8d9b5]"
+>
+  <div class="intro-icon text-5xl mb-4">
+    ✍️
+  </div>
 
-      <h1>Practicar escritura</h1>
+  <h1 class="text-3xl md:text-4xl font-bold text-[#72521e] mb-4">
+    Practicar escritura
+  </h1>
 
-      <p>
-        Elige un recurso para practicar y mejorar tu escritura en español.
-      </p>
-    </section>
+  <p class="text-base md:text-lg text-gray-700 leading-relaxed">
+    Elige un recurso para practicar y mejorar tu escritura en español.
+  </p>
+</section>
+
 
     <!-- RECURSOS -->
     <section class="recursos-section">
-
       <div class="recursos">
 
         <!-- CENTRO -->
         <div class="centro">
           <span class="centro-icono">✍️</span>
-          <span class="centro-texto">Practica<br />tu español</span>
+          <span class="centro-texto">
+            Practica<br />
+            tu español
+          </span>
         </div>
 
         <!-- ALFABETIZACIÓN -->

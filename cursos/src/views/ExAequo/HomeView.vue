@@ -4,7 +4,6 @@
 
         <!-- NAVBAR PRINCIPAL -->
         <NavbarPrincipal />
-
         <!-- CABECERA -->
         <section class="text-center py-12 px-6">
 
@@ -48,7 +47,7 @@
                         </p>
 
                         <RouterLink
-                            to="/joan-miro"
+                            to="/joanmiro"
                             class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
                         >
                             Saber más...
@@ -173,6 +172,7 @@
             </p>
 
         </section>
+<AccesoAdministrador />
 
     </div>
 
@@ -180,6 +180,6 @@
 
 
 <script setup>
-
+import AccesoAdministrador from '../../components/AccesoAdministrador.vue'
 import NavbarPrincipal from '../../components/NavbarPrincipal.vue'
 </script>

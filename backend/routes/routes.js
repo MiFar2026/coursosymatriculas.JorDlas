@@ -1,122 +1,22 @@
-import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '../views/HomeView.vue'
+const express = require('express')
+const router = express.Router()
 
-import CursosGeneralesView from '../views/cursosymatricula/CursosGeneralesView.vue'
+const alumnadoRoutes = require('./alumnadoRoutes')
+// const clasesRoutes = require('./clasesRoutes')
+const matriculasRoutes = require('./matriculasRoutes')
+const profesoresRoutes = require('./profesoresRoutes')
+const cursosRoutes = require('./cursosRoutes')
+const escuelasRoutes = require('./escuelasRoutes')
+const adminRoutes = require('./adminRoutes')
 
-import CastellanoView from '../views/cursosymatricula/castellano/CastellanoView.vue'
+// Rutas de la API de Cursos Generales
+router.use('/alumnado', alumnadoRoutes)
+// router.use('/clases', clasesRoutes)
+router.use('/matriculas', matriculasRoutes)
+router.use('/profesores', profesoresRoutes)
+router.use('/cursos', cursosRoutes)
+router.use('/escuelas', escuelasRoutes)
+router.use('/admin', adminRoutes)
 
-import CatalanView from '../views/cursosymatricula/catalan/CatalanView.vue'
-
-import AlfabetizacionView from '../views/cursosymatricula/alfabetizacion/AlfabetizacionView.vue'
-
-import AlfabetoView from '../views/cursosymatricula/alfabetizacion/AlfabetoView.vue'
-
-import MatriculaView from '../views/cursosymatricula/matricula/MatriculaView.vue'
-
-
-const router = createRouter({
-
-    history: createWebHistory(),
-
-    routes: [
-
-        // =========================
-        // HOME PRINCIPAL
-        // =========================
-
-        {
-            path: '/',
-            component: HomeView
-        },
-
-
-        // =========================
-        // CURSOS GENERALES
-        // =========================
-
-        {
-            path: '/cursos-generales',
-            component: CursosGeneralesView
-        },
-
-
-        // =========================
-        // CASTELLANO
-        // =========================
-
-        {
-            path: '/castellano',
-            component: CastellanoView
-        },
-
-
-        // =========================
-        // CATALÁN
-        // =========================
-
-        {
-            path: '/catalan',
-            component: CatalanView
-        },
-
-
-        // =========================
-        // ALFABETIZACIÓN
-        // =========================
-
-        {
-            path: '/alfabetizacion',
-            component: AlfabetizacionView
-        },
-
-        {
-            path: '/alfabetizacion/alfabeto',
-            component: AlfabetoView
-        },
-
-        {
-            path: '/alfabetizacion/relatos',
-            component: () =>
-                import('../views/cursosymatricula/alfabetizacion/RelatosView.vue')
-        },
-
-
-        // =========================
-        // MATRÍCULA
-        // =========================
-
-        {
-            path: '/matricula',
-            component: MatriculaView
-        },
-
-
-        // =========================
-        // OTRAS PÁGINAS DEL HOME
-        // =========================
-
-        {
-            path: '/joan-miro',
-            component: () =>
-                import('../views/joanmiro/JoanMiroView.vue')
-        },
-
-        {
-            path: '/ateneu',
-            component: () =>
-                import('../views/ateneu/AteneuView.vue')
-        },
-
-        {
-            path: '/premio',
-            component: () =>
-                import('../views/premio/PremioView.vue')
-        }
-
-    ]
-
-})
-
-
-export default router
+module.exports = router

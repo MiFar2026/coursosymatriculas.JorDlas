@@ -1,69 +1,84 @@
 
+
 <template>
+    <div class="relative min-h-screen text-gray-900">
 
-<div class="min-h-screen bg-stone-50 text-gray-900">
+        <!-- FONDO CON IMAGEN Y BLUR -->
+        <div
+            class="fixed inset-0 -z-10 bg-cover bg-center"
+            style="background-image: url('/fotos/cursos/cursosgenerales/cursos.jpg');"
+        ></div>
 
-    <!-- =====================================================
-         NAVBAR
-    ====================================================== -->
+        <!-- CAPA TRANSPARENTE CON DESENFOQUE -->
+        <div
+            class="fixed inset-0 -z-10 bg-white/30 backdrop-blur-sm"
+        ></div>
 
-    <NavbarCursos />
+        <!-- NAVBAR -->
+        <NavbarCursos />
 
+        <!-- CONTENIDO PRINCIPAL -->
+        <main>
 
-    <!-- =====================================================
-         BOTÓN VOLVER A EXAEQUO
-    ====================================================== -->
-
-    
-
-
-    <!-- =====================================================
-         CONTENIDO PRINCIPAL
-    ====================================================== -->
-
-    <main>
-
-        <!-- =================================================
-             CABECERA
-        ================================================== -->
-
-        <section
-            class="bg-gradient-to-br from-red-950 via-red-900 to-red-800 text-white"
-        >
-
-            <div
-                class="max-w-6xl mx-auto px-6 py-14 md:py-20"
+            <!-- CABECERA -->
+            <section
+                class="bg-gradient-to-br from-red-950 via-red-900 to-red-800 text-white"
             >
 
-                <div class="max-w-3xl">
+                <div class="max-w-6xl mx-auto px-6 py-14 md:py-20">
 
-                    <h1
-                        class="text-4xl md:text-6xl font-black leading-tight mb-6"
-                    >
-                        Cursos y matrícula
-                    </h1>
+                    <div class="max-w-3xl">
 
-                    <p
-                        class="text-lg md:text-xl text-red-100 leading-relaxed"
-                    >
-                        Aprende a tu ritmo, mejora tus conocimientos y
-                        encuentra el curso que necesitas.
-                    </p>
-<RouterLink
-        to="/"
-        aria-label="Volver a ExAequo"
-        title="Volver a ExAequo"
-        class="fixed top-30 right-6 z-[9999] flex items-center gap-2 rounded-full bg-red-800 px-5 py-3 font-bold text-white shadow-2xl transition-all duration-200 hover:bg-red-900 hover:scale-105"
-    >
-        <span class="text-2xl leading-none">←</span>
-        <span>ExAequo</span>
-    </RouterLink>
+                        <h1
+                            class="text-4xl md:text-6xl font-black leading-tight mb-6"
+                        >
+                            Cursos y matrícula
+                        </h1>
+
+                        <p
+                            class="text-lg md:text-xl text-red-100 leading-relaxed"
+                        >
+                            Aprende a tu ritmo, mejora tus conocimientos y
+                            encuentra el curso que necesitas.
+                        </p>
+
+                    </div>
+
                 </div>
 
-            </div>
+            </section>
 
-        </section>
+        <!-- =================================================
+             BOTONES FLOTANTES: EXAEQUO Y MATRÍCULA
+        ================================================== -->
 
+        <div class="fixed right-6 top-24 z-[9999] flex flex-col items-end gap-3">
+
+            <!-- BOTÓN EXAEQUO (SIN MODIFICAR) -->
+
+            <RouterLink
+                 to="/"
+        aria-label="Volver a ExAequo"
+        title="Volver a ExAequo"
+        class="fixed top-32 right-6 z-[9999] flex items-center gap-2 rounded-full bg-red-800 px-5 py-3 font-bold text-white shadow-2xl transition-all duration-200 hover:bg-red-900 hover:scale-105"
+    >
+                <span class="text-2xl leading-none">←</span>
+                <span>ExAequo</span>
+            </RouterLink>
+
+            <!-- BOTÓN MATRÍCULA -->
+
+            <RouterLink
+                to="/matricula"
+                aria-label="Volver a matrícula"
+                title="Volver a matrícula"
+                class="fixed top-48 right-6 z-[9999] items-center gap-2 rounded-full bg-white px-5 py-3 font-bold text-red-800 shadow-2xl transition-all duration-200 hover:bg-gray-100 hover:scale-105"
+            >
+                <span class="text-2xl leading-none">←</span>
+                <span>Matrícula</span>
+            </RouterLink>
+
+        </div>
 
         <!-- =================================================
              MATRÍCULA
@@ -116,7 +131,6 @@
 
                     </div>
 
-
                     <div
                         class="shrink-0 flex items-center justify-center gap-3 bg-white text-red-800 font-bold px-7 py-4 rounded-2xl group-hover:bg-red-50 transition"
                     >
@@ -138,7 +152,6 @@
             </RouterLink>
 
         </section>
-
 
         <!-- =================================================
              APRENDIZAJE AUTÓNOMO
@@ -173,7 +186,6 @@
 
             </div>
 
-
             <!-- =================================================
                  TARJETAS DE IDIOMAS
             ================================================== -->
@@ -193,7 +205,6 @@
                     <div
                         class="h-72 md:h-80 bg-red-50 overflow-hidden"
                     >
-
                         <img
                             src="/fotos/cursos/cursosgenerales/spanish.png"
                             alt="Aprendizaje de castellano"
@@ -408,7 +419,7 @@
                 ================================================== -->
 
                 <RouterLink
-                    to="/joan-miro"
+                    to="/joanmiro"
                     class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-100 via-gray-100 to-gray-200 border border-gray-200 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
                 >
 
@@ -449,7 +460,7 @@
                         <h3
                             class="text-2xl md:text-3xl font-black text-gray-900 mb-4"
                         >
-                            Biblioteca Escuela Joan Miró
+                            Biblioteca Joan Miró
                         </h3>
 
 
@@ -469,7 +480,7 @@
                             <span
                                 class="font-bold"
                             >
-                                Conocer Joan Miró
+                                Conocer La Biblioteca Joan Miró
                             </span>
 
                             <span
@@ -551,7 +562,7 @@
                             <span
                                 class="font-bold"
                             >
-                                Conocer Ateneu
+                                Conocer El Centro Cultural Ateneu
                             </span>
 
                             <span

@@ -24,7 +24,7 @@
                         to="/cursos-generales"
                         class="px-3 py-2 rounded-lg hover:bg-white/10 transition font-semibold"
                     >
-                        CURSOS
+                        HOME
                     </RouterLink>
 
                     <RouterLink

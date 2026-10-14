@@ -166,7 +166,7 @@ import NavbarCursos from '../../../components/cursosymatricula/NavbarCursos.vue'
 
 
         <!-- ===================================== -->
-        <!-- 5. PALABRAS DEL DÍA A DÍA -->
+        <!-- 5. Conversación del Día a Día -->
         <!-- ===================================== -->
 
         <div class="xilofono-item">
@@ -174,7 +174,7 @@ import NavbarCursos from '../../../components/cursosymatricula/NavbarCursos.vue'
           <div class="cuerda"></div>
 
           <RouterLink
-            to="/alfabetizacion/palabras-diarias"
+            to="/alfabetizacion/practicarescritura/conversaciondiaadia"
             class="tecla bg-blue-500"
           >
 
@@ -184,11 +184,11 @@ import NavbarCursos from '../../../components/cursosymatricula/NavbarCursos.vue'
 
             <div class="texto">
               <h2>
-                Palabras del día a día
+                Conversación del Día a Día
               </h2>
 
               <p>
-                Escucha y aprende palabras importantes.
+                Escucha y aprende conversaciones importantes.
               </p>
             </div>
 

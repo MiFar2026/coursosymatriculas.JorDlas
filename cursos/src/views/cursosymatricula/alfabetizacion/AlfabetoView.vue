@@ -201,7 +201,18 @@ function reproducirAudio() {
 
     <NavbarCursos />
 
+<br />
 
+   <RouterLink
+                    to="/alfabetizacion"
+                    class="inline-flex items-center gap-3 bg-white/90 hover:bg-red-950 hover:text-white text-red-900 px-5 py-3 rounded-xl shadow-md transition-all duration-300 font-bold mb-8"
+                >
+                    <span class="text-2xl leading-none">←</span>
+
+                    <span>
+                        Volver a Alfabetización
+                    </span>
+                </RouterLink>
     <!-- ====================================== -->
     <!-- CONTENIDO -->
     <!-- ====================================== -->
