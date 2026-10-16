@@ -213,6 +213,10 @@ const routes = [
         component: () => import('../views/joanmiro/alumnos/ForoAlumnosView.vue')
     },
 
+{
+  path: '/joanmiro/alumnos/acceso',
+  component: () => import('../views/joanmiro/alumnos/AccesoAlumnoView.vue')
+},
     // Tutores
 
     {
@@ -273,6 +277,12 @@ const routes = [
         path: '/ateneu/alumnos/foro',
         component: () => import('../views/ateneu/alumnos/ForoAlumnosView.vue')
     },
+  
+{
+  path: '/ateneu/alumnos/acceso',
+  component: () => import('../views/ateneu/alumnos/AccesoAlumnoView.vue')
+},
+
 
     // Tutores
 

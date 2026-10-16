@@ -4,62 +4,69 @@ const { loginAdmin } = require('../controllers/adminController')
 const authAdmin = require('../middlewares/authAdmin')
 
 const {
-    getForoEstudiantes,
-    ocultarMensajeEstudiante,
-    getForoProfesores,
-    ocultarMensajeProfesor,
-    getRecursosAdmin,
-    retirarRecurso
+  getForoEstudiantes,
+  ocultarMensajeEstudiante,
+  getForoProfesores,
+  ocultarMensajeProfesor,
+  getRecursosAdmin,
+  retirarRecurso
 } = require('../controllers/adminModeracionController')
+
+const {
+  listarVoluntarios,
+  cambiarEstadoVoluntario
+} = require('../controllers/voluntariosAdminController')
 
 const router = express.Router()
 
-// El inicio de sesión debe permanecer público.
+// Login público
 router.post('/login', loginAdmin)
 
-// Todas las rutas declaradas a continuación requieren
-// un token JWT válido de administrador.
+// Todas las rutas siguientes requieren JWT de administrador
 router.use(authAdmin)
 
-// Ruta de prueba protegida.
 router.get('/prueba', (req, res) => {
-    res.json({
-        ok: true,
-        mensaje: 'Autenticación de administrador correcta.'
-    })
+  res.json({
+    ok: true,
+    mensaje: 'Autenticación de administrador correcta.'
+  })
 })
 
-// Foro de estudiantes.
+// Foro de estudiantes
 router.get(
-    '/moderacion/foro-estudiantes',
-    getForoEstudiantes
+  '/moderacion/foro-estudiantes',
+  getForoEstudiantes
 )
 
 router.patch(
-    '/moderacion/foro-estudiantes/:id/ocultar',
-    ocultarMensajeEstudiante
+  '/moderacion/foro-estudiantes/:id/ocultar',
+  ocultarMensajeEstudiante
 )
 
-// Foro de profesores.
+// Foro de profesores
 router.get(
-    '/moderacion/foro-profesores',
-    getForoProfesores
+  '/moderacion/foro-profesores',
+  getForoProfesores
 )
 
 router.patch(
-    '/moderacion/foro-profesores/:id/ocultar',
-    ocultarMensajeProfesor
+  '/moderacion/foro-profesores/:id/ocultar',
+  ocultarMensajeProfesor
 )
 
-// Materiales y recursos.
+// Materiales y recursos
 router.get(
-    '/moderacion/recursos',
-    getRecursosAdmin
+  '/moderacion/recursos',
+  getRecursosAdmin
 )
 
 router.patch(
-    '/moderacion/recursos/:id/retirar',
-    retirarRecurso
+  '/moderacion/recursos/:id/retirar',
+  retirarRecurso
 )
+
+// Gestión de voluntariado
+router.get('/voluntarios', listarVoluntarios)
+router.patch('/voluntarios/:id/estado', cambiarEstadoVoluntario)
 
 module.exports = router

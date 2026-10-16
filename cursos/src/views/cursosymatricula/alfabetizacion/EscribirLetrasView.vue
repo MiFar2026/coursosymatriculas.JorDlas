@@ -109,7 +109,7 @@
                 ================================================== -->
 
                 <section
-                    class="bg-white/50 backdrop-blur rounded-3xl shadow-xl border border-red-100 overflow-hidden mb-10"
+                    class="bg-white/50 backdrop-transparent rounded-3xl shadow-xl border border-red-100 overflow-hidden mb-10"
                 >
 
                     <div class="p-6 md:p-10 text-center">

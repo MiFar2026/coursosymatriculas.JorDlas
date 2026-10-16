@@ -87,7 +87,9 @@
 
       <!-- PANEL ADMINISTRADOR -->
       <div v-if="sesionIniciada">
-        <header class="mb-8 flex flex-col justify-between gap-4 border-b pb-6 md:flex-row md:items-center">
+        <header
+          class="mb-8 flex flex-col justify-between gap-4 border-b pb-6 md:flex-row md:items-center"
+        >
           <div>
             <p class="mb-1 text-sm font-bold uppercase tracking-widest text-red-700">
               ExAequo
@@ -169,206 +171,233 @@
               Consultar y retirar materiales publicados.
             </p>
           </button>
+
+          <!-- GESTIÓN DE VOLUNTARIADO -->
+          <button
+            type="button"
+            @click="seleccionarModulo('voluntarios')"
+            class="rounded-xl border border-teal-200 bg-teal-50 p-6 text-left transition hover:bg-teal-100"
+          >
+            <span class="mb-3 block text-3xl">🤝</span>
+
+            <h3 class="text-xl font-bold text-gray-900">
+              Gestión de voluntariado
+            </h3>
+
+            <p class="mt-2 text-sm text-gray-700">
+              Consultar solicitudes, revisar los datos y gestionar su estado.
+            </p>
+          </button>
         </div>
 
-       
-<!-- MODERACIÓN DE FOROS -->
+
+
+<!-- GESTIÓN DE HORARIOS -->
 <section
-  v-if="moduloSeleccionado === 'foros'"
-  class="mt-8 space-y-6"
+  v-if="moduloSeleccionado === 'horarios'"
+  class="mt-8"
 >
-  <div class="flex flex-wrap items-center justify-between gap-3">
-    <h3 class="text-2xl font-bold text-gray-900">
-      Moderación de foros
-    </h3>
-
-    <button
-      type="button"
-      @click="cargarForos"
-      :disabled="cargandoDatos"
-      class="rounded-lg border px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
-    >
-      {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
-    </button>
-  </div>
-
-  <p class="text-sm text-gray-600">
-    Puedes consultar los mensajes y ocultar publicaciones sin
-    eliminarlas físicamente de la base de datos.
-  </p>
-
-  <!-- BOTONES PARA ABRIR CADA FORO -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-    <button
-      type="button"
-      @click="foroAbierto = 'estudiantes'"
-      :aria-pressed="foroAbierto === 'estudiantes'"
-      class="rounded-xl border p-5 text-left transition hover:bg-blue-50"
-      :class="foroAbierto === 'estudiantes'
-        ? 'border-blue-700 bg-blue-50 ring-2 ring-blue-200'
-        : 'border-gray-200 bg-white'"
-    >
-      <span class="mb-2 block text-3xl">👩‍🎓</span>
-
-      <span class="block text-lg font-bold text-gray-900">
-        Foro de estudiantes
-      </span>
-
-      <span class="mt-1 block text-sm text-gray-600">
-        {{ mensajesEstudiantes.length }} mensajes cargados
-      </span>
-    </button>
-
-    <button
-      type="button"
-      @click="foroAbierto = 'profesores'"
-      :aria-pressed="foroAbierto === 'profesores'"
-      class="rounded-xl border p-5 text-left transition hover:bg-emerald-50"
-      :class="foroAbierto === 'profesores'
-        ? 'border-emerald-700 bg-emerald-50 ring-2 ring-emerald-200'
-        : 'border-gray-200 bg-white'"
-    >
-      <span class="mb-2 block text-3xl">👩‍🏫</span>
-
-      <span class="block text-lg font-bold text-gray-900">
-        Foro de profesores
-      </span>
-
-      <span class="mt-1 block text-sm text-gray-600">
-        {{ mensajesProfesores.length }} publicaciones cargadas
-      </span>
-    </button>
-  </div>
-
-  <!-- FORO DE ESTUDIANTES -->
-  <div
-    v-if="foroAbierto === 'estudiantes'"
-    class="rounded-xl border border-gray-200 bg-white p-5"
-  >
-    <h4 class="mb-4 text-xl font-bold text-gray-900">
-      Foro de estudiantes
-    </h4>
-
-    <p
-      v-if="!cargandoDatos && mensajesEstudiantes.length === 0"
-      class="rounded-lg bg-gray-50 p-4 text-gray-600"
-    >
-      No hay mensajes de estudiantes para mostrar.
-    </p>
-
-    <article
-      v-for="item in mensajesEstudiantes"
-      :key="item.id"
-      class="mb-4 rounded-lg border p-4 last:mb-0"
-    >
-      <div class="flex flex-wrap justify-between gap-2">
-        <p class="font-semibold">
-          {{ item.autor || 'Autor no disponible' }}
-        </p>
-
-        <span class="text-xs text-gray-500">
-          {{ formatearFecha(item.fecha_creacion) }}
-        </span>
-      </div>
-
-      <p class="mt-1 text-sm text-gray-500">
-        {{ item.escuela || 'Escuela no indicada' }}
-
-        <span v-if="item.grupo">
-          · {{ item.grupo }}
-        </span>
-      </p>
-
-      <p class="mt-3 whitespace-pre-wrap break-words">
-        {{ item.mensaje || 'Sin texto' }}
-      </p>
-
-      <div class="mt-4">
-        <span
-          v-if="!estaActivo(item.activo)"
-          class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
-        >
-          Mensaje oculto
-        </span>
-
-        <button
-          v-else
-          type="button"
-          @click="ocultarMensaje('estudiantes', item)"
-          :disabled="procesandoId !== null"
-          class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
-        >
-          Ocultar mensaje
-        </button>
-      </div>
-    </article>
-  </div>
-
-  <!-- FORO DE PROFESORES -->
-  <div
-    v-if="foroAbierto === 'profesores'"
-    class="rounded-xl border border-gray-200 bg-white p-5"
-  >
-    <h4 class="mb-4 text-xl font-bold text-gray-900">
-      Foro de profesores
-    </h4>
-
-    <p
-      v-if="!cargandoDatos && mensajesProfesores.length === 0"
-      class="rounded-lg bg-gray-50 p-4 text-gray-600"
-    >
-      No hay mensajes de profesores para mostrar.
-    </p>
-
-    <article
-      v-for="item in mensajesProfesores"
-      :key="item.id"
-      class="mb-4 rounded-lg border p-4 last:mb-0"
-    >
-      <div class="flex flex-wrap justify-between gap-2">
-        <p class="font-semibold">
-          {{ item.titulo || item.autor || 'Publicación del profesor' }}
-        </p>
-
-        <span class="text-xs text-gray-500">
-          {{ formatearFecha(item.fecha_creacion) }}
-        </span>
-      </div>
-
-      <p class="mt-1 text-sm text-gray-500">
-        {{ item.escuela || 'Escuela no indicada' }}
-
-        <span v-if="item.autor">
-          · {{ item.autor }}
-        </span>
-      </p>
-
-      <p class="mt-3 whitespace-pre-wrap break-words">
-        {{ item.mensaje || 'Sin texto' }}
-      </p>
-
-      <div class="mt-4">
-        <span
-          v-if="!estaActivo(item.activo)"
-          class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
-        >
-          Publicación oculta
-        </span>
-
-        <button
-          v-else
-          type="button"
-          @click="ocultarMensaje('profesores', item)"
-          :disabled="procesandoId !== null"
-          class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
-        >
-          Ocultar publicación
-        </button>
-      </div>
-    </article>
-  </div>
+  <HorariosView />
 </section>
 
+
+
+        <!-- MODERACIÓN DE FOROS -->
+        <section
+          v-if="moduloSeleccionado === 'foros'"
+          class="mt-8 space-y-6"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="text-2xl font-bold text-gray-900">
+              Moderación de foros
+            </h3>
+
+            <button
+              type="button"
+              @click="cargarForos"
+              :disabled="cargandoDatos"
+              class="rounded-lg border px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+            >
+              {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
+            </button>
+          </div>
+
+          <p class="text-sm text-gray-600">
+            Puedes consultar los mensajes y ocultar publicaciones sin
+            eliminarlas físicamente de la base de datos.
+          </p>
+
+          <!-- BOTONES PARA ABRIR CADA FORO -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <button
+              type="button"
+              @click="foroAbierto = 'estudiantes'"
+              :aria-pressed="foroAbierto === 'estudiantes'"
+              class="rounded-xl border p-5 text-left transition hover:bg-blue-50"
+              :class="foroAbierto === 'estudiantes'
+                ? 'border-blue-700 bg-blue-50 ring-2 ring-blue-200'
+                : 'border-gray-200 bg-white'"
+            >
+              <span class="mb-2 block text-3xl">👩‍🎓</span>
+
+              <span class="block text-lg font-bold text-gray-900">
+                Foro de estudiantes
+              </span>
+
+              <span class="mt-1 block text-sm text-gray-600">
+                {{ mensajesEstudiantes.length }} mensajes cargados
+              </span>
+            </button>
+
+            <button
+              type="button"
+              @click="foroAbierto = 'profesores'"
+              :aria-pressed="foroAbierto === 'profesores'"
+              class="rounded-xl border p-5 text-left transition hover:bg-emerald-50"
+              :class="foroAbierto === 'profesores'
+                ? 'border-emerald-700 bg-emerald-50 ring-2 ring-emerald-200'
+                : 'border-gray-200 bg-white'"
+            >
+              <span class="mb-2 block text-3xl">👩‍🏫</span>
+
+              <span class="block text-lg font-bold text-gray-900">
+                Foro de profesores
+              </span>
+
+              <span class="mt-1 block text-sm text-gray-600">
+                {{ mensajesProfesores.length }} publicaciones cargadas
+              </span>
+            </button>
+          </div>
+
+          <!-- FORO DE ESTUDIANTES -->
+          <div
+            v-if="foroAbierto === 'estudiantes'"
+            class="rounded-xl border border-gray-200 bg-white p-5"
+          >
+            <h4 class="mb-4 text-xl font-bold text-gray-900">
+              Foro de estudiantes
+            </h4>
+
+            <p
+              v-if="!cargandoDatos && mensajesEstudiantes.length === 0"
+              class="rounded-lg bg-gray-50 p-4 text-gray-600"
+            >
+              No hay mensajes de estudiantes para mostrar.
+            </p>
+
+            <article
+              v-for="item in mensajesEstudiantes"
+              :key="item.id"
+              class="mb-4 rounded-lg border p-4 last:mb-0"
+            >
+              <div class="flex flex-wrap justify-between gap-2">
+                <p class="font-semibold">
+                  {{ item.autor || 'Autor no disponible' }}
+                </p>
+
+                <span class="text-xs text-gray-500">
+                  {{ formatearFecha(item.fecha_creacion) }}
+                </span>
+              </div>
+
+              <p class="mt-1 text-sm text-gray-500">
+                {{ item.escuela || 'Escuela no indicada' }}
+
+                <span v-if="item.grupo">
+                  · {{ item.grupo }}
+                </span>
+              </p>
+
+              <p class="mt-3 whitespace-pre-wrap break-words">
+                {{ item.mensaje || 'Sin texto' }}
+              </p>
+
+              <div class="mt-4">
+                <span
+                  v-if="!estaActivo(item.activo)"
+                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
+                >
+                  Mensaje oculto
+                </span>
+
+                <button
+                  v-else
+                  type="button"
+                  @click="ocultarMensaje('estudiantes', item)"
+                  :disabled="procesandoId !== null"
+                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+                >
+                  Ocultar mensaje
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <!-- FORO DE PROFESORES -->
+          <div
+            v-if="foroAbierto === 'profesores'"
+            class="rounded-xl border border-gray-200 bg-white p-5"
+          >
+            <h4 class="mb-4 text-xl font-bold text-gray-900">
+              Foro de profesores
+            </h4>
+
+            <p
+              v-if="!cargandoDatos && mensajesProfesores.length === 0"
+              class="rounded-lg bg-gray-50 p-4 text-gray-600"
+            >
+              No hay mensajes de profesores para mostrar.
+            </p>
+
+            <article
+              v-for="item in mensajesProfesores"
+              :key="item.id"
+              class="mb-4 rounded-lg border p-4 last:mb-0"
+            >
+              <div class="flex flex-wrap justify-between gap-2">
+                <p class="font-semibold">
+                  {{ item.titulo || item.autor || 'Publicación del profesor' }}
+                </p>
+
+                <span class="text-xs text-gray-500">
+                  {{ formatearFecha(item.fecha_creacion) }}
+                </span>
+              </div>
+
+              <p class="mt-1 text-sm text-gray-500">
+                {{ item.escuela || 'Escuela no indicada' }}
+
+                <span v-if="item.autor">
+                  · {{ item.autor }}
+                </span>
+              </p>
+
+              <p class="mt-3 whitespace-pre-wrap break-words">
+                {{ item.mensaje || 'Sin texto' }}
+              </p>
+
+              <div class="mt-4">
+                <span
+                  v-if="!estaActivo(item.activo)"
+                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
+                >
+                  Publicación oculta
+                </span>
+
+                <button
+                  v-else
+                  type="button"
+                  @click="ocultarMensaje('profesores', item)"
+                  :disabled="procesandoId !== null"
+                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+                >
+                  Ocultar publicación
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
 
         <!-- MATERIALES -->
         <section
@@ -454,6 +483,14 @@
           </article>
         </section>
 
+        <!-- GESTIÓN DE VOLUNTARIADO -->
+        <section
+          v-if="moduloSeleccionado === 'voluntarios'"
+          class="mt-8"
+        >
+          <GestionVoluntarios />
+        </section>
+
         <!-- MENSAJE DE CARGA Y ERRORES -->
         <p
           v-if="cargandoDatos"
@@ -493,6 +530,9 @@
 
 <script setup>
 import { ref } from 'vue'
+
+import GestionVoluntarios from '../components/GestionVoluntarios.vue'
+import HorariosView from '../views/ateneu/horarios/HorariosView.vue'
 
 import {
   guardarTokenAdmin,
@@ -538,7 +578,7 @@ async function iniciarSesion() {
 
   try {
     const respuesta = await fetch(
-      'http://localhost:3000/api/admin/login',
+  'http://localhost:5555/api/admin/login',
       {
         method: 'POST',
         headers: {
@@ -553,20 +593,25 @@ async function iniciarSesion() {
 
     const datos = await respuesta.json()
 
-    if (!respuesta.ok || !datos.ok || !datos.token) {
+    // Si el servidor rechaza las credenciales, no iniciar sesión.
+    if (!respuesta.ok || !datos.token) {
       mensaje.value =
         datos.mensaje || 'No se pudo iniciar sesión. Comprueba tus credenciales.'
       return
     }
 
+    // Guardar el token mediante el sistema que ya usa el proyecto.
     guardarTokenAdmin(datos.token)
+
+    // También lo necesita HorariosView.vue si lee la clave "token".
+    localStorage.setItem('token', datos.token)
 
     sesionIniciada.value = true
     mostrarFormulario.value = false
+    moduloSeleccionado.value = ''
     mensaje.value = 'Acceso verificado correctamente.'
 
     contrasena.value = ''
-    moduloSeleccionado.value = ''
   } catch (error) {
     console.error('Error en el inicio de sesión:', error)
     mensaje.value =
@@ -606,11 +651,9 @@ async function ocultarMensaje(tipo, item) {
     return
   }
 
-  const confirmado = window.confirm(
+  if (!window.confirm(
     '¿Quieres ocultar este mensaje? Dejará de aparecer como activo.'
-  )
-
-  if (!confirmado) return
+  )) return
 
   procesandoId.value = `${tipo}-${item.id}`
   mensaje.value = ''
@@ -621,9 +664,7 @@ async function ocultarMensaje(tipo, item) {
         ? `/admin/moderacion/foro-estudiantes/${item.id}/ocultar`
         : `/admin/moderacion/foro-profesores/${item.id}/ocultar`
 
-    const resultado = await peticionAdmin(ruta, {
-      method: 'PATCH'
-    })
+    const resultado = await peticionAdmin(ruta, { method: 'PATCH' })
 
     mensaje.value = resultado?.mensaje || 'Operación completada.'
     await cargarForos()
@@ -657,11 +698,9 @@ async function retirarMaterial(item) {
     return
   }
 
-  const confirmado = window.confirm(
+  if (!window.confirm(
     '¿Quieres retirar este material de la publicación?'
-  )
-
-  if (!confirmado) return
+  )) return
 
   procesandoId.value = `recurso-${item.id}`
   mensaje.value = ''
@@ -708,6 +747,7 @@ function volverAlPanel() {
 
 function cerrarSesion() {
   cerrarSesionAdmin()
+  localStorage.removeItem('token')
 
   sesionIniciada.value = false
   mostrarFormulario.value = false

@@ -149,7 +149,8 @@
             <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
                 <RouterLink
-                    to="/joanmiro/alumnos/perfil"
+
+to="/joanmiro/alumnos/acceso?destino=/joanmiro/alumnos/perfil"
                     class="bg-teal-700 hover:bg-teal-800 text-white
                            rounded-2xl p-8 shadow-lg transition"
                 >

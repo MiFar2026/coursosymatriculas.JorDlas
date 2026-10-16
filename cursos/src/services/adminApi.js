@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api'
+const API_BASE = 'http://localhost:5555/api'
 
 const TOKEN_KEY = 'exaequo_admin_token'
 
