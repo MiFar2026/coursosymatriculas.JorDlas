@@ -295,11 +295,18 @@
                 </div>
 
                 <p
-                  v-if="!horario.sesiones?.length"
-                  class="text-sm text-amber-700"
-                >
-                  Horario pendiente de publicación.
-                </p>
+  v-if="horario.errorHorario"
+  class="text-sm text-red-700"
+>
+  No se ha podido consultar el horario. Inténtalo más tarde.
+</p>
+
+<p
+  v-else-if="!horario.sesiones?.length"
+  class="text-sm text-amber-700"
+>
+  Horario pendiente de publicación.
+</p>
               </div>
 
               <p class="mt-4 text-sm text-slate-500">
@@ -392,64 +399,81 @@ const horariosFiltrados = computed(() =>
 )
 
 
+
 async function cargarHorarios() {
   cargando.value = true
   error.value = ''
 
   try {
-    // 1. Consultar los grupos disponibles.
+    // 1. Obtener los grupos de ambas escuelas.
     const respuestaGrupos = await fetch(`${API_URL}/grupos`)
 
     if (!respuestaGrupos.ok) {
       throw new Error(
-        `Error al consultar los grupos (${respuestaGrupos.status})`
+        `Error al consultar los grupos (${respuestaGrupos.status}).`
       )
     }
 
     const grupos = await respuestaGrupos.json()
 
     if (!Array.isArray(grupos)) {
-      throw new Error('La API no ha devuelto una lista de grupos.')
+      throw new Error('La API no ha devuelto una lista de grupos válida.')
     }
 
-    // Si todavía no hay grupos, no hay horarios que consultar.
+    // Sin grupos, mostramos la lista vacía.
     if (grupos.length === 0) {
       horarios.value = []
       return
     }
 
-    // 2. Consultar los horarios de cada grupo.
+    // 2. Consultar cada grupo por separado.
+    // Un error en un grupo no ocultará los demás.
     const resultados = await Promise.all(
       grupos.map(async (grupo) => {
-        const respuesta = await fetch(
-          `${API_URL}?grupo_id=${encodeURIComponent(grupo.id)}`
-        )
-
-        if (!respuesta.ok) {
-          throw new Error(
-            `Error al consultar el grupo ${grupo.nombre} (${respuesta.status})`
+        try {
+          const respuesta = await fetch(
+            `${API_URL}?grupo_id=${encodeURIComponent(grupo.id)}`
           )
-        }
 
-        const datos = await respuesta.json()
+          if (!respuesta.ok) {
+            throw new Error(`Error HTTP ${respuesta.status}`)
+          }
 
-        if (!Array.isArray(datos)) {
-          throw new Error(
-            `La respuesta de horarios del grupo ${grupo.nombre} no es válida.`
+          const dias = await respuesta.json()
+
+          if (!Array.isArray(dias)) {
+            throw new Error('La respuesta no es una lista de días.')
+          }
+
+          return {
+            grupo,
+            dias,
+            errorHorario: false
+          }
+        } catch (e) {
+          console.error(
+            `No se pudieron consultar los horarios del grupo ${grupo.id}:`,
+            e
           )
-        }
 
-        return {
-          grupo,
-          horarios: datos
+          return {
+            grupo,
+            dias: [],
+            errorHorario: true
+          }
         }
       })
     )
 
-    // 3. Preparar los datos para las tarjetas públicas.
-    horarios.value = resultados.map(({ grupo, horarios: dias }) => {
+    // 3. Mostrar todos los grupos, tengan o no horario configurado.
+    horarios.value = resultados.map(({ grupo, dias, errorHorario }) => {
       const sesiones = dias
-        .filter(dia => dia.configurado && dia.activo && !dia.cerrado)
+        .filter(
+          dia =>
+            dia.configurado === true &&
+            dia.activo === true &&
+            dia.cerrado === false
+        )
         .map(dia => ({
           id: dia.id ?? dia.dia_semana,
           dia: dia.dia_semana,
@@ -466,16 +490,25 @@ async function cargarHorarios() {
         nivel: grupo.nivel ?? '',
         turno: grupo.turno ?? '',
         aula: grupo.aula ?? '',
-        sesiones
+        sesiones,
+        errorHorario
       }
     })
+
+    // Avisar si alguna consulta de horarios falló.
+    if (resultados.some(resultado => resultado.errorHorario)) {
+      error.value =
+        'Algunos horarios no se han podido consultar. Los grupos disponibles se muestran igualmente.'
+    }
   } catch (e) {
     console.error('Error al cargar horarios:', e)
-    error.value = e.message || 'No se pudo conectar con el servidor.'
+    error.value =
+      e.message || 'No se pudo conectar con el servidor.'
   } finally {
     cargando.value = false
   }
 }
+
 
 function limpiarFiltros() {
   filtros.escuela = ''

@@ -12,16 +12,46 @@ const DIAS = [
 ];
 
 // Lista los grupos disponibles para configurar sus horarios.
+
 async function getGrupos(req, res) {
   try {
     const [grupos] = await pool.execute(`
-      SELECT id, nombre, curso_id, escuela_id
-      FROM grupos
-      WHERE activo = 1
-      ORDER BY nombre
+      SELECT
+        g.id,
+        g.nombre,
+        g.curso_id,
+        g.escuela_id,
+        g.profesor_id,
+        g.aula,
+        g.turno,
+        g.activo,
+
+        e.nombre AS nombre_escuela,
+
+        c.nombre AS nombre_curso,
+        c.idioma,
+        c.nivel
+
+      FROM grupos g
+
+      INNER JOIN escuelas e
+        ON e.id = g.escuela_id
+
+      INNER JOIN cursos c
+        ON c.id = g.curso_id
+
+      WHERE g.activo = 1
+        AND e.activa = 1
+        AND c.activo = 1
+
+      ORDER BY
+        e.nombre,
+        c.id,
+        FIELD(g.turno, 'Mañana', 'Tarde')
     `);
 
     res.json(grupos);
+
   } catch (error) {
     console.error('Error al consultar grupos:', error);
 
@@ -31,6 +61,7 @@ async function getGrupos(req, res) {
     });
   }
 }
+
 
 // Consulta el horario de un grupo.
 // Si no se indica grupo_id y no hay grupos activos,

@@ -81,11 +81,10 @@ async function iniciarSesion() {
   cargando.value = true
   mensaje.value = ''
 
-  try {
-
-const base = (
+  try { const base = (
   import.meta.env.VITE_API_URL || 'http://localhost:5555'
 ).replace(/\/+$/, '')
+
 
 
     const respuesta = await fetch(`${base}/api/acceso-alumno/login`, {

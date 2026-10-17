@@ -117,12 +117,14 @@
 
 
         <div>
-          <span
-            class="mt-2 inline-flex rounded-full bg-white/15
-                   px-3 py-1 text-xs font-semibold"
-          >
-            Alumno
-          </span>
+         <button
+  type="button"
+  @click="cerrarSesion"
+  class="mt-3 rounded-xl bg-rose-600 px-4 py-3
+         font-bold text-white hover:bg-rose-700"
+>
+  Cerrar sesión
+</button>
         </div>
       </div>
     </div>
@@ -655,6 +657,34 @@ async function cargarPerfil() {
     errorPerfil.value = error.message || 'No se pudo cargar el perfil.'
   } finally {
     cargandoPerfil.value = false
+  }
+}
+
+
+async function cerrarSesion() {
+  try {
+    const base = (
+      import.meta.env.VITE_API_URL || 'http://localhost:5555'
+    ).replace(/\/+$/, '')
+
+    const respuesta = await fetch(`${base}/api/acceso-alumno/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+
+    if (!respuesta.ok) {
+      throw new Error('No se ha podido cerrar la sesión.')
+    }
+
+    window.location.href = props.escuela === 'Ateneu Aula 502'
+      ? '/ateneu/alumnos/acceso?destino=/ateneu/alumnos/perfil'
+      : '/joanmiro/alumnos/acceso?destino=/joanmiro/alumnos/perfil'
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error)
+    alert('No se ha podido cerrar la sesión. Inténtalo de nuevo.')
   }
 }
 

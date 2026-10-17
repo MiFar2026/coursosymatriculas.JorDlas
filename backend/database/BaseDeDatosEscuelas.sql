@@ -855,4 +855,70 @@ SELECT * FROM avisos;
 SELECT * FROM foro_mensajes;
 
 
+UPDATE cursos
+SET nombre = 'Catalán B1',
+    nivel = 'B1'
+WHERE id = 6
+  AND idioma = 'Catalán'
+  AND nivel = 'B2';
+  
+  
+  
+  ALTER TABLE grupos
+ADD COLUMN turno ENUM('Mañana', 'Tarde') NULL
+AFTER nombre;
+
+
+START TRANSACTION;
+
+-- Reutilizar el grupo existente como Castellano A1 de mañana
+UPDATE grupos
+SET nombre = 'Castellano A1 - Mañana',
+    turno = 'Mañana'
+WHERE id = 1
+  AND curso_id = 1
+  AND escuela_id = 2;
+
+-- Crear las combinaciones que todavía no existen
+INSERT INTO grupos (
+    curso_id,
+    escuela_id,
+    profesor_id,
+    nombre,
+    turno,
+    aula,
+    activo
+)
+SELECT
+    c.id,
+    e.id,
+    NULL,
+    CASE
+        WHEN c.idioma = 'Alfabetización'
+            THEN CONCAT('Alfabetización - ', t.turno)
+        ELSE CONCAT(c.idioma, ' ', c.nivel, ' - ', t.turno)
+    END,
+    t.turno,
+    NULL,
+    1
+FROM cursos c
+CROSS JOIN escuelas e
+CROSS JOIN (
+    SELECT 'Mañana' AS turno
+    UNION ALL
+    SELECT 'Tarde' AS turno
+) t
+WHERE c.activo = 1
+  AND e.activa = 1
+  AND NOT EXISTS (
+      SELECT 1
+      FROM grupos g
+      WHERE g.curso_id = c.id
+        AND g.escuela_id = e.id
+        AND g.turno = t.turno
+  );
+
+COMMIT;
+
+
 
