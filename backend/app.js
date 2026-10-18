@@ -11,7 +11,7 @@ const perfilAlumnoRoutes = require('./routes/perfilAlumnoRoutes');
 const voluntariosRoutes = require('./routes/voluntariosRoutes.js');
 const horariosRoutes = require('./routes/horariosRoutes.js');
 const accesoAlumnoRoutes = require('./routes/accesoAlumnoRoutes')
-
+const tareasRoutes = require('./routes/tareasRoutes')
 console.log('app.js cargado');
 
 const origenesPermitidos = [
@@ -59,6 +59,7 @@ app.use('/api/acceso-alumno', accesoAlumnoRoutes);
 
 // Rutas existentes
 app.use('/api', routes);
+app.use('/api/tareas', tareasRoutes)
 
 app.use('/api/perfil-alumno', perfilAlumnoRoutes);
 // 404: siempre al final

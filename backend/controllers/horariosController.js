@@ -325,8 +325,67 @@ async function guardarHorarios(req, res) {
   }
 }
 
+
+// Consulta el horario del grupo al que pertenece el alumno autenticado.
+async function getHorariosAlumno(req, res) {
+  try {
+    const [matriculas] = await pool.execute(
+      `SELECT m.grupo_id
+       FROM matriculas m
+       INNER JOIN grupos g ON g.id = m.grupo_id
+       WHERE m.alumno_id = ?
+         AND m.estado = 'ACTIVA'
+         AND g.activo = 1
+       ORDER BY m.fecha_matricula DESC, m.id DESC
+       LIMIT 1`,
+      [req.alumnoId]
+    );
+
+    if (matriculas.length === 0) {
+      return res.json({
+        ok: true,
+        datos: [],
+        mensaje: 'No tienes un grupo activo asignado.'
+      });
+    }
+
+    const grupoId = matriculas[0].grupo_id;
+
+    const [horarios] = await pool.execute(
+      `SELECT id, grupo_id, dia_semana, hora_inicio, hora_fin
+       FROM horarios
+       WHERE grupo_id = ?
+         AND activo = 1
+       ORDER BY FIELD(
+         dia_semana,
+         'Lunes', 'Martes', 'Miércoles', 'Jueves',
+         'Viernes', 'Sábado', 'Domingo'
+       ), hora_inicio`,
+      [grupoId]
+    );
+
+    return res.json({
+      ok: true,
+      datos: horarios.map(horario => ({
+        ...horario,
+        hora_inicio: String(horario.hora_inicio).slice(0, 5),
+        hora_fin: String(horario.hora_fin).slice(0, 5)
+      }))
+    });
+  } catch (error) {
+    console.error('Error al consultar el horario del alumno:', error);
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: 'No se pudo consultar tu horario.'
+    });
+  }
+}
+
+
 module.exports = {
   getGrupos,
   getHorarios,
-  guardarHorarios
+  guardarHorarios,
+  getHorariosAlumno
 };

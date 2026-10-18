@@ -1,6 +1,34 @@
 
 <template>
-  <main class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">
+<div class="min-h-screen bg-gray-50">
+
+    <header class="w-full border-b border-gray-200 bg-white px-4 py-4 shadow-sm">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4">
+
+        <router-link
+          to="/"
+          class="inline-flex items-center justify-center rounded-xl border-2 border-red-900 bg-red-950 px-6 py-3 text-lg font-bold text-white shadow-md transition duration-200 hover:border-red-700 hover:bg-red-900 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-red-200"
+        >
+          ExAequo
+        </router-link>
+
+        <router-link
+          to="/joanmiro"
+          class="inline-flex items-center justify-center rounded-xl border-2 border-red-900 bg-red-950 px-6 py-3 text-lg font-bold text-white shadow-md transition duration-200 hover:border-red-700 hover:bg-red-900 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-red-200"
+        >
+          Biblioteca Joan Miró
+        </router-link>
+
+        <router-link
+          to="/ateneu"
+          class="inline-flex items-center justify-center rounded-xl border-2 border-red-900 bg-red-950 px-6 py-3 text-lg font-bold text-white shadow-md transition duration-200 hover:border-red-700 hover:bg-red-900 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-red-200"
+        >
+          Ateneu Barcelonés
+        </router-link>
+
+      </div>
+    </header>
+ <main class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">
     <section class="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
       <h1 class="mb-2 text-2xl font-bold text-gray-800">
         Acceso del alumnado
@@ -61,6 +89,7 @@
       </form>
     </section>
   </main>
+  </div>
 </template>
 
 <script setup>

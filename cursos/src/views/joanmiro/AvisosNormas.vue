@@ -11,7 +11,7 @@
                    text-white shadow-lg
                    flex flex-col items-center justify-center
                    transition hover:scale-105"
-            aria-label="Consultar las normas de Ateneu"
+            aria-label="Consultar las normas de la Biblioteca Joan Miró"
         >
             <span class="text-2xl">📋</span>
 
@@ -30,7 +30,7 @@
                    text-white shadow-lg
                    flex flex-col items-center justify-center
                    transition hover:scale-105"
-            aria-label="Consultar los avisos de Ateneu"
+            aria-label="Consultar los avisos de La Biblioteca Joan Miró"
         >
             <span class="text-2xl">📢</span>
 
@@ -65,8 +65,8 @@
                 >
                     <h2 class="text-xl font-bold">
                         {{ modalActivo === 'normas'
-                            ? 'Normas de Ateneu'
-                            : 'Avisos de Ateneu'
+                            ? 'Normas de la Biblioteca Joan Miró'
+                            : 'Avisos de la Biblioteca Joan Miró'
                         }}
                     </h2>
 
@@ -131,7 +131,7 @@
 
                         <p class="text-gray-700">
                             Aquí aparecerán los avisos publicados
-                            por los tutores de Ateneu.
+                            por los tutores de la Biblioteca Joan Miró.
                         </p>
 
                         <p class="text-sm text-gray-500 mt-3">
