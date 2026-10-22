@@ -1,81 +1,80 @@
-const express = require('express')
 
+const express = require('express')
 const { loginAdmin } = require('../controllers/adminController')
 const authAdmin = require('../middlewares/authAdmin')
 
 const {
-  getForoEstudiantes,
-  ocultarMensajeEstudiante,
-  getForoProfesores,
-  ocultarMensajeProfesor,
-  getRecursosAdmin,
-  retirarRecurso
+    getForoEstudiantes,
+    ocultarMensajeEstudiante,
+    mostrarMensajeEstudiante,
+    eliminarMensajeEstudiante,
+    getForoProfesores,
+    ocultarMensajeProfesor,
+    mostrarMensajeProfesor,
+    eliminarMensajeProfesor,
+    getRecursosAdmin,
+    retirarRecurso
 } = require('../controllers/adminModeracionController')
-const {
-  getGrupos,
-  getHorarios,
-  guardarHorarios
-} = require('../controllers/horariosController')
-const {
-  listarVoluntarios,
-  cambiarEstadoVoluntario
-} = require('../controllers/voluntariosAdminController')
 
 const router = express.Router()
 
-// Login público
+// Acceso público para iniciar sesión.
 router.post('/login', loginAdmin)
 
-// Todas las rutas siguientes requieren JWT de administrador
+// El resto de las rutas requieren autenticación de administrador.
 router.use(authAdmin)
 
-router.get('/prueba', (req, res) => {
-  res.json({
-    ok: true,
-    mensaje: 'Autenticación de administrador correcta.'
-  })
-})
-
-// Gestión de horarios: solo administrador
-router.get('/horarios/grupos', getGrupos)
-router.get('/horarios', getHorarios)
-router.put('/horarios', guardarHorarios)
-
-// Foro de estudiantes
+// Foro de estudiantes.
 router.get(
-  '/moderacion/foro-estudiantes',
-  getForoEstudiantes
+    '/moderacion/foro-estudiantes',
+    getForoEstudiantes
 )
 
 router.patch(
-  '/moderacion/foro-estudiantes/:id/ocultar',
-  ocultarMensajeEstudiante
-)
-
-// Foro de profesores
-router.get(
-  '/moderacion/foro-profesores',
-  getForoProfesores
+    '/moderacion/foro-estudiantes/:id/ocultar',
+    ocultarMensajeEstudiante
 )
 
 router.patch(
-  '/moderacion/foro-profesores/:id/ocultar',
-  ocultarMensajeProfesor
+    '/moderacion/foro-estudiantes/:id/mostrar',
+    mostrarMensajeEstudiante
 )
 
-// Materiales y recursos
+router.post(
+    '/moderacion/foro-estudiantes/:id/eliminar',
+    eliminarMensajeEstudiante
+)
+
+// Foro de profesores.
 router.get(
-  '/moderacion/recursos',
-  getRecursosAdmin
+    '/moderacion/foro-profesores',
+    getForoProfesores
 )
 
 router.patch(
-  '/moderacion/recursos/:id/retirar',
-  retirarRecurso
+    '/moderacion/foro-profesores/:id/ocultar',
+    ocultarMensajeProfesor
 )
 
-// Gestión de voluntariado
-router.get('/voluntarios', listarVoluntarios)
-router.patch('/voluntarios/:id/estado', cambiarEstadoVoluntario)
+router.patch(
+    '/moderacion/foro-profesores/:id/mostrar',
+    mostrarMensajeProfesor
+)
+
+router.post(
+    '/moderacion/foro-profesores/:id/eliminar',
+    eliminarMensajeProfesor
+)
+
+// Materiales.
+router.get(
+    '/moderacion/recursos',
+    getRecursosAdmin
+)
+
+router.patch(
+    '/moderacion/recursos/:id/retirar',
+    retirarRecurso
+)
 
 module.exports = router

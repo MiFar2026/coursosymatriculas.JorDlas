@@ -13,7 +13,7 @@
         Acceso administrador
       </button>
 
-      <!-- FORMULARIO DE LOGIN -->
+      <!-- LOGIN -->
       <div v-if="mostrarFormulario && !sesionIniciada">
         <h2 class="mb-2 text-center text-2xl font-bold text-gray-800">
           Administración ExAequo
@@ -24,8 +24,8 @@
         </p>
 
         <form
-          @submit.prevent="iniciarSesion"
           class="mx-auto max-w-md space-y-4"
+          @submit.prevent="iniciarSesion"
         >
           <div>
             <label for="usuario-admin" class="mb-1 block font-medium">
@@ -39,7 +39,6 @@
               autocomplete="username"
               required
               class="w-full rounded-lg border border-gray-300 px-3 py-2"
-              placeholder="Usuario administrador"
             />
           </div>
 
@@ -55,13 +54,13 @@
               autocomplete="current-password"
               required
               class="w-full rounded-lg border border-gray-300 px-3 py-2"
-              placeholder="Tu contraseña"
             />
           </div>
 
           <p
             v-if="mensaje"
             role="status"
+            aria-live="polite"
             class="rounded-lg bg-gray-100 p-3 text-sm text-gray-700"
           >
             {{ mensaje }}
@@ -70,7 +69,7 @@
           <button
             type="submit"
             :disabled="cargando"
-            class="w-full rounded-lg bg-blue-800 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            class="w-full rounded-lg bg-blue-800 px-5 py-3 font-semibold text-white disabled:opacity-50"
           >
             {{ cargando ? 'Comprobando...' : 'Iniciar sesión' }}
           </button>
@@ -78,6 +77,7 @@
           <button
             type="button"
             @click="cancelarLogin"
+            :disabled="cargando"
             class="w-full rounded-lg border border-gray-300 px-5 py-2"
           >
             Cancelar
@@ -85,7 +85,7 @@
         </form>
       </div>
 
-      <!-- PANEL ADMINISTRADOR -->
+      <!-- PANEL -->
       <div v-if="sesionIniciada">
         <header
           class="mb-8 flex flex-col justify-between gap-4 border-b pb-6 md:flex-row md:items-center"
@@ -107,7 +107,8 @@
           <button
             type="button"
             @click="cerrarSesion"
-            class="rounded-lg bg-gray-800 px-5 py-3 font-semibold text-white hover:bg-gray-700"
+            :disabled="procesandoId !== null"
+            class="rounded-lg bg-gray-800 px-5 py-3 font-semibold text-white disabled:opacity-50"
           >
             Cerrar sesión
           </button>
@@ -127,43 +128,40 @@
           <button
             type="button"
             @click="seleccionarModulo('horarios')"
-            class="rounded-xl border p-6 text-left transition hover:bg-blue-50"
+            class="rounded-xl border p-6 text-left hover:bg-blue-50"
           >
             <span class="mb-3 block text-3xl">🗓️</span>
             <h3 class="text-xl font-bold">Gestión de horarios</h3>
-            <p class="mt-2 text-sm text-gray-600">
-              Acceso reservado para conectar la gestión de horarios.
-            </p>
           </button>
 
           <button
             type="button"
             @click="seleccionarModulo('escuelas')"
-            class="rounded-xl border p-6 text-left transition hover:bg-blue-50"
+            class="rounded-xl border p-6 text-left hover:bg-blue-50"
           >
             <span class="mb-3 block text-3xl">🏫</span>
             <h3 class="text-xl font-bold">Escuelas y cursos</h3>
             <p class="mt-2 text-sm text-gray-600">
-              Gestión futura de Ateneu y Biblioteca Joan Miró.
+              Gestión futura de escuelas y cursos.
             </p>
           </button>
 
           <button
             type="button"
             @click="seleccionarModulo('foros')"
-            class="rounded-xl border border-red-200 bg-red-50 p-6 text-left transition hover:bg-red-100"
+            class="rounded-xl border border-red-200 bg-red-50 p-6 text-left hover:bg-red-100"
           >
             <span class="mb-3 block text-3xl">🛡️</span>
             <h3 class="text-xl font-bold">Moderación y convivencia</h3>
             <p class="mt-2 text-sm text-gray-700">
-              Consultar y ocultar mensajes de los foros.
+              Consultar, ocultar, restaurar y retirar publicaciones.
             </p>
           </button>
 
           <button
             type="button"
             @click="seleccionarModulo('archivos')"
-            class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-left transition hover:bg-blue-100"
+            class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-left hover:bg-blue-100"
           >
             <span class="mb-3 block text-3xl">📁</span>
             <h3 class="text-xl font-bold">Archivos y materiales</h3>
@@ -172,35 +170,37 @@
             </p>
           </button>
 
-          <!-- GESTIÓN DE VOLUNTARIADO -->
           <button
             type="button"
             @click="seleccionarModulo('voluntarios')"
-            class="rounded-xl border border-teal-200 bg-teal-50 p-6 text-left transition hover:bg-teal-100"
+            class="rounded-xl border border-teal-200 bg-teal-50 p-6 text-left hover:bg-teal-100"
           >
             <span class="mb-3 block text-3xl">🤝</span>
-
-            <h3 class="text-xl font-bold text-gray-900">
-              Gestión de voluntariado
-            </h3>
-
+            <h3 class="text-xl font-bold">Gestión de voluntariado</h3>
             <p class="mt-2 text-sm text-gray-700">
-              Consultar solicitudes, revisar los datos y gestionar su estado.
+              Consultar solicitudes y gestionar su estado.
             </p>
           </button>
         </div>
 
+        <!-- HORARIOS -->
+        <section
+          v-if="moduloSeleccionado === 'horarios'"
+          class="mt-8"
+        >
+          <GestionHorariosAdmin />
+        </section>
 
-
-<!-- GESTIÓN DE HORARIOS -->
-<section
-  v-if="moduloSeleccionado === 'horarios'"
-  class="mt-8"
->
-  <GestionHorariosAdmin />
-</section>
-
-
+        <!-- ESCUELAS -->
+        <section
+          v-if="moduloSeleccionado === 'escuelas'"
+          class="mt-8 rounded-xl border p-5"
+        >
+          <h3 class="text-xl font-bold">Escuelas y cursos</h3>
+          <p class="mt-2 text-gray-600">
+            Este módulo todavía no está implementado.
+          </p>
+        </section>
 
         <!-- MODERACIÓN DE FOROS -->
         <section
@@ -215,37 +215,34 @@
             <button
               type="button"
               @click="cargarForos"
-              :disabled="cargandoDatos"
-              class="rounded-lg border px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+              :disabled="cargandoDatos || procesandoId !== null"
+              class="rounded-lg border px-4 py-2 disabled:opacity-50"
             >
               {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
             </button>
           </div>
 
           <p class="text-sm text-gray-600">
-            Puedes consultar los mensajes y ocultar publicaciones sin
-            eliminarlas físicamente de la base de datos.
+            Ocultar y retirar excepcionalmente son acciones distintas.
+            Las publicaciones retiradas excepcionalmente no se pueden
+            restaurar desde este panel.
           </p>
 
-          <!-- BOTONES PARA ABRIR CADA FORO -->
+          <!-- SELECTOR DE FORO -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <button
               type="button"
               @click="foroAbierto = 'estudiantes'"
               :aria-pressed="foroAbierto === 'estudiantes'"
-              class="rounded-xl border p-5 text-left transition hover:bg-blue-50"
+              class="rounded-xl border p-5 text-left"
               :class="foroAbierto === 'estudiantes'
                 ? 'border-blue-700 bg-blue-50 ring-2 ring-blue-200'
-                : 'border-gray-200 bg-white'"
+                : 'border-gray-200'"
             >
               <span class="mb-2 block text-3xl">👩‍🎓</span>
-
-              <span class="block text-lg font-bold text-gray-900">
-                Foro de estudiantes
-              </span>
-
+              <span class="block text-lg font-bold">Foro de estudiantes</span>
               <span class="mt-1 block text-sm text-gray-600">
-                {{ mensajesEstudiantes.length }} mensajes cargados
+                {{ mensajesEstudiantes.length }} mensajes
               </span>
             </button>
 
@@ -253,37 +250,31 @@
               type="button"
               @click="foroAbierto = 'profesores'"
               :aria-pressed="foroAbierto === 'profesores'"
-              class="rounded-xl border p-5 text-left transition hover:bg-emerald-50"
+              class="rounded-xl border p-5 text-left"
               :class="foroAbierto === 'profesores'
                 ? 'border-emerald-700 bg-emerald-50 ring-2 ring-emerald-200'
-                : 'border-gray-200 bg-white'"
+                : 'border-gray-200'"
             >
               <span class="mb-2 block text-3xl">👩‍🏫</span>
-
-              <span class="block text-lg font-bold text-gray-900">
-                Foro de profesores
-              </span>
-
+              <span class="block text-lg font-bold">Foro de profesores</span>
               <span class="mt-1 block text-sm text-gray-600">
-                {{ mensajesProfesores.length }} publicaciones cargadas
+                {{ mensajesProfesores.length }} publicaciones
               </span>
             </button>
           </div>
 
-          <!-- FORO DE ESTUDIANTES -->
+          <!-- MENSAJES DE ESTUDIANTES -->
           <div
             v-if="foroAbierto === 'estudiantes'"
-            class="rounded-xl border border-gray-200 bg-white p-5"
+            class="rounded-xl border p-5"
           >
-            <h4 class="mb-4 text-xl font-bold text-gray-900">
-              Foro de estudiantes
-            </h4>
+            <h4 class="mb-4 text-xl font-bold">Foro de estudiantes</h4>
 
             <p
               v-if="!cargandoDatos && mensajesEstudiantes.length === 0"
               class="rounded-lg bg-gray-50 p-4 text-gray-600"
             >
-              No hay mensajes de estudiantes para mostrar.
+              No hay mensajes de estudiantes.
             </p>
 
             <article
@@ -295,7 +286,6 @@
                 <p class="font-semibold">
                   {{ item.autor || 'Autor no disponible' }}
                 </p>
-
                 <span class="text-xs text-gray-500">
                   {{ formatearFecha(item.fecha_creacion) }}
                 </span>
@@ -303,51 +293,84 @@
 
               <p class="mt-1 text-sm text-gray-500">
                 {{ item.escuela || 'Escuela no indicada' }}
-
-                <span v-if="item.grupo">
-                  · {{ item.grupo }}
-                </span>
+                <span v-if="item.grupo"> · {{ item.grupo }}</span>
               </p>
 
-              <p class="mt-3 whitespace-pre-wrap break-words">
+              <p v-if="item.titulo" class="mt-3 font-semibold">
+                {{ item.titulo }}
+              </p>
+
+              <p class="mt-2 whitespace-pre-wrap break-words">
                 {{ item.mensaje || 'Sin texto' }}
               </p>
 
-              <div class="mt-4">
+              <div class="mt-4 flex flex-wrap items-center gap-2">
                 <span
-                  v-if="!estaActivo(item.activo)"
-                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
+                  v-if="item.ultima_accion === 'ELIMINAR'"
+                  class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800"
+                >
+                  Retirada excepcionalmente
+                </span>
+
+                <span
+                  v-else-if="!estaActivo(item.activo)"
+                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
                 >
                   Mensaje oculto
                 </span>
 
-                <button
+                <span
                   v-else
-                  type="button"
-                  @click="ocultarMensaje('estudiantes', item)"
-                  :disabled="procesandoId !== null"
-                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+                  class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800"
                 >
-                  Ocultar mensaje
+                  Visible
+                </span>
+
+                <button
+                  v-if="estaActivo(item.activo) && item.ultima_accion !== 'ELIMINAR'"
+                  type="button"
+                  @click="abrirModeracion('estudiantes', item, 'ocultar')"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-amber-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Ocultar
+                </button>
+
+                <button
+                  v-else-if="item.ultima_accion !== 'ELIMINAR'"
+                  type="button"
+                  @click="abrirModeracion('estudiantes', item, 'mostrar')"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Restaurar
+                </button>
+
+                <button
+                  v-if="item.ultima_accion !== 'ELIMINAR'"
+                  type="button"
+                  @click="abrirModeracion('estudiantes', item, 'eliminar')"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-red-800 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Retirada excepcional
                 </button>
               </div>
             </article>
           </div>
 
-          <!-- FORO DE PROFESORES -->
+          <!-- MENSAJES DE PROFESORES -->
           <div
             v-if="foroAbierto === 'profesores'"
-            class="rounded-xl border border-gray-200 bg-white p-5"
+            class="rounded-xl border p-5"
           >
-            <h4 class="mb-4 text-xl font-bold text-gray-900">
-              Foro de profesores
-            </h4>
+            <h4 class="mb-4 text-xl font-bold">Foro de profesores</h4>
 
             <p
               v-if="!cargandoDatos && mensajesProfesores.length === 0"
               class="rounded-lg bg-gray-50 p-4 text-gray-600"
             >
-              No hay mensajes de profesores para mostrar.
+              No hay publicaciones de profesores.
             </p>
 
             <article
@@ -357,9 +380,8 @@
             >
               <div class="flex flex-wrap justify-between gap-2">
                 <p class="font-semibold">
-                  {{ item.titulo || item.autor || 'Publicación del profesor' }}
+                  {{ item.titulo || 'Publicación del profesor' }}
                 </p>
-
                 <span class="text-xs text-gray-500">
                   {{ formatearFecha(item.fecha_creacion) }}
                 </span>
@@ -367,32 +389,63 @@
 
               <p class="mt-1 text-sm text-gray-500">
                 {{ item.escuela || 'Escuela no indicada' }}
-
-                <span v-if="item.autor">
-                  · {{ item.autor }}
-                </span>
+                <span v-if="item.autor"> · {{ item.autor }}</span>
               </p>
 
               <p class="mt-3 whitespace-pre-wrap break-words">
                 {{ item.mensaje || 'Sin texto' }}
               </p>
 
-              <div class="mt-4">
+              <div class="mt-4 flex flex-wrap items-center gap-2">
                 <span
-                  v-if="!estaActivo(item.activo)"
-                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
+                  v-if="item.ultima_accion === 'ELIMINAR'"
+                  class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800"
+                >
+                  Retirada excepcionalmente
+                </span>
+
+                <span
+                  v-else-if="!estaActivo(item.activo)"
+                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
                 >
                   Publicación oculta
                 </span>
 
-                <button
+                <span
                   v-else
-                  type="button"
-                  @click="ocultarMensaje('profesores', item)"
-                  :disabled="procesandoId !== null"
-                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+                  class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800"
                 >
-                  Ocultar publicación
+                  Visible
+                </span>
+
+                <button
+                  v-if="estaActivo(item.activo) && item.ultima_accion !== 'ELIMINAR'"
+                  type="button"
+                  @click="abrirModeracion('profesores', item, 'ocultar')"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-amber-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Ocultar
+                </button>
+
+                <button
+                  v-else-if="item.ultima_accion !== 'ELIMINAR'"
+                  type="button"
+                  @click="abrirModeracion('profesores', item, 'mostrar')"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Restaurar
+                </button>
+
+                <button
+                  v-if="item.ultima_accion !== 'ELIMINAR'"
+                  type="button"
+                  @click="abrirModeracion('profesores', item, 'eliminar')"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-red-800 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  Retirada excepcional
                 </button>
               </div>
             </article>
@@ -405,32 +458,23 @@
           class="mt-8"
         >
           <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-2xl font-bold text-gray-900">
-              Archivos y materiales
-            </h3>
+            <h3 class="text-2xl font-bold">Archivos y materiales</h3>
 
             <button
               type="button"
               @click="cargarRecursos"
-              :disabled="cargandoDatos"
-              class="rounded-lg border px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+              :disabled="cargandoDatos || procesandoId !== null"
+              class="rounded-lg border px-4 py-2 disabled:opacity-50"
             >
-              Actualizar
+              {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
             </button>
           </div>
-
-          <p class="mb-5 text-sm text-gray-600">
-            Retirar un material lo despublica en la base de datos. La protección
-            de sus archivos frente al acceso mediante enlaces directos debe
-            comprobarse también en el servidor.
-          </p>
 
           <p
             v-if="!cargandoDatos && recursos.length === 0"
             class="rounded-xl border border-dashed p-6 text-center text-gray-500"
           >
-            Todavía no hay materiales registrados. Cuando los profesores publiquen
-            recursos, aparecerán aquí.
+            Todavía no hay materiales registrados.
           </p>
 
           <article
@@ -457,14 +501,14 @@
                 </p>
 
                 <p class="mt-2 text-xs text-gray-500">
-                  {{ item.nombre_archivo || 'Nombre de archivo no disponible' }}
+                  {{ item.nombre_archivo || 'Archivo no disponible' }}
                 </p>
               </div>
 
               <div class="shrink-0">
                 <span
                   v-if="!estaPublicado(item.publicado)"
-                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
+                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
                 >
                   Retirado
                 </span>
@@ -473,8 +517,8 @@
                   v-else
                   type="button"
                   @click="retirarMaterial(item)"
-                  :disabled="procesandoId !== null"
-                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+                  :disabled="procesandoId !== null || cargandoDatos"
+                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                 >
                   Retirar material
                 </button>
@@ -483,7 +527,7 @@
           </article>
         </section>
 
-        <!-- GESTIÓN DE VOLUNTARIADO -->
+        <!-- VOLUNTARIADO -->
         <section
           v-if="moduloSeleccionado === 'voluntarios'"
           class="mt-8"
@@ -491,7 +535,6 @@
           <GestionVoluntarios />
         </section>
 
-        <!-- MENSAJE DE CARGA Y ERRORES -->
         <p
           v-if="cargandoDatos"
           role="status"
@@ -500,15 +543,110 @@
           Cargando información...
         </p>
 
-        <!-- VOLVER -->
         <button
           v-if="moduloSeleccionado"
           type="button"
           @click="volverAlPanel"
-          class="mt-8 rounded-lg border border-gray-300 px-5 py-3 font-medium hover:bg-gray-50"
+          :disabled="procesandoId !== null"
+          class="mt-8 rounded-lg border border-gray-300 px-5 py-3 font-medium hover:bg-gray-50 disabled:opacity-50"
         >
           Volver al panel
         </button>
+
+        <!-- FORMULARIO ÚNICO DE MODERACIÓN -->
+        <section
+          v-if="moderacionAbierta"
+          class="mt-8 rounded-xl border border-red-200 bg-red-50 p-5"
+        >
+          <h3 class="text-xl font-bold text-gray-900">
+            {{
+              moderacionAbierta.accion === 'ocultar'
+                ? 'Ocultar publicación'
+                : moderacionAbierta.accion === 'mostrar'
+                  ? 'Restaurar publicación'
+                  : 'Retirada excepcional'
+            }}
+          </h3>
+
+          <p class="mt-2 text-sm text-gray-700">
+            Escribe el motivo de la acción. El motivo debe registrarse
+            en la auditoría de moderación del servidor.
+          </p>
+
+          <form
+            class="mt-4 space-y-4"
+            @submit.prevent="confirmarModeracion"
+          >
+            <div>
+              <label for="motivo-moderacion" class="mb-1 block font-medium">
+                Motivo (entre 5 y 500 caracteres)
+              </label>
+
+              <textarea
+                id="motivo-moderacion"
+                v-model="motivoModeracion"
+                required
+                minlength="5"
+                maxlength="500"
+                rows="3"
+                class="w-full rounded-lg border border-gray-300 bg-white p-3"
+                placeholder="Explica el motivo de la acción..."
+              ></textarea>
+
+              <p class="mt-1 text-xs text-gray-500">
+                {{ motivoModeracion.trim().length }} / 500 caracteres
+              </p>
+            </div>
+
+            <div v-if="moderacionAbierta.accion === 'eliminar'">
+              <label
+                for="contrasena-retirada"
+                class="mb-1 block font-medium"
+              >
+                Contraseña del administrador
+              </label>
+
+              <input
+                id="contrasena-retirada"
+                v-model="contrasenaModeracion"
+                type="password"
+                required
+                autocomplete="current-password"
+                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+                placeholder="Vuelve a introducir tu contraseña"
+              />
+
+              <p class="mt-2 text-sm text-red-800">
+                Esta acción no debe borrar físicamente el registro.
+                El servidor debe verificar tu contraseña, registrar
+                la auditoría y bloquear la restauración normal.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="submit"
+                :disabled="procesandoId !== null || cargandoDatos"
+                class="rounded-lg bg-red-800 px-5 py-3 font-semibold text-white disabled:opacity-50"
+              >
+                {{
+                  procesandoId !== null
+                    ? 'Procesando...'
+                    : 'Confirmar acción'
+                }}
+              </button>
+
+              <button
+                type="button"
+                :disabled="procesandoId !== null"
+                @click="cancelarModeracion"
+                class="rounded-lg border border-gray-300 bg-white px-5 py-3 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </section>
 
         <!-- AVISO DE SEGURIDAD -->
         <div class="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
@@ -517,10 +655,10 @@
           </h3>
 
           <p class="mt-2 text-sm leading-relaxed text-amber-900">
-            Las operaciones están diseñadas para usar rutas protegidas por el
-            backend. Antes de utilizar el sistema con datos reales, comprueba
-            también la protección de los archivos publicados y registra las
-            acciones de moderación.
+            Las acciones de moderación deben registrarse en la auditoría.
+            Ocultar una publicación no debe borrar su fila de la base de datos.
+            Comprueba también que el servidor impida acceder públicamente
+            a materiales retirados mediante enlaces directos.
           </p>
         </div>
       </div>
@@ -541,7 +679,10 @@ import {
   peticionAdmin
 } from '../services/adminApi'
 
-// Estado del acceso
+// =====================================================
+// ESTADO
+// =====================================================
+
 const mostrarFormulario = ref(false)
 const usuario = ref('')
 const contrasena = ref('')
@@ -549,7 +690,6 @@ const mensaje = ref('')
 const cargando = ref(false)
 const sesionIniciada = ref(Boolean(obtenerTokenAdmin()))
 
-// Estado del panel
 const moduloSeleccionado = ref('')
 const cargandoDatos = ref(false)
 const procesandoId = ref(null)
@@ -557,18 +697,17 @@ const procesandoId = ref(null)
 const mensajesEstudiantes = ref([])
 const mensajesProfesores = ref([])
 const recursos = ref([])
+
 const foroAbierto = ref('estudiantes')
 
-function seleccionarModulo(modulo) {
-  moduloSeleccionado.value = modulo
-  mensaje.value = ''
+// Formulario único de moderación.
+const moderacionAbierta = ref(null)
+const motivoModeracion = ref('')
+const contrasenaModeracion = ref('')
 
-  if (modulo === 'foros') {
-    cargarForos()
-  } else if (modulo === 'archivos') {
-    cargarRecursos()
-  }
-}
+// =====================================================
+// LOGIN
+// =====================================================
 
 async function iniciarSesion() {
   if (cargando.value) return
@@ -578,7 +717,7 @@ async function iniciarSesion() {
 
   try {
     const respuesta = await fetch(
-  'http://localhost:5555/api/admin/login',
+      'http://localhost:5555/api/admin/login',
       {
         method: 'POST',
         headers: {
@@ -593,27 +732,26 @@ async function iniciarSesion() {
 
     const datos = await respuesta.json()
 
-    // Si el servidor rechaza las credenciales, no iniciar sesión.
     if (!respuesta.ok || !datos.token) {
       mensaje.value =
-        datos.mensaje || 'No se pudo iniciar sesión. Comprueba tus credenciales.'
+        datos.mensaje ||
+        'No se pudo iniciar sesión. Comprueba tus credenciales.'
       return
     }
 
-    // Guardar el token mediante el sistema que ya usa el proyecto.
     guardarTokenAdmin(datos.token)
 
-    // También lo necesita HorariosView.vue si lee la clave "token".
+    // Compatibilidad con componentes antiguos.
     localStorage.setItem('token', datos.token)
 
     sesionIniciada.value = true
     mostrarFormulario.value = false
     moduloSeleccionado.value = ''
     mensaje.value = 'Acceso verificado correctamente.'
-
     contrasena.value = ''
   } catch (error) {
     console.error('Error en el inicio de sesión:', error)
+
     mensaje.value =
       'No se puede conectar con el servidor. Comprueba que el backend esté funcionando.'
   } finally {
@@ -621,7 +759,48 @@ async function iniciarSesion() {
   }
 }
 
+function cancelarLogin() {
+  if (cargando.value) return
+
+  mostrarFormulario.value = false
+  usuario.value = ''
+  contrasena.value = ''
+  mensaje.value = ''
+}
+
+// =====================================================
+// NAVEGACIÓN
+// =====================================================
+
+function seleccionarModulo(modulo) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  moduloSeleccionado.value = modulo
+  mensaje.value = ''
+  cancelarModeracion()
+
+  if (modulo === 'foros') {
+    cargarForos()
+  } else if (modulo === 'archivos') {
+    cargarRecursos()
+  }
+}
+
+function volverAlPanel() {
+  if (procesandoId.value !== null) return
+
+  moduloSeleccionado.value = ''
+  mensaje.value = ''
+  cancelarModeracion()
+}
+
+// =====================================================
+// CARGAR FOROS
+// =====================================================
+
 async function cargarForos() {
+  if (cargandoDatos.value) return
+
   cargandoDatos.value = true
   mensaje.value = ''
 
@@ -645,80 +824,253 @@ async function cargarForos() {
   }
 }
 
-async function ocultarMensaje(tipo, item) {
-  if (!Number.isInteger(Number(item.id)) || Number(item.id) <= 0) {
+// =====================================================
+// FORMULARIO DE MODERACIÓN
+// =====================================================
+
+function abrirModeracion(tipo, item, accion) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  if (!['estudiantes', 'profesores'].includes(tipo)) {
+    mensaje.value = 'El tipo de foro no es válido.'
+    return
+  }
+
+  if (!['ocultar', 'mostrar', 'eliminar'].includes(accion)) {
+    mensaje.value = 'La acción de moderación no es válida.'
+    return
+  }
+
+  const id = Number(item?.id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
     mensaje.value = 'El mensaje no tiene un identificador válido.'
     return
   }
 
-  if (!window.confirm(
-    '¿Quieres ocultar este mensaje? Dejará de aparecer como activo.'
-  )) return
+  // Evita iniciar una acción normal sobre una retirada excepcional.
+  if (item.ultima_accion === 'ELIMINAR') {
+    mensaje.value =
+      'Esta publicación fue retirada excepcionalmente y no se puede restaurar desde el panel habitual.'
+    return
+  }
 
-  procesandoId.value = `${tipo}-${item.id}`
+  // Evita solicitar una acción redundante desde la interfaz.
+  if (accion === 'ocultar' && !estaActivo(item.activo)) {
+    mensaje.value = 'Esta publicación ya está oculta.'
+    return
+  }
+
+  if (accion === 'mostrar' && estaActivo(item.activo)) {
+    mensaje.value = 'Esta publicación ya está visible.'
+    return
+  }
+
+  moderacionAbierta.value = {
+    tipo,
+    id,
+    accion
+  }
+
+  motivoModeracion.value = ''
+  contrasenaModeracion.value = ''
+  mensaje.value = ''
+}
+
+function cancelarModeracion() {
+  if (procesandoId.value !== null) return
+
+  moderacionAbierta.value = null
+  motivoModeracion.value = ''
+  contrasenaModeracion.value = ''
+}
+
+// =====================================================
+// CONFIRMAR MODERACIÓN
+// =====================================================
+
+async function confirmarModeracion() {
+  const seleccion = moderacionAbierta.value
+
+  if (!seleccion || procesandoId.value !== null || cargandoDatos.value) {
+    return
+  }
+
+  const id = Number(seleccion.id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    mensaje.value = 'El mensaje no tiene un identificador válido.'
+    return
+  }
+
+  const motivo = motivoModeracion.value.trim()
+
+  if (motivo.length < 5 || motivo.length > 500) {
+    mensaje.value = 'El motivo debe tener entre 5 y 500 caracteres.'
+    return
+  }
+
+  if (
+    seleccion.accion === 'eliminar' &&
+    !contrasenaModeracion.value
+  ) {
+    mensaje.value = 'Debes introducir la contraseña del administrador.'
+    return
+  }
+
+  const sufijos = {
+    ocultar: 'ocultar',
+    mostrar: 'mostrar',
+    eliminar: 'eliminar'
+  }
+
+  const rutaBase = seleccion.tipo === 'estudiantes'
+    ? '/admin/moderacion/foro-estudiantes'
+    : '/admin/moderacion/foro-profesores'
+
+  const esRetirada = seleccion.accion === 'eliminar'
+
+  const cuerpo = { motivo }
+
+  if (esRetirada) {
+    cuerpo.contrasena = contrasenaModeracion.value
+  }
+
+  const idOperacion = `${seleccion.tipo}-${id}`
+
+  procesandoId.value = idOperacion
   mensaje.value = ''
 
   try {
-    const ruta =
-      tipo === 'estudiantes'
-        ? `/admin/moderacion/foro-estudiantes/${item.id}/ocultar`
-        : `/admin/moderacion/foro-profesores/${item.id}/ocultar`
+    const resultado = await peticionAdmin(
+      `${rutaBase}/${id}/${sufijos[seleccion.accion]}`,
+      {
+        method: esRetirada ? 'POST' : 'PATCH',
+        body: JSON.stringify(cuerpo)
+      }
+    )
 
-    const resultado = await peticionAdmin(ruta, { method: 'PATCH' })
+    const mensajeOperacion =
+      resultado?.mensaje || 'Operación completada correctamente.'
 
-    mensaje.value = resultado?.mensaje || 'Operación completada.'
-    await cargarForos()
+    // Cerrar el formulario y borrar las credenciales introducidas.
+    moderacionAbierta.value = null
+    motivoModeracion.value = ''
+    contrasenaModeracion.value = ''
+
+    // Actualizar la lista correspondiente sin perder el mensaje de éxito.
+    if (seleccion.tipo === 'estudiantes') {
+      await cargarListaEstudiantes()
+    } else {
+      await cargarListaProfesores()
+    }
+
+    mensaje.value = mensajeOperacion
   } catch (error) {
-    mensaje.value = error.message || 'No se pudo ocultar el mensaje.'
+    mensaje.value =
+      error.message || 'No se pudo completar la moderación.'
   } finally {
     procesandoId.value = null
   }
 }
 
+// =====================================================
+// ACTUALIZAR CADA FORO POR SEPARADO
+// =====================================================
+
+async function cargarListaEstudiantes() {
+  const resultado = await peticionAdmin(
+    '/admin/moderacion/foro-estudiantes'
+  )
+
+  mensajesEstudiantes.value = Array.isArray(resultado?.datos)
+    ? resultado.datos
+    : []
+}
+
+async function cargarListaProfesores() {
+  const resultado = await peticionAdmin(
+    '/admin/moderacion/foro-profesores'
+  )
+
+  mensajesProfesores.value = Array.isArray(resultado?.datos)
+    ? resultado.datos
+    : []
+}
+
+// =====================================================
+// MATERIALES
+// =====================================================
+
 async function cargarRecursos() {
+  if (cargandoDatos.value) return
+
   cargandoDatos.value = true
   mensaje.value = ''
 
   try {
-    const resultado = await peticionAdmin('/admin/moderacion/recursos')
+    const resultado = await peticionAdmin(
+      '/admin/moderacion/recursos'
+    )
 
     recursos.value = Array.isArray(resultado?.datos)
       ? resultado.datos
       : []
   } catch (error) {
-    mensaje.value = error.message || 'No se pudieron cargar los materiales.'
+    mensaje.value =
+      error.message || 'No se pudieron cargar los materiales.'
   } finally {
     cargandoDatos.value = false
   }
 }
 
 async function retirarMaterial(item) {
-  if (!Number.isInteger(Number(item.id)) || Number(item.id) <= 0) {
+  const id = Number(item?.id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
     mensaje.value = 'El material no tiene un identificador válido.'
     return
   }
 
-  if (!window.confirm(
-    '¿Quieres retirar este material de la publicación?'
-  )) return
+  if (procesandoId.value !== null || cargandoDatos.value) return
 
-  procesandoId.value = `recurso-${item.id}`
+  if (!window.confirm('¿Quieres retirar este material de la publicación?')) {
+    return
+  }
+
+  procesandoId.value = `recurso-${id}`
   mensaje.value = ''
 
   try {
     const resultado = await peticionAdmin(
-      `/admin/moderacion/recursos/${item.id}/retirar`,
-      { method: 'PATCH' }
+      `/admin/moderacion/recursos/${id}/retirar`,
+      {
+        method: 'PATCH'
+      }
     )
 
-    mensaje.value = resultado?.mensaje || 'Material retirado.'
-    await cargarRecursos()
+    const mensajeOperacion =
+      resultado?.mensaje || 'Material retirado correctamente.'
+
+    // Actualizar la lista antes de mostrar el resultado.
+    const lista = await peticionAdmin('/admin/moderacion/recursos')
+
+    recursos.value = Array.isArray(lista?.datos)
+      ? lista.datos
+      : []
+
+    mensaje.value = mensajeOperacion
   } catch (error) {
-    mensaje.value = error.message || 'No se pudo retirar el material.'
+    mensaje.value =
+      error.message || 'No se pudo retirar el material.'
   } finally {
     procesandoId.value = null
   }
 }
+
+// =====================================================
+// UTILIDADES
+// =====================================================
 
 function estaActivo(valor) {
   return valor === true || valor === 1 || valor === '1'
@@ -740,12 +1092,13 @@ function formatearFecha(valor) {
   return fecha.toLocaleString('es-ES')
 }
 
-function volverAlPanel() {
-  moduloSeleccionado.value = ''
-  mensaje.value = ''
-}
+// =====================================================
+// CERRAR SESIÓN
+// =====================================================
 
 function cerrarSesion() {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
   cerrarSesionAdmin()
   localStorage.removeItem('token')
 
@@ -760,12 +1113,7 @@ function cerrarSesion() {
   usuario.value = ''
   contrasena.value = ''
   mensaje.value = ''
-}
 
-function cancelarLogin() {
-  mostrarFormulario.value = false
-  usuario.value = ''
-  contrasena.value = ''
-  mensaje.value = ''
+  cancelarModeracion()
 }
 </script>

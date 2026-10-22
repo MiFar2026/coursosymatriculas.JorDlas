@@ -223,7 +223,7 @@ const API_BASE = (
   import.meta.env.VITE_API_URL || 'http://localhost:5555'
 ).replace(/\/+$/, '')
 
-const ESCUELA_ID = 1
+const ESCUELA_ID = 2
 
 const categorias = [
   'Castellano A1',

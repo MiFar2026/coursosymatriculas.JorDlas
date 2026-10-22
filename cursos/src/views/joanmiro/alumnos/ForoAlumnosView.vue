@@ -446,7 +446,7 @@ async function publicarRespuesta(publicacion) {
     await cargarMensajes()
   } catch (err) {
     console.error('Error al publicar respuesta:', err)
-    estado.value = ID.message || 'No se pudo publicar la respuesta.'
+estado.value = err.message || 'No se pudo publicar la respuesta.'
     error.value = true
   } finally {
     publicandoRespuestaId.value = null

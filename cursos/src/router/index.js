@@ -412,8 +412,13 @@ const router = createRouter({
     routes
 })
 
+
 router.beforeEach(async (to) => {
-  if (!to.matched.some((ruta) => ruta.meta.requiereAlumno)) {
+  const requiereAlumno = to.matched.some(
+    (ruta) => ruta.meta.requiereAlumno
+  )
+
+  if (!requiereAlumno) {
     return true
   }
 
@@ -421,47 +426,80 @@ router.beforeEach(async (to) => {
     import.meta.env.VITE_API_URL || 'http://localhost:5555'
   ).replace(/\/+$/, '')
 
+  const esForo =
+    to.path === '/joanmiro/alumnos/foro' ||
+    to.path === '/ateneu/alumnos/foro'
+
+  const rutaAcceso = to.path.startsWith('/joanmiro')
+    ? '/joanmiro/alumnos/acceso'
+    : '/ateneu/alumnos/acceso'
+
+  const redirigirAcceso = () => ({
+    path: rutaAcceso,
+    query: { destino: to.fullPath }
+  })
+
+  // 1. Primero, intentar validar la sesión del alumno.
   try {
-    const respuesta = await fetch(
+    const respuestaAlumno = await fetch(
       `${base}/api/perfil-alumno/me`,
       {
         method: 'GET',
         credentials: 'include',
-        headers: {
-          Accept: 'application/json'
-        }
+        headers: { Accept: 'application/json' }
       }
     )
 
-    if (!respuesta.ok) {
-      return {
-        path: to.path.startsWith('/joanmiro')
-          ? '/joanmiro/alumnos/acceso'
-          : '/ateneu/alumnos/acceso',
-        query: { destino: to.fullPath }
-      }
-    }
+    const resultadoAlumno = await respuestaAlumno
+      .json()
+      .catch(() => ({}))
 
-    const resultado = await respuesta.json()
-
-    if (!resultado.ok) {
-      return {
-        path: to.path.startsWith('/joanmiro')
-          ? '/joanmiro/alumnos/acceso'
-          : '/ateneu/alumnos/acceso',
-        query: { destino: to.fullPath }
-      }
+    if (respuestaAlumno.ok && resultadoAlumno.ok) {
+      return true
     }
-
-    return true
-  } catch {
-    return {
-      path: to.path.startsWith('/joanmiro')
-        ? '/joanmiro/alumnos/acceso'
-        : '/ateneu/alumnos/acceso',
-      query: { destino: to.fullPath }
-    }
+  } catch (error) {
+    console.error('No se pudo comprobar la sesión del alumno.')
   }
+
+  // 2. Las demás páginas protegidas siguen requiriendo alumno.
+  // Solo permitimos la alternativa de profesor en el foro.
+  if (!esForo) {
+    return redirigirAcceso()
+  }
+
+  // 3. Comprobar la sesión del profesor.
+  try {
+    const respuestaProfesor = await fetch(
+      `${base}/api/acceso-profesor/session`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Accept: 'application/json' }
+      }
+    )
+
+    const resultadoProfesor = await respuestaProfesor
+      .json()
+      .catch(() => ({}))
+
+    const escuelaEsperada = to.path.startsWith('/joanmiro')
+      ? 1
+      : 2
+
+    if (
+      respuestaProfesor.ok &&
+      resultadoProfesor.ok &&
+      resultadoProfesor.profesor &&
+      Number(resultadoProfesor.profesor.escuelaId) === escuelaEsperada
+    ) {
+      return true
+    }
+  } catch (error) {
+    console.error('No se pudo comprobar la sesión del profesor.')
+  }
+
+  // 4. Si ninguna sesión es válida, denegar el acceso.
+  return redirigirAcceso()
 })
 
 export default router
