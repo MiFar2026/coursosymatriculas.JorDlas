@@ -1,11 +1,11 @@
 <template>
   <PerfilAlumnadoBase
     escuela="Escola Joan Miró"
-    :navbar-component="NavbarJoanMiro"
+    :navbar-component="NavbarJoanmiro"
   />
 </template>
 
 <script setup>
 import PerfilAlumnadoBase from '../../../components/PerfilAlumnadoBase.vue'
-import NavbarJoanMiro from '../../../components/JoanMiro/NavbarJoanMiro.vue'
+import NavbarJoanmiro from '../../../components/joanmiro/NavbarJoanmiro.vue'
 </script>

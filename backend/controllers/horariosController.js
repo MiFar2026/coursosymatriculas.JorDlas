@@ -117,9 +117,8 @@ async function getHorarios(req, res) {
     }
 
     const [filas] = await pool.execute(
-      `SELECT id, grupo_id, dia_semana, hora_inicio, hora_fin,
-              activo, cerrado, actualizado_en
-       FROM horarios
+      `SELECT id, grupo_id, dia_semana, hora_inicio, hora_fin, activo
+FROM horarios
        WHERE grupo_id = ?
        ORDER BY FIELD(
          dia_semana,
@@ -129,33 +128,30 @@ async function getHorarios(req, res) {
       [grupoId]
     );
 
-    const resultado = DIAS.map(dia => {
-      const fila = filas.find(h => h.dia_semana === dia);
+  const resultado = DIAS.map(dia => {
+  const fila = filas.find(h => h.dia_semana === dia);
 
-      if (!fila) {
-        return {
-          id: null,
-          grupo_id: grupoId,
-          dia_semana: dia,
-          hora_inicio: '09:00',
-          hora_fin: '18:00',
-          activo: false,
-          cerrado: true,
-          configurado: false
-        };
-      }
+  if (!fila) {
+    return {
+      id: null,
+      grupo_id: grupoId,
+      dia_semana: dia,
+      hora_inicio: '09:00',
+      hora_fin: '18:00',
+      activo: false,
+      configurado: false
+    };
+  }
 
-      return {
-        ...fila,
-        dia_semana: dia,
-        hora_inicio: String(fila.hora_inicio).slice(0, 5),
-        hora_fin: String(fila.hora_fin).slice(0, 5),
-        activo: Boolean(fila.activo),
-        cerrado: Boolean(fila.cerrado),
-        configurado: true
-      };
-    });
-
+  return {
+    ...fila,
+    dia_semana: dia,
+    hora_inicio: String(fila.hora_inicio).slice(0, 5),
+    hora_fin: String(fila.hora_fin).slice(0, 5),
+    activo: Boolean(fila.activo),
+    configurado: true
+  };
+});
     return res.json(resultado);
   } catch (error) {
     console.error('Error al consultar horarios:', error);
@@ -173,9 +169,10 @@ function horaValida(hora) {
 }
 
 // Solo se debe invocar desde una ruta protegida con adminAuth.
+
 async function guardarHorarios(req, res) {
-  const grupoId = Number(req.body.grupo_id);
-  const horarios = req.body.horarios;
+  const grupoId = Number(req.body?.grupo_id);
+  const horarios = req.body?.horarios;
 
   if (!Number.isInteger(grupoId) || grupoId < 1) {
     return res.status(400).json({
@@ -191,7 +188,7 @@ async function guardarHorarios(req, res) {
     });
   }
 
-  const diasRecibidos = horarios.map(h => h.dia_semana);
+  const diasRecibidos = horarios.map(h => h?.dia_semana);
 
   if (
     new Set(diasRecibidos).size !== 7 ||
@@ -204,7 +201,7 @@ async function guardarHorarios(req, res) {
   }
 
   for (const horario of horarios) {
-    if (typeof horario.cerrado !== 'boolean') {
+    if (typeof horario.activo !== 'boolean') {
       return res.status(400).json({
         ok: false,
         mensaje: `El estado de ${horario.dia_semana} no es válido.`
@@ -212,7 +209,7 @@ async function guardarHorarios(req, res) {
     }
 
     if (
-      !horario.cerrado &&
+      horario.activo &&
       (
         !horaValida(horario.hora_inicio) ||
         !horaValida(horario.hora_fin) ||
@@ -221,7 +218,7 @@ async function guardarHorarios(req, res) {
     ) {
       return res.status(400).json({
         ok: false,
-        mensaje: `Revisa las horas de ${horario.dia_semana}. La hora de cierre debe ser posterior a la apertura.`
+        mensaje: `Revisa las horas de ${horario.dia_semana}. La hora final debe ser posterior a la inicial.`
       });
     }
   }
@@ -247,15 +244,15 @@ async function guardarHorarios(req, res) {
     }
 
     for (const horario of horarios) {
-      // La tabla exige hora_inicio < hora_fin incluso si está cerrado.
-      // Por eso guardamos un intervalo válido y usamos cerrado = 1.
-      const inicio = horario.cerrado
-        ? '09:00:00'
-        : `${horario.hora_inicio}:00`;
+      // Un día sin clase queda inactivo en la tabla.
+      // Conservamos horas válidas para los campos TIME.
+      const inicio = horario.activo
+        ? `${horario.hora_inicio}:00`
+        : '09:00:00';
 
-      const fin = horario.cerrado
-        ? '18:00:00'
-        : `${horario.hora_fin}:00`;
+      const fin = horario.activo
+        ? `${horario.hora_fin}:00`
+        : '18:00:00';
 
       const [existentes] = await conexion.execute(
         `SELECT id
@@ -271,31 +268,26 @@ async function guardarHorarios(req, res) {
           `UPDATE horarios
            SET hora_inicio = ?,
                hora_fin = ?,
-               activo = 1,
-               dia = ?,
-               cerrado = ?
+               activo = ?
            WHERE id = ?`,
           [
             inicio,
             fin,
-            horario.dia_semana,
-            horario.cerrado ? 1 : 0,
+            horario.activo ? 1 : 0,
             existentes[0].id
           ]
         );
       } else {
         await conexion.execute(
           `INSERT INTO horarios
-           (grupo_id, dia_semana, hora_inicio, hora_fin,
-            activo, dia, cerrado)
-           VALUES (?, ?, ?, ?, 1, ?, ?)`,
+           (grupo_id, dia_semana, hora_inicio, hora_fin, activo)
+           VALUES (?, ?, ?, ?, ?)`,
           [
             grupoId,
             horario.dia_semana,
             inicio,
             fin,
-            horario.dia_semana,
-            horario.cerrado ? 1 : 0
+            horario.activo ? 1 : 0
           ]
         );
       }
@@ -303,7 +295,7 @@ async function guardarHorarios(req, res) {
 
     await conexion.commit();
 
-    res.json({
+    return res.json({
       ok: true,
       mensaje: 'Los horarios se han guardado correctamente.'
     });
@@ -314,7 +306,7 @@ async function guardarHorarios(req, res) {
 
     console.error('Error al guardar horarios:', error);
 
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       mensaje: 'No se pudieron guardar los horarios.'
     });
@@ -324,6 +316,7 @@ async function guardarHorarios(req, res) {
     }
   }
 }
+
 
 
 // Consulta el horario del grupo al que pertenece el alumno autenticado.

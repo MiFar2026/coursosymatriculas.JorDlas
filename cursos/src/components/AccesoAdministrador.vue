@@ -197,7 +197,7 @@
   v-if="moduloSeleccionado === 'horarios'"
   class="mt-8"
 >
-  <HorariosView />
+  <GestionHorariosAdmin />
 </section>
 
 
@@ -532,7 +532,7 @@
 import { ref } from 'vue'
 
 import GestionVoluntarios from '../components/GestionVoluntarios.vue'
-import HorariosView from '../views/ateneu/horarios/HorariosView.vue'
+import GestionHorariosAdmin from './GestionHorariosAdmin.vue'
 
 import {
   guardarTokenAdmin,

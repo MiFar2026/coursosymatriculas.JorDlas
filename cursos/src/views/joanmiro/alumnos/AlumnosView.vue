@@ -2,7 +2,7 @@
 <template>
     <div class="min-h-screen bg-gray-50 text-gray-800">
 
-        <NavbarJoanMiro />
+        <NavbarJoanmiro />
 
         <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
 
@@ -198,32 +198,33 @@ to="/joanmiro/alumnos/acceso?destino=/joanmiro/alumnos/perfil"
 
             </section>
 
-            <!-- FORO -->
+            <!-- Guía -->
 
-            <section
-                class="bg-purple-50 border border-purple-200
-                       rounded-2xl p-6 sm:p-8"
-            >
+<section
+    class="bg-purple-50 border border-purple-200
+           rounded-2xl p-6 sm:p-8"
+>
+    <h2 class="text-2xl font-bold mb-3">
+        Guía para estudiantes
+    </h2>
 
-                <h2 class="text-2xl font-bold mb-3">
-                    Foro de estudiantes
-                </h2>
+    <p class="text-gray-700 mb-5">
+        Consulta la guía para estudiantes de la Escuela Biblioteca Joan Miró. Encontrarás información y orientaciones útiles
+        para conocer el funcionamiento de la escuela, participar
+        en las actividades y aprovechar mejor tu experiencia
+        como alumno o alumna.
+    </p>
 
-                <p class="text-gray-700 mb-5">
-                    Comparte preguntas e ideas con otros alumnos
-                    de Biblioteca Joan Miró. También podrás consultar
-                    el foro general de la escuela.
-                </p>
+    <RouterLink
+        to="/joanmiro/alumnos/guiaalumno"
+        class="inline-flex bg-purple-700 hover:bg-purple-800
+               text-white font-bold rounded-lg px-5 py-3"
+    >
+        Consultar la guía
+    </RouterLink>
+</section>
 
-                <RouterLink
-                    to="/joanmiro/alumnos/foro"
-                    class="inline-flex bg-purple-700 hover:bg-purple-800
-                           text-white font-bold rounded-lg px-5 py-3"
-                >
-                    Entrar en el foro
-                </RouterLink>
 
-            </section>
 
         </main>
 
@@ -239,7 +240,7 @@ to="/joanmiro/alumnos/acceso?destino=/joanmiro/alumnos/perfil"
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import NavbarJoanMiro from '../../../components/joanmiro/NavbarJoanmiro.vue'
+import NavbarJoanmiro from '../../../components/joanmiro/NavbarJoanmiro.vue'
 
 const panel = ref(null)
 </script>

@@ -467,19 +467,18 @@ async function cargarHorarios() {
 
     // 3. Mostrar todos los grupos, tengan o no horario configurado.
     horarios.value = resultados.map(({ grupo, dias, errorHorario }) => {
-      const sesiones = dias
-        .filter(
-          dia =>
-            dia.configurado === true &&
-            dia.activo === true &&
-            dia.cerrado === false
-        )
-        .map(dia => ({
-          id: dia.id ?? dia.dia_semana,
-          dia: dia.dia_semana,
-          hora_inicio: dia.hora_inicio,
-          hora_fin: dia.hora_fin
-        }))
+  const sesiones = dias
+  .filter(
+    dia =>
+      dia.configurado === true &&
+      dia.activo === true
+  )
+  .map(dia => ({
+    id: dia.id ?? dia.dia_semana,
+    dia: dia.dia_semana,
+    hora_inicio: dia.hora_inicio,
+    hora_fin: dia.hora_fin
+  }))
 
       return {
         id: grupo.id,

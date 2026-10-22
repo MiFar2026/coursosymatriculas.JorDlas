@@ -11,7 +11,11 @@ const {
   getRecursosAdmin,
   retirarRecurso
 } = require('../controllers/adminModeracionController')
-
+const {
+  getGrupos,
+  getHorarios,
+  guardarHorarios
+} = require('../controllers/horariosController')
 const {
   listarVoluntarios,
   cambiarEstadoVoluntario
@@ -31,6 +35,11 @@ router.get('/prueba', (req, res) => {
     mensaje: 'Autenticación de administrador correcta.'
   })
 })
+
+// Gestión de horarios: solo administrador
+router.get('/horarios/grupos', getGrupos)
+router.get('/horarios', getHorarios)
+router.put('/horarios', guardarHorarios)
 
 // Foro de estudiantes
 router.get(

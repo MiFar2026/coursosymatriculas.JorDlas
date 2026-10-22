@@ -200,22 +200,32 @@ const routes = [
         path: '/joanmiro/alumnos',
         component: () => import('../views/joanmiro/alumnos/AlumnosView.vue')
     },
+
     {
-        path: '/joanmiro/alumnos/perfil',
-        component: () => import('../views/joanmiro/alumnos/PerfilAlumnoView.vue')
+        path: '/joanmiro/alumnos/guiaalumno',
+        component: () => import('../views/joanmiro/alumnos/GuiaAlumnosView.vue')
     },
+
     {
         path: '/joanmiro/alumnos/entregar-tarea',
         component: () => import('../views/joanmiro/alumnos/EntregarTareaView.vue')
     },
-    {
-        path: '/joanmiro/alumnos/foro',
-        component: () => import('../views/joanmiro/alumnos/ForoAlumnosView.vue')
-    },
-
+{
+  path: '/joanmiro/alumnos/perfil',
+  component: () =>
+    import('../views/joanmiro/alumnos/PerfilAlumnoView.vue'),
+  meta: { requiereAlumno: true }
+},
+{
+  path: '/joanmiro/alumnos/foro',
+  component: () =>
+    import('../views/joanmiro/alumnos/ForoAlumnosView.vue'),
+  meta: { requiereAlumno: true }
+},
 {
   path: '/joanmiro/alumnos/acceso',
-  component: () => import('../views/joanmiro/alumnos/AccesoAlumnoView.vue')
+  component: () =>
+    import('../views/joanmiro/alumnos/AccesoAlumnoView.vue')
 },
     // Tutores
 
@@ -223,7 +233,26 @@ const routes = [
         path: '/joanmiro/tutores',
         component: () => import('../views/joanmiro/tutores/TutoresView.vue')
     },
-    {
+
+{
+    path: '/joanmiro/tutores/acceso',
+    component: () => import(
+        '../views/joanmiro/tutores/AccesoProfesorView.vue'
+    )
+},
+{  
+   path: '/joanmiro/tutores/guias',
+    component: () => import(
+        '../views/joanmiro/tutores/GuiasProfesoradoView.vue'
+    )
+},
+{
+    path: '/joanmiro/tutores/perfil',
+    component: () => import(
+        '../views/joanmiro/tutores/PerfilTutorView.vue'
+    )
+},
+{
         path: '/joanmiro/tutores/mensaje-profesor',
         component: () => import('../views/joanmiro/tutores/MensajeProfesorView.vue')
     },
@@ -265,22 +294,30 @@ const routes = [
         path: '/ateneu/alumnos',
         component: () => import('../views/ateneu/alumnos/AlumnosView.vue')
     },
-    {
-        path: '/ateneu/alumnos/perfil',
-        component: () => import('../views/ateneu/alumnos/PerfilAlumnoView.vue')
+     {
+        path: '/ateneu/alumnos/guiaalumno',
+        component: () => import('../views/ateneu/alumnos/GuiaAlumnosView.vue')
     },
     {
         path: '/ateneu/alumnos/entregar-tarea',
         component: () => import('../views/ateneu/alumnos/EntregarTareaView.vue')
     },
-    {
-        path: '/ateneu/alumnos/foro',
-        component: () => import('../views/ateneu/alumnos/ForoAlumnosView.vue')
-    },
-  
+  {
+  path: '/ateneu/alumnos/perfil',
+  component: () =>
+    import('../views/ateneu/alumnos/PerfilAlumnoView.vue'),
+  meta: { requiereAlumno: true }
+},
+{
+  path: '/ateneu/alumnos/foro',
+  component: () =>
+    import('../views/ateneu/alumnos/ForoAlumnosView.vue'),
+  meta: { requiereAlumno: true }
+},
 {
   path: '/ateneu/alumnos/acceso',
-  component: () => import('../views/ateneu/alumnos/AccesoAlumnoView.vue')
+  component: () =>
+    import('../views/ateneu/alumnos/AccesoAlumnoView.vue')
 },
 
 
@@ -291,6 +328,27 @@ const routes = [
         name: 'tutores',
         component: () => import('../views/ateneu/tutores/TutoresView.vue')
     },
+  {
+    path: '/ateneu/tutores/acceso',
+    component: () => import(
+        '../views/ateneu/tutores/AccesoProfesorView.vue'
+    )
+},
+  
+{  
+   path: '/ateneu/tutores/guias',
+    component: () => import(
+        '../views/ateneu/tutores/GuiasProfesoradoView.vue'
+    )
+},
+
+{
+    path: '/ateneu/tutores/perfil',
+    component: () => import(
+        '../views/ateneu/tutores/PerfilTutorView.vue'
+    )
+},
+
     {
         path: '/ateneu/tutores/mensaje-profesor',
         component: () => import('../views/ateneu/tutores/MensajeProfesorView.vue')
@@ -352,6 +410,58 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes
+})
+
+router.beforeEach(async (to) => {
+  if (!to.matched.some((ruta) => ruta.meta.requiereAlumno)) {
+    return true
+  }
+
+  const base = (
+    import.meta.env.VITE_API_URL || 'http://localhost:5555'
+  ).replace(/\/+$/, '')
+
+  try {
+    const respuesta = await fetch(
+      `${base}/api/perfil-alumno/me`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        }
+      }
+    )
+
+    if (!respuesta.ok) {
+      return {
+        path: to.path.startsWith('/joanmiro')
+          ? '/joanmiro/alumnos/acceso'
+          : '/ateneu/alumnos/acceso',
+        query: { destino: to.fullPath }
+      }
+    }
+
+    const resultado = await respuesta.json()
+
+    if (!resultado.ok) {
+      return {
+        path: to.path.startsWith('/joanmiro')
+          ? '/joanmiro/alumnos/acceso'
+          : '/ateneu/alumnos/acceso',
+        query: { destino: to.fullPath }
+      }
+    }
+
+    return true
+  } catch {
+    return {
+      path: to.path.startsWith('/joanmiro')
+        ? '/joanmiro/alumnos/acceso'
+        : '/ateneu/alumnos/acceso',
+      query: { destino: to.fullPath }
+    }
+  }
 })
 
 export default router

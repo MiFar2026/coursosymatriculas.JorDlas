@@ -1,14 +1,12 @@
-
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 
 const {
-  getMiPerfilAlumno
-} = require('../controllers/perfilAlumnoController')
+    getMiPerfilAlumno
+} = require('../controllers/perfilAlumnoController');
 
-const autenticarAlumno = require('../middlewares/autenticarAlumno')
+const autenticarAlumno = require('../middlewares/autenticarAlumno');
 
-// Perfil privado del alumno que ha iniciado sesión
-router.get('/me', autenticarAlumno, getMiPerfilAlumno)
+router.get('/me', autenticarAlumno, getMiPerfilAlumno);
 
-module.exports = router
+module.exports = router;

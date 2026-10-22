@@ -198,32 +198,33 @@ to="/ateneu/alumnos/acceso?destino=/ateneu/alumnos/perfil"
 
             </section>
 
-            <!-- FORO -->
+            <!-- Guía -->
 
-            <section
-                class="bg-purple-50 border border-purple-200
-                       rounded-2xl p-6 sm:p-8"
-            >
+<section
+    class="bg-purple-50 border border-purple-200
+           rounded-2xl p-6 sm:p-8"
+>
+    <h2 class="text-2xl font-bold mb-3">
+        Guía para estudiantes
+    </h2>
 
-                <h2 class="text-2xl font-bold mb-3">
-                    Foro de estudiantes
-                </h2>
+    <p class="text-gray-700 mb-5">
+        Consulta la guía para estudiantes de la Escuela Ateneu
+        Aula 502. Encontrarás información y orientaciones útiles
+        para conocer el funcionamiento de la escuela, participar
+        en las actividades y aprovechar mejor tu experiencia
+        como alumno o alumna.
+    </p>
 
-                <p class="text-gray-700 mb-5">
-                    Comparte preguntas e ideas con otros alumnos
-                    de Escuela Ateneu Aula 502. También podrás consultar
-                    el foro general de la escuela.
-                </p>
+    <RouterLink
+        to="/ateneu/alumnos/guiaalumno"
+        class="inline-flex bg-purple-700 hover:bg-purple-800
+               text-white font-bold rounded-lg px-5 py-3"
+    >
+        Consultar la guía
+    </RouterLink>
+</section>
 
-                <RouterLink
-                    to="/ateneu/alumnos/foro"
-                    class="inline-flex bg-purple-700 hover:bg-purple-800
-                           text-white font-bold rounded-lg px-5 py-3"
-                >
-                    Entrar en el foro
-                </RouterLink>
-
-            </section>
 
         </main>
 

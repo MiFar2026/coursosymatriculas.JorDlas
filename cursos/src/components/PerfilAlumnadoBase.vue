@@ -126,7 +126,7 @@
           v-for="item in secciones"
           :key="item.id"
           type="button"
-          @click="seccion = item.id"
+          @click="item.id === 'foro' ? irAlForo() : seccion = item.id"
           :aria-current="seccion === item.id ? 'page' : undefined"
           :class="[
             'shrink-0 rounded-xl px-4 py-3 text-sm font-bold transition',
@@ -667,38 +667,111 @@
         </div>
       </section>
 
-      <!-- Avisos -->
-      <section
-        v-else-if="seccion === 'avisos'"
-        class="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-      >
-        <p class="text-sm font-bold uppercase tracking-wider text-amber-700">
-          Información personal
-        </p>
-        <h2 class="mt-1 text-2xl font-extrabold">Mis avisos</h2>
+    
+<!-- Avisos -->
+<section
+  v-else-if="seccion === 'avisos'"
+  class="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="text-sm font-bold uppercase tracking-wider text-amber-700">
+        Información de tu clase
+      </p>
 
-        <div v-if="avisos.length" class="mt-6 space-y-3">
-          <article
-            v-for="aviso in avisos"
-            :key="aviso.id"
-            class="rounded-xl border border-amber-200 bg-amber-50 p-5"
-          >
-            <h3 class="font-bold">{{ aviso.titulo }}</h3>
-            <p class="mt-2 text-sm leading-6">{{ aviso.texto }}</p>
-          </article>
-        </div>
+      <h2 class="mt-1 text-2xl font-extrabold">
+        Mis avisos
+      </h2>
 
-        <p
-          v-else
-          class="mt-6 rounded-xl bg-slate-50 p-5 text-slate-600"
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Consulta los avisos de tu profesor y los mensajes dirigidos a ti.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="cargarAvisos"
+      :disabled="cargandoAvisos"
+      class="rounded-xl border border-amber-300 px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-50 disabled:opacity-50"
+    >
+      {{ cargandoAvisos ? 'Actualizando...' : 'Actualizar avisos' }}
+    </button>
+  </div>
+
+  <p
+    v-if="cargandoAvisos"
+    role="status"
+    class="mt-6 rounded-xl bg-slate-50 p-5 text-sm text-slate-600"
+  >
+    Cargando tus avisos...
+  </p>
+
+  <div
+    v-else-if="errorAvisos"
+    role="alert"
+    class="mt-6 rounded-xl bg-rose-50 p-5 text-sm text-rose-800"
+  >
+    <p>{{ errorAvisos }}</p>
+
+    <button
+      type="button"
+      @click="cargarAvisos"
+      class="mt-3 font-bold underline"
+    >
+      Intentar de nuevo
+    </button>
+  </div>
+
+  <div v-else-if="avisos.length" class="mt-6 space-y-4">
+    <article
+      v-for="aviso in avisos"
+      :key="aviso.id"
+      class="rounded-xl border border-amber-200 bg-amber-50 p-5"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <h3 class="text-lg font-bold text-slate-900">
+          {{ aviso.titulo }}
+        </h3>
+
+        <span
+          class="rounded-full bg-white px-3 py-1 text-xs font-bold text-amber-800"
         >
-          No tienes avisos nuevos.
-        </p>
+          {{ aviso.destinatario === 'INDIVIDUAL'
+            ? 'Privado para ti'
+            : 'Aviso de clase' }}
+        </span>
+      </div>
 
-        <p class="mt-4 text-xs leading-5 text-slate-500">
-          Los avisos reales y privados se cargarán desde el servidor para el alumno autenticado.
-        </p>
-      </section>
+      <p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">
+        {{ aviso.mensaje || aviso.texto }}
+      </p>
+
+      <div class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+        <span>
+          Tipo:
+          {{ aviso.tipo === 'PERMANENTE' ? 'Permanente' : 'Temporal' }}
+        </span>
+
+        <span v-if="aviso.fecha_publicacion">
+          Publicado:
+          {{ formatearFecha(aviso.fecha_publicacion) }}
+        </span>
+
+        <span v-if="aviso.grupo_nombre">
+          Grupo: {{ aviso.grupo_nombre }}
+        </span>
+      </div>
+    </article>
+  </div>
+
+  <p
+    v-else
+    class="mt-6 rounded-xl bg-slate-50 p-5 text-sm leading-6 text-slate-600"
+  >
+    No tienes avisos disponibles en este momento.
+  </p>
+</section>
+
 
       <!-- Mensajes -->
       <section
@@ -765,19 +838,34 @@
         </form>
       </section>
 
+      
       <footer class="py-8 text-center text-xs text-slate-500">
         {{ escuela }} · Espacio del alumnado
       </footer>
+
     </main>
   </div>
 </template>
 
 <script setup>
+import { useRouter, useRoute } from 'vue-router'
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 
 const API_BASE = (
   import.meta.env.VITE_API_URL || 'http://localhost:5555'
 ).replace(/\/+$/, '')
+
+
+const router = useRouter()
+const route = useRoute()
+
+function irAlForo() {
+  const destino = route.path.startsWith('/joanmiro')
+    ? '/joanmiro/alumnos/foro'
+    : '/ateneu/alumnos/foro'
+
+  router.push(destino)
+}
 
 const props = defineProps({
   escuela: {
@@ -800,7 +888,8 @@ const secciones = [
   { id: 'trabajos', nombre: 'Trabajos', icono: '📤' },
   { id: 'resultados', nombre: 'Resultados', icono: '📊' },
   { id: 'avisos', nombre: 'Avisos', icono: '🔔' },
-  { id: 'mensajes', nombre: 'Mensajes', icono: '💬' }
+  { id: 'mensajes', nombre: 'Mensajes', icono: '💬' },
+  { id: 'foro', nombre: 'Foro', icono: '🗣️' }
 ]
 
 // Foto de perfil
@@ -908,9 +997,13 @@ const extensionesPermitidas = [
 ]
 
 // Avisos y mensajes
+// Avisos y mensajes
 const avisos = ref([])
+const cargandoAvisos = ref(false)
+const errorAvisos = ref('')
 const textoMensaje = ref('')
 const mensajeChat = ref('')
+
 
 // Cargar perfil del alumno
 async function cargarPerfil() {
@@ -1046,6 +1139,49 @@ async function cargarEntregas() {
       error.message || 'No se pudieron cargar tus entregas.'
   } finally {
     cargandoEntregas.value = false
+  }
+}
+
+
+/**
+ * Carga los avisos correspondientes al alumno autenticado.
+ */
+async function cargarAvisos() {
+  if (cargandoAvisos.value) return
+
+  cargandoAvisos.value = true
+  errorAvisos.value = ''
+
+  try {
+    const respuesta = await fetch(
+      `${API_BASE}/api/avisos/mis-avisos`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        }
+      }
+    )
+
+    const resultado = await respuesta.json().catch(() => ({}))
+
+    if (!respuesta.ok || !resultado.ok) {
+      throw new Error(
+        resultado.mensaje || 'No se pudieron cargar los avisos.'
+      )
+    }
+
+    avisos.value = Array.isArray(resultado.avisos)
+  ? resultado.avisos
+  : []
+  } catch (error) {
+    console.error('Error al cargar los avisos:', error)
+
+    errorAvisos.value =
+      error.message || 'No se pudieron cargar los avisos.'
+  } finally {
+    cargandoAvisos.value = false
   }
 }
 
@@ -1285,5 +1421,9 @@ watch(seccion, (nuevaSeccion) => {
   if (nuevaSeccion === 'trabajos') {
     cargarEntregas()
   }
+if (nuevaSeccion === 'avisos') {
+  cargarAvisos()
+}
+
 })
 </script>

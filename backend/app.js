@@ -12,6 +12,10 @@ const voluntariosRoutes = require('./routes/voluntariosRoutes.js');
 const horariosRoutes = require('./routes/horariosRoutes.js');
 const accesoAlumnoRoutes = require('./routes/accesoAlumnoRoutes')
 const tareasRoutes = require('./routes/tareasRoutes')
+const accesoProfesorRoutes = require('./routes/accesoProfesorRoutes')
+const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
+
+
 console.log('app.js cargado');
 
 const origenesPermitidos = [
@@ -62,6 +66,9 @@ app.use('/api', routes);
 app.use('/api/tareas', tareasRoutes)
 
 app.use('/api/perfil-alumno', perfilAlumnoRoutes);
+app.use('/api/acceso-profesor', accesoProfesorRoutes)
+app.use('/api/foro-alumnos', foroAlumnosRoutes)
+
 // 404: siempre al final
 app.use((req, res) => {
   res.status(404).json({

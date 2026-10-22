@@ -26,9 +26,9 @@
           en lo que necesites.
         </p>
 
-        <a class="email-link" href="mailto:exaequo@exaequo.com">
+        <a class="email-link" href="mailto:exaequo1995@gmail.com">
           <span>Escríbenos</span>
-          <span class="email-address">exaequo@exaequo.com</span>
+          <span class="email-address">exaequo1995@gmail.com</span>
           <span class="arrow">↗</span>
         </a>
 

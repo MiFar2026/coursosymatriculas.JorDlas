@@ -1,312 +1,225 @@
 
 <template>
-    <div class="min-h-screen bg-gray-50 text-gray-800">
+  <div class="min-h-screen bg-stone-50 text-gray-800">
+    <!-- NAVBAR -->
+    <NavbarAteneu />
 
-        <NavbarAteneu />
+    <main>
+      <!-- CABECERA -->
+      <section
+        class="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-stone-100"
+      >
+        <div
+          class="absolute -top-20 -right-16 h-64 w-64 rounded-full bg-amber-200/30"
+        ></div>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <div
+          class="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-yellow-200/30"
+        ></div>
 
-            <header class="mb-10">
-
-                <p class="text-sm uppercase tracking-widest
-                          font-bold text-indigo-700 mb-2">
-                    Escuela Ateneu
-                </p>
-
-                <h1 class="text-3xl sm:text-4xl font-bold mb-3">
-                    Espacio de tutores
-                </h1>
-
-                <p class="text-gray-600 max-w-3xl">
-                    Gestiona tus grupos, consulta las tareas entregadas,
-                    comparte recursos, publica avisos y comunícate
-                    con los alumnos.
-                </p>
-
-            </header>
-
-            <!-- AVISOS -->
-
-            <section
-                class="bg-amber-50 border border-amber-200
-                       rounded-2xl p-6 mb-10"
+        <div class="relative mx-auto max-w-6xl px-6 py-16 md:py-24">
+          <div class="mx-auto max-w-3xl text-center">
+            <p
+              class="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-amber-800"
             >
-
-                <div class="flex flex-col sm:flex-row
-                            sm:items-center sm:justify-between gap-4">
-
-                    <div>
-
-                        <h2 class="text-xl font-bold mb-2">
-                            📢 Avisos de Ateneu
-                        </h2>
-
-                        <p class="text-gray-700">
-                            Publica avisos permanentes o temporales.
-                            Los temporales expirarán después de 72 horas.
-                        </p>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        @click="mostrarFormularioAviso = !mostrarFormularioAviso"
-                        class="bg-amber-600 hover:bg-amber-700
-                               text-white font-bold rounded-lg
-                               px-5 py-3"
-                    >
-                        {{ mostrarFormularioAviso
-                            ? 'Cerrar formulario'
-                            : 'Crear aviso'
-                        }}
-                    </button>
-
-                </div>
-
-                <form
-                    v-if="mostrarFormularioAviso"
-                    @submit.prevent="publicarAviso"
-                    class="mt-6 bg-white rounded-xl border
-                           border-amber-200 p-5 space-y-4"
-                >
-
-                    <div>
-
-                        <label class="block font-semibold mb-2">
-                            Título del aviso
-                        </label>
-
-                        <input
-                            v-model.trim="aviso.titulo"
-                            required
-                            maxlength="200"
-                            class="w-full border rounded-lg p-3"
-                            placeholder="Ej.: Cambio de aula"
-                        >
-
-                    </div>
-
-                    <div>
-
-                        <label class="block font-semibold mb-2">
-                            Contenido
-                        </label>
-
-                        <textarea
-                            v-model.trim="aviso.mensaje"
-                            required
-                            rows="4"
-                            class="w-full border rounded-lg p-3"
-                            placeholder="Escribe el aviso..."
-                        ></textarea>
-
-                    </div>
-
-                    <div>
-
-                        <label class="block font-semibold mb-2">
-                            Duración
-                        </label>
-
-                        <select
-                            v-model="aviso.tipo"
-                            class="w-full border rounded-lg p-3 bg-white"
-                        >
-
-                            <option value="PERMANENTE">
-                                Permanente
-                            </option>
-
-                            <option value="DIARIO">
-                                Temporal: máximo 72 horas
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700
-                               text-white font-bold rounded-lg
-                               px-5 py-3"
-                    >
-                        Preparar publicación
-                    </button>
-
-                    <p class="text-sm text-gray-500">
-                        La publicación real se activará cuando conectemos
-                        este formulario con la API de avisos.
-                    </p>
-
-                </form>
-
-                <p
-                    v-if="mensajeAviso"
-                    role="status"
-                    class="mt-4 text-sm font-semibold"
-                >
-                    {{ mensajeAviso }}
-                </p>
-
-            </section>
-
-            <!-- PANEL DE FUNCIONES -->
-
-            <section>
-
-                <h2 class="text-2xl font-bold mb-6">
-                    Gestión educativa
-                </h2>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2
-                            lg:grid-cols-3 gap-5">
-
-                    <RouterLink
-                        to="/ateneu/alumnos"
-                        class="tarjeta bg-white border-t-4 border-indigo-600"
-                    >
-
-                        <span class="text-3xl">👩‍🎓</span>
-
-                        <h3 class="titulo-tarjeta">
-                            Alumnos
-                        </h3>
-
-                        <p class="texto-tarjeta">
-                            Acceder al espacio del alumnado y consultar
-                            la información de sus clases.
-                        </p>
-
-                    </RouterLink>
-
-                    <RouterLink
-                        to="/ateneu/tutores/resultados-alumno"
-                        class="tarjeta bg-white border-t-4 border-red-500"
-                    >
-
-                        <span class="text-3xl">📝</span>
-
-                        <h3 class="titulo-tarjeta">
-                            Tareas y resultados
-                        </h3>
-
-                        <p class="texto-tarjeta">
-                            Revisar trabajos, añadir comentarios,
-                            poner notas y devolver documentos corregidos.
-                        </p>
-
-                    </RouterLink>
-
-                    <RouterLink
-                        to="/ateneu/tutores/mensaje-profesor"
-                        class="tarjeta bg-white border-t-4 border-blue-500"
-                    >
-
-                        <span class="text-3xl">💬</span>
-
-                        <h3 class="titulo-tarjeta">
-                            Mensajes
-                        </h3>
-
-                        <p class="texto-tarjeta">
-                            Enviar y recibir mensajes identificando
-                            al alumno y su grupo.
-                        </p>
-
-                    </RouterLink>
-
-                    <RouterLink
-                        to="/ateneu/recursos"
-                        class="tarjeta bg-white border-t-4 border-green-600"
-                    >
-
-                        <span class="text-3xl">📚</span>
-
-                        <h3 class="titulo-tarjeta">
-                            Recursos educativos
-                        </h3>
-
-                        <p class="texto-tarjeta">
-                            Acceder a la sección donde se publicarán
-                            materiales para los estudiantes.
-                        </p>
-
-                    </RouterLink>
-
-                    <RouterLink
-                        to="/ateneu/alumnos/foro"
-                        class="tarjeta bg-white border-t-4 border-purple-600"
-                    >
-
-                        <span class="text-3xl">🌍</span>
-
-                        <h3 class="titulo-tarjeta">
-                            Foro de estudiantes
-                        </h3>
-
-                        <p class="texto-tarjeta">
-                            Participar en los foros de los cursos
-                            y en el foro general de Ateneu.
-                        </p>
-
-                    </RouterLink>
-
-                    <button
-                        type="button"
-                        @click="mostrarForoProfesores = !mostrarForoProfesores"
-                        class="tarjeta text-left bg-white
-                               border-t-4 border-gray-700"
-                    >
-
-                        <span class="text-3xl">🔒</span>
-
-                        <h3 class="titulo-tarjeta">
-                            Foro del profesorado
-                        </h3>
-
-                        <p class="texto-tarjeta">
-                            Espacio reservado a los profesores
-                            y tutores de Ateneu.
-                        </p>
-
-                    </button>
-
-                </div>
-
-                <div
-                    v-if="mostrarForoProfesores"
-                    class="mt-6 bg-white border rounded-xl p-6"
-                >
-
-                    <h3 class="text-xl font-bold mb-2">
-                        Foro privado del profesorado
-                    </h3>
-
-                    <p class="text-gray-600 mb-4">
-                        Este espacio necesita una ruta y un control
-                        de acceso exclusivos para profesores.
-                    </p>
-
-                    <p class="text-sm text-amber-800 bg-amber-50 p-4 rounded-lg">
-                        Por ahora es una vista informativa.
-                        No se debe considerar privado hasta que el servidor
-                        compruebe que el usuario es un profesor autorizado.
-                    </p>
-
-                </div>
-
-            </section>
-
-        </main>
-
-        <footer class="border-t bg-white py-6 mt-12">
-            <p class="text-center text-sm text-gray-500">
-                ExAequo · Ateneu · Espacio del profesorado
+              Ateneu Barcelonés Aula 502
             </p>
-        </footer>
 
-    </div>
+            <h1
+              class="mb-6 text-4xl font-bold leading-tight text-gray-900 md:text-6xl"
+            >
+              Espacio de tutores
+            </h1>
+
+            <p class="text-lg leading-relaxed text-gray-600 md:text-xl">
+              Un espacio para organizar las clases, consultar recursos
+              educativos y acompañar el aprendizaje de nuestros alumnos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- NORMAS Y AVISOS -->
+      <section class="mx-auto max-w-6xl px-6 pt-10">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <button
+            type="button"
+            @click="mostrarNormas = !mostrarNormas"
+            :aria-expanded="mostrarNormas"
+            class="flex items-center gap-4 rounded-2xl border border-amber-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <span
+              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-amber-100 text-2xl"
+            >
+              📘
+            </span>
+
+            <span class="flex-1">
+              <span class="block text-lg font-bold">Normas</span>
+              <span class="mt-1 block text-sm text-gray-500">
+                Orientaciones para la convivencia y el trabajo en clase.
+              </span>
+            </span>
+
+            <span class="text-xl text-amber-700">
+              {{ mostrarNormas ? '−' : '+' }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            @click="mostrarAvisos = !mostrarAvisos"
+            :aria-expanded="mostrarAvisos"
+            class="flex items-center gap-4 rounded-2xl border border-blue-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <span
+              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-100 text-2xl"
+            >
+              📢
+            </span>
+
+            <span class="flex-1">
+              <span class="block text-lg font-bold">Avisos</span>
+              <span class="mt-1 block text-sm text-gray-500">
+                Información y comunicaciones de la escuela.
+              </span>
+            </span>
+
+            <span class="text-xl text-blue-700">
+              {{ mostrarAvisos ? '−' : '+' }}
+            </span>
+          </button>
+        </div>
+
+        <!-- CONTENIDO DE NORMAS -->
+        <div
+          v-if="mostrarNormas"
+          class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-6"
+        >
+          <h2 class="mb-3 text-xl font-bold text-amber-900">
+            Normas del profesorado
+          </h2>
+
+          <ul class="list-disc space-y-2 pl-5 leading-relaxed text-gray-700">
+            <li>Tratar a todas las personas con respeto.</li>
+            <li>Favorecer un ambiente de aprendizaje inclusivo.</li>
+            <li>Respetar los horarios y la organización de las clases.</li>
+            <li>Proteger la privacidad de los alumnos.</li>
+            <li>Utilizar los recursos educativos de forma responsable.</li>
+          </ul>
+        </div>
+
+        <!-- CONTENIDO DE AVISOS -->
+        <div
+          v-if="mostrarAvisos"
+          class="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-6"
+        >
+          <h2 class="mb-2 text-xl font-bold text-blue-900">
+            Avisos de la escuela
+          </h2>
+
+          <p class="leading-relaxed text-gray-700">
+            Aquí aparecerán los avisos publicados por la escuela. Todavía no
+            hay avisos disponibles para mostrar.
+          </p>
+        </div>
+      </section>
+
+      <!-- TARJETAS PRINCIPALES -->
+      <section class="mx-auto max-w-6xl px-6 py-12 md:py-16">
+        <div class="mb-10 text-center">
+          <h2 class="mb-3 text-3xl font-bold text-gray-900">
+            ¿Qué necesitas hacer?
+          </h2>
+
+          <p class="mx-auto max-w-2xl leading-relaxed text-gray-600">
+            Accede a tu perfil o consulta las guías y los materiales
+            preparados para el profesorado.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+          <!-- ACCESO AL PERFIL -->
+          <RouterLink
+            to="/ateneu/tutores/acceso"
+            class="group flex flex-col rounded-3xl border-2 border-amber-200 bg-white p-8 shadow-md transition duration-300 hover:-translate-y-1 hover:border-amber-400 hover:shadow-xl"
+          >
+            <div
+              class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-3xl"
+            >
+              👤
+            </div>
+
+            <h3 class="mb-3 text-2xl font-bold text-gray-900">
+              Entrar en mi perfil
+            </h3>
+
+            <p class="mb-6 flex-1 leading-relaxed text-gray-600">
+              Accede a tu espacio personal para consultar tus clases,
+              comunicarte con los alumnos y utilizar las herramientas
+              disponibles para los tutores.
+            </p>
+
+            <span
+              class="inline-flex items-center gap-2 font-bold text-amber-800"
+            >
+              Acceder
+              <span
+                class="text-2xl transition-transform group-hover:translate-x-2"
+              >
+                →
+              </span>
+            </span>
+          </RouterLink>
+
+          <!-- GUÍAS -->
+          <RouterLink
+            to="/ateneu/tutores/guias"
+            class="group flex flex-col rounded-3xl border-2 border-blue-200 bg-white p-8 shadow-md transition duration-300 hover:-translate-y-1 hover:border-blue-400 hover:shadow-xl"
+          >
+            <div
+              class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-3xl"
+            >
+              📚
+            </div>
+
+            <h3 class="mb-3 text-2xl font-bold text-gray-900">
+              Guías para el profesorado
+            </h3>
+
+            <p class="mb-6 flex-1 leading-relaxed text-gray-600">
+              Consulta las guías, instrucciones, documentos y materiales
+              educativos que se irán incorporando a esta sección.
+            </p>
+
+            <span
+              class="inline-flex items-center gap-2 font-bold text-blue-800"
+            >
+              Consultar guías
+              <span
+                class="text-2xl transition-transform group-hover:translate-x-2"
+              >
+                →
+              </span>
+            </span>
+          </RouterLink>
+        </div>
+      </section>
+
+      <!-- VOLVER -->
+      <section class="border-t border-gray-200 bg-white">
+        <div class="mx-auto max-w-6xl px-6 py-8 text-center">
+          <RouterLink
+            to="/joanmiro"
+            class="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-100"
+          >
+            <span>←</span>
+            Volver a la escuela
+          </RouterLink>
+        </div>
+      </section>
+    </main>
+  </div>
 </template>
 
 <script setup>
@@ -314,53 +227,6 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import NavbarAteneu from '../../../components/ateneu/NavbarAteneu.vue'
 
-const mostrarFormularioAviso = ref(false)
-const mostrarForoProfesores = ref(false)
-const mensajeAviso = ref('')
-
-const aviso = ref({
-    titulo: '',
-    mensaje: '',
-    tipo: 'DIARIO'
-})
-
-function publicarAviso() {
-    mensajeAviso.value =
-        'El formulario está preparado. Falta conectarlo con la API para guardar el aviso en la base de datos.'
-
-    // No se simula un envío exitoso.
-    // La publicación se implementará con la API PHP.
-}
+const mostrarNormas = ref(false)
+const mostrarAvisos = ref(false)
 </script>
-
-<style scoped>
-.tarjeta {
-    display: block;
-    width: 100%;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    border-right: 1px solid #e5e7eb;
-    border-bottom: 1px solid #e5e7eb;
-    border-left: 1px solid #e5e7eb;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
-    text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.tarjeta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 18px rgb(0 0 0 / 10%);
-}
-
-.titulo-tarjeta {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.texto-tarjeta {
-    color: #4b5563;
-    line-height: 1.6;
-}
-</style>

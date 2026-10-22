@@ -163,8 +163,7 @@ async function iniciarSesion() {
     const destino = route.query.destino
 
     const rutasPermitidas = [
-      '/ateneu/alumnos/perfil',
-      '/joanmiro/alumnos/perfil'
+      '/ateneu/alumnos/perfil'
     ]
 
     const rutaDestino = rutasPermitidas.includes(destino)
