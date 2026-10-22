@@ -208,8 +208,7 @@ async function cargarGrupos() {
   error.value = false
 
   try {
-    const resultado = await peticionAdmin('/admin/horarios/grupos')
-
+const resultado = await peticionAdmin('/horarios/grupos')
     grupos.value = Array.isArray(resultado)
       ? resultado
       : Array.isArray(resultado?.datos)
@@ -238,8 +237,8 @@ async function cargarHorario() {
 
   try {
     const resultado = await peticionAdmin(
-      `/admin/horarios?grupo_id=${encodeURIComponent(grupoSeleccionado.value)}`
-    )
+  `/horarios/?grupo_id=${encodeURIComponent(grupoSeleccionado.value)}`
+)
 
     const lista = Array.isArray(resultado)
       ? resultado
@@ -289,18 +288,18 @@ async function guardarHorario() {
   guardando.value = true
 
   try {
-    const resultado = await peticionAdmin('/admin/horarios', {
-      method: 'PUT',
-      body: JSON.stringify({
-        grupo_id: Number(grupoSeleccionado.value),
-        horarios: dias.value.map(dia => ({
-          dia_semana: dia.dia_semana,
-          hora_inicio: dia.hora_inicio,
-          hora_fin: dia.hora_fin,
-          activo: dia.activo
-        }))
-      })
-    })
+    const resultado = await peticionAdmin('/horarios/', {
+  method: 'PUT',
+  body: JSON.stringify({
+    grupo_id: Number(grupoSeleccionado.value),
+    horarios: dias.value.map(dia => ({
+      dia_semana: dia.dia_semana,
+      hora_inicio: dia.hora_inicio,
+      hora_fin: dia.hora_fin,
+      activo: dia.activo
+    }))
+  })
+})
 
     // Volver a leer los datos guardados en el servidor.
     await cargarHorario()

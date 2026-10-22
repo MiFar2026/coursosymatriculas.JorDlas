@@ -16,6 +16,10 @@ const {
     retirarRecurso
 } = require('../controllers/adminModeracionController')
 
+const {
+    listarVoluntarios,
+    cambiarEstadoVoluntario
+} = require('../controllers/voluntariosAdminController')
 const router = express.Router()
 
 // Acceso público para iniciar sesión.
@@ -23,6 +27,16 @@ router.post('/login', loginAdmin)
 
 // El resto de las rutas requieren autenticación de administrador.
 router.use(authAdmin)
+// Gestión de voluntariado.
+router.get(
+    '/voluntarios',
+    listarVoluntarios
+)
+
+router.patch(
+    '/voluntarios/:id/estado',
+    cambiarEstadoVoluntario
+)
 
 // Foro de estudiantes.
 router.get(
@@ -65,6 +79,7 @@ router.post(
     '/moderacion/foro-profesores/:id/eliminar',
     eliminarMensajeProfesor
 )
+
 
 // Materiales.
 router.get(

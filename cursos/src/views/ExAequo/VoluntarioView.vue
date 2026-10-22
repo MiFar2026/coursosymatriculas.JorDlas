@@ -26,9 +26,9 @@ async function submitForm() {
   error.value = false
 
   try {
-    const base = (
-      import.meta.env.VITE_API_URL || 'http://localhost:3000'
-    ).replace(/\/+$/, '')
+   const base = (
+  import.meta.env.VITE_API_URL || 'http://localhost:5555'
+).replace(/\/+$/, '')
 
     const response = await fetch(`${base}/api/voluntarios`, {
       method: 'POST',
