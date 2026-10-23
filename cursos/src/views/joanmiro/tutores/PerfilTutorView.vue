@@ -312,7 +312,6 @@
                     Gestión educativa
                 </h2>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
                     <RouterLink
                         to="/joanmiro/alumnos"
@@ -392,42 +391,26 @@
                         </p>
                     </RouterLink>
 
-                    <button
-                        type="button"
-                        @click="mostrarForoProfesores = !mostrarForoProfesores"
-                        class="tarjeta text-left border-t-4 border-gray-700"
-                    >
-                        <span class="text-3xl">🔒</span>
+                    
+<RouterLink
+  to="/joanmiro/tutores/foro-profesores"
+  class="tarjeta border-t-4 border-gray-700"
+>
+  <span class="text-3xl">🔒</span>
 
-                        <h3 class="titulo-tarjeta">
-                            Foro del profesorado
-                        </h3>
+  <h3 class="titulo-tarjeta">
+    Foro del profesorado
+  </h3>
 
-                        <p class="texto-tarjeta">
-                            Espacio reservado al equipo docente de Joan Miró.
-                        </p>
-                    </button>
+  <p class="texto-tarjeta">
+    Acceder al foro común del equipo docente de Ateneu Barcelónes y de la Biblioteca Joan Miró.
+  </p>
 
-                </div>
+  <span class="inline-block mt-4 font-bold text-teal-700">
+    Entrar al foro →
+  </span>
+</RouterLink>
 
-                <div
-                    v-if="mostrarForoProfesores"
-                    class="mt-6 bg-white border rounded-xl p-6"
-                >
-                    <h3 class="text-xl font-bold mb-2">
-                        Foro privado del profesorado
-                    </h3>
-
-                    <p class="text-gray-600 mb-4">
-                        Esta escuela tendrá su propio foro interno,
-                        separado del foro de Ateneu.
-                    </p>
-
-                    <p class="text-sm text-amber-800 bg-amber-50 p-4 rounded-lg">
-                        El control de acceso real debe realizarse
-                        en el servidor antes de habilitar el foro.
-                    </p>
-                </div>
             </section>
         </main>
 
@@ -451,7 +434,6 @@ const profesor = ref(null)
 const errorSesion = ref('')
 
 const mostrarFormularioAviso = ref(false)
-const mostrarForoProfesores = ref(false)
 
 const mensajeAviso = ref('')
 const errorAviso = ref(false)

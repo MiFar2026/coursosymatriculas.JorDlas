@@ -1,116 +1,595 @@
 
 <template>
-  <div class="min-h-screen bg-stone-50 text-gray-800">
-    <!-- NAVBAR -->
-    <NavbarJoanmiro />
+  <div class="pagina-biblioteca relative min-h-screen text-gray-800">
 
-    <!-- CABECERA -->
-    <header
-      class="border-b border-amber-200 bg-gradient-to-br from-amber-50 via-white to-stone-100"
-    >
-      <div class="mx-auto max-w-6xl px-6 py-14 md:py-20">
-        <p
-          class="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-amber-800"
-        >
-          Biblioteca Joan Miró
-        </p>
+    <!-- FONDO GENERAL DESENFOCADO -->
+    <div class="fondo-general" aria-hidden="true">
+      <img
+        src="/fotos/ateneu/guias/library2.jpg"
+        alt=""
+        class="fondo-general-imagen"
+      />
+      <div class="fondo-general-velo"></div>
+    </div>
 
-        <h1 class="mb-5 text-4xl font-bold text-gray-900 md:text-5xl">
-          Guías para el profesorado
-        </h1>
+    <div class="contenido-pagina relative z-10">
 
-        <p class="max-w-3xl text-lg leading-relaxed text-gray-600">
-          Un espacio para reunir instrucciones, documentos, materiales
-          didácticos y recursos de apoyo para preparar y desarrollar las
-          clases.
-        </p>
-      </div>
-    </header>
+      <!-- NAVBAR -->
+      <NavbarAteneu />
 
-    <main class="mx-auto max-w-6xl px-6 py-12 md:py-16">
-      <!-- PRESENTACIÓN -->
-      <section
-        class="mb-10 rounded-3xl border border-amber-200 bg-white p-6 shadow-sm md:p-8"
-      >
-        <div class="flex items-start gap-4">
-          <div
-            class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-3xl"
-          >
-            📚
-          </div>
+      <!-- CABECERA BIBLIOTECA JOAN MIRÓ -->
+      <header class="cabecera-biblioteca relative isolate overflow-hidden">
 
-          <div>
-            <h2 class="mb-3 text-2xl font-bold text-gray-900">
-              Materiales y orientaciones
-            </h2>
+        <img
+          src="/fotos/ateneu/guias/library1.jpg"
+          alt=""
+          class="cabecera-imagen"
+        />
 
-            <p class="leading-relaxed text-gray-600">
-              Aquí se organizarán las guías del profesorado para que puedas
-              encontrar fácilmente los documentos y recursos que necesites.
-              Esta página está preparada para incorporar nuevos contenidos
-              más adelante.
+        <div class="cabecera-velo" aria-hidden="true"></div>
+
+        <div class="relative mx-auto max-w-6xl px-6 py-14 md:py-20">
+          <div class="cabecera-panel">
+
+            <p class="cabecera-etiqueta">
+              Biblioteca Joan Miró
             </p>
+
+            <h1>
+              Biblioteca Joan Miró
+            </h1>
+
+            <p class="cabecera-descripcion">
+              Un espacio para descubrir libros, fomentar la lectura,
+              compartir conocimientos y acercar la cultura a toda la
+              comunidad. Explora nuestros recursos y actividades
+              para disfrutar de la lectura y el aprendizaje.
+            </p>
+
           </div>
         </div>
-      </section>
+      </header>
 
-      <!-- ESPACIO PARA LAS FUTURAS GUÍAS -->
-      <section>
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold text-gray-900">
-            Biblioteca de guías
+      <!-- CONTENIDO PRINCIPAL -->
+      <main class="biblioteca-contenido">
+
+        <!-- PRESENTACIÓN -->
+        <section class="bloque-presentacion">
+          <span class="seccion-etiqueta">NUESTRO ESPACIO</span>
+
+          <h2>
+            Un lugar para leer, aprender y compartir
           </h2>
 
-          <p class="mt-2 text-gray-600">
-            Los materiales se podrán organizar por categorías cuando empieces
-            a incorporarlos.
+          <p>
+            La Biblioteca Joan Miró es un espacio de encuentro en el que
+            los libros, la lectura y el aprendizaje nos ayudan a descubrir
+            nuevas ideas, desarrollar la imaginación y compartir experiencias.
+            Te invitamos a explorar sus recursos y participar en la vida
+            de la biblioteca.
           </p>
-        </div>
+        </section>
 
-        <div
-          class="rounded-3xl border-2 border-dashed border-gray-300 bg-white px-6 py-14 text-center md:px-12"
-        >
-          <div
-            class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-4xl"
-          >
-            📂
+        <!-- SECCIONES DE LA BIBLIOTECA -->
+        <section class="bloque-biblioteca">
+
+          <div class="titulo-seccion">
+            <span class="seccion-etiqueta">EXPLORA LA BIBLIOTECA</span>
+            <h2>¿Qué puedes encontrar?</h2>
+            <p>
+              Descubre diferentes formas de disfrutar de la lectura
+              y aprovechar los recursos de la biblioteca.
+            </p>
           </div>
 
-          <h3 class="mb-3 text-xl font-bold text-gray-800">
-            Próximamente, nuevas guías
-          </h3>
+          <div class="biblioteca-grid">
 
-          <p class="mx-auto max-w-xl leading-relaxed text-gray-500">
-            Todavía no se han añadido documentos. Aquí podrás incorporar
-            guías, archivos PDF, instrucciones para las clases, materiales
-            didácticos y otros recursos para el profesorado.
-          </p>
-        </div>
-      </section>
+            <!-- LECTURA -->
+            <article class="biblioteca-card">
+              <div class="biblioteca-icono">📚</div>
 
-      <!-- NAVEGACIÓN -->
-      <section class="mt-10 flex flex-wrap gap-3">
-        <RouterLink
-          to="/joanmiro/tutores"
-          class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-100"
+              <span class="biblioteca-tipo">LECTURA</span>
+
+              <h3>Libros y literatura</h3>
+
+              <p>
+                Un espacio para descubrir historias, conocer autores,
+                explorar diferentes géneros literarios y encontrar
+                nuevas lecturas.
+              </p>
+
+              <span class="biblioteca-detalle">
+                Descubre nuevas historias
+              </span>
+            </article>
+
+            <!-- INFANCIA -->
+            <article class="biblioteca-card">
+              <div class="biblioteca-icono">🧸</div>
+
+              <span class="biblioteca-tipo">INFANCIA Y JUVENTUD</span>
+
+              <h3>Lectura para todas las edades</h3>
+
+              <p>
+                Propuestas para despertar la curiosidad, fomentar el hábito
+                lector y acompañar a niños, niñas y jóvenes en su aprendizaje.
+              </p>
+
+              <span class="biblioteca-detalle">
+                Aprender leyendo
+              </span>
+            </article>
+
+            <!-- APRENDIZAJE -->
+            <article class="biblioteca-card">
+              <div class="biblioteca-icono">✏️</div>
+
+              <span class="biblioteca-tipo">APRENDIZAJE</span>
+
+              <h3>Estudio y conocimiento</h3>
+
+              <p>
+                Recursos para estudiar, investigar, consultar información
+                y desarrollar nuevas habilidades a través de la lectura.
+              </p>
+
+              <span class="biblioteca-detalle">
+                Aprende algo nuevo
+              </span>
+            </article>
+
+            <!-- ACTIVIDADES -->
+            <article class="biblioteca-card">
+              <div class="biblioteca-icono">🤝</div>
+
+              <span class="biblioteca-tipo">COMUNIDAD</span>
+
+              <h3>Actividades y encuentros</h3>
+
+              <p>
+                Un lugar para compartir experiencias, participar en
+                propuestas culturales y disfrutar de actividades
+                relacionadas con los libros y la lectura.
+              </p>
+
+              <span class="biblioteca-detalle">
+                Compartir la cultura
+              </span>
+            </article>
+
+          </div>
+        </section>
+
+        <!-- IMPORTANCIA DE LA LECTURA -->
+        <section class="mensaje-biblioteca">
+
+          <div class="mensaje-icono">🌿</div>
+
+          <div>
+            <h2>La lectura nos abre nuevas puertas</h2>
+
+            <p>
+              Cada libro nos ofrece la oportunidad de aprender, imaginar
+              y conocer otras realidades. La biblioteca es un espacio
+              abierto al descubrimiento, la convivencia y el crecimiento
+              personal.
+            </p>
+          </div>
+
+        </section>
+
+        <!-- NAVEGACIÓN -->
+        <nav
+          class="navegacion-biblioteca"
+          aria-label="Navegación de la biblioteca"
         >
-          <span>←</span>
-          Volver al espacio de tutores
-        </RouterLink>
 
-        <RouterLink
-          to="/joanmiro/tutores/acceso"
-          class="inline-flex items-center gap-2 rounded-xl bg-amber-700 px-5 py-3 font-semibold text-white transition hover:bg-amber-800"
-        >
-          Entrar en mi perfil
-          <span>→</span>
-        </RouterLink>
-      </section>
-    </main>
+          <RouterLink
+            to="/ateneu/tutores"
+            class="boton-navegacion boton-secundario"
+          >
+            <span>←</span>
+            Volver al espacio de tutores
+          </RouterLink>
+
+          <RouterLink
+            to="/ateneu/tutores/acceso"
+            class="boton-navegacion boton-principal"
+          >
+            Entrar en mi perfil
+            <span>→</span>
+          </RouterLink>
+
+        </nav>
+
+        <div class="espacio-final"></div>
+
+      </main>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import NavbarJoanmiro from '../../../components/joanmiro/NavbarJoanmiro.vue'
+import NavbarAteneu from '../../../components/ateneu/NavbarAteneu.vue'
 </script>
+
+<style>
+/* =========================================
+   FONDO GENERAL
+   ========================================= */
+
+.pagina-biblioteca {
+  isolation: isolate;
+  min-height: 100vh;
+  background: #f5f5f0;
+}
+
+.fondo-general {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fondo-general-imagen {
+  position: absolute;
+  inset: -20px;
+  width: calc(100% + 40px);
+  height: calc(100% + 40px);
+  object-fit: cover;
+  object-position: center;
+  filter: blur(7px);
+  opacity: 2rem;
+}
+
+.fondo-general-velo {
+  position: absolute;
+  inset: 0;
+  background: rgba(250, 249, 246, 0.78);
+}
+
+/* =========================================
+   CABECERA
+   ========================================= */
+
+.cabecera-biblioteca {
+  border-bottom: 1px solid rgba(217, 119, 6, 0.3);
+  background: #e9e2d5;
+}
+
+.cabecera-imagen {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+}
+
+.cabecera-velo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    rgba(20, 20, 20, 0.16),
+    rgba(20, 20, 20, 0.08) 45%,
+    rgba(20, 20, 20, 0.32)
+  );
+}
+
+.cabecera-panel {
+  max-width: 850px;
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cabecera-etiqueta {
+  margin: 0 0 12px;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.cabecera-panel h1 {
+  margin: 0 0 18px;
+  color: #1f2937;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+.cabecera-descripcion {
+  max-width: 700px;
+  margin: 0;
+  color: #374151;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+/* =========================================
+   CONTENIDO PRINCIPAL
+   ========================================= */
+
+.biblioteca-contenido {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.bloque-presentacion {
+  max-width: 820px;
+  margin-bottom: 58px;
+}
+
+.seccion-etiqueta {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #245b52;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.bloque-presentacion h2,
+.titulo-seccion h2 {
+  margin: 0 0 18px;
+  color: #245b52;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bloque-presentacion p,
+.titulo-seccion p {
+  color: #526660;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.titulo-seccion {
+  margin-bottom: 26px;
+}
+
+.titulo-seccion p {
+  max-width: 720px;
+  margin: 0;
+}
+
+/* =========================================
+   TARJETAS
+   ========================================= */
+
+.biblioteca-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.biblioteca-card {
+  display: flex;
+  min-width: 0;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 28px;
+  border: 1px solid rgba(223, 232, 227, 0.95);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 4px 18px rgba(29, 63, 53, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.biblioteca-card:hover {
+  transform: translateY(-4px);
+  border-color: #8db7a8;
+  box-shadow: 0 12px 28px rgba(29, 63, 53, 0.12);
+}
+
+.biblioteca-icono {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  margin-bottom: 18px;
+  border-radius: 15px;
+  background: #eaf3ef;
+  font-size: 27px;
+}
+
+.biblioteca-tipo {
+  color: #245b52;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.biblioteca-card h3 {
+  margin: 10px 0;
+  color: #263d37;
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.biblioteca-card p {
+  margin: 0 0 22px;
+  color: #596b65;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.biblioteca-detalle {
+  margin-top: auto;
+  color: #245b52;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+/* =========================================
+   MENSAJE DESTACADO
+   ========================================= */
+
+.mensaje-biblioteca {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  margin-top: 58px;
+  padding: 30px;
+  border: 1px solid rgba(217, 232, 223, 0.9);
+  border-radius: 18px;
+  background: rgba(243, 247, 245, 0.95);
+}
+
+.mensaje-icono {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  place-items: center;
+  border-radius: 15px;
+  background: #dcece4;
+  font-size: 27px;
+}
+
+.mensaje-biblioteca h2 {
+  margin: 0 0 10px;
+  color: #245b52;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.mensaje-biblioteca p {
+  margin: 0;
+  color: #526660;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* =========================================
+   NAVEGACIÓN
+   ========================================= */
+
+.navegacion-biblioteca {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 38px;
+}
+
+.boton-navegacion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-navegacion:hover {
+  transform: translateY(-2px);
+}
+
+.boton-secundario {
+  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.95);
+  color: #374151;
+}
+
+.boton-secundario:hover {
+  background: #f3f4f6;
+}
+
+.boton-principal {
+  background: #b45309;
+  color: #ffffff;
+}
+
+.boton-principal:hover {
+  background: #92400e;
+}
+
+.boton-navegacion:focus-visible {
+  outline: 3px solid #d97706;
+  outline-offset: 3px;
+}
+
+.espacio-final {
+  height: 20px;
+}
+
+/* =========================================
+   MÓVILES
+   ========================================= */
+
+@media (max-width: 650px) {
+  .cabecera-panel {
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .cabecera-descripcion {
+    font-size: 16px;
+  }
+
+  .biblioteca-contenido {
+    padding: 34px 16px;
+  }
+
+  .biblioteca-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .biblioteca-card {
+    min-height: auto;
+    padding: 23px;
+  }
+
+  .mensaje-biblioteca {
+    flex-direction: column;
+    padding: 23px;
+  }
+
+  .navegacion-biblioteca {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .boton-navegacion {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biblioteca-card,
+  .boton-navegacion {
+    transition: none;
+  }
+
+  .biblioteca-card:hover,
+  .boton-navegacion:hover {
+    transform: none;
+  }
+}
+</style>

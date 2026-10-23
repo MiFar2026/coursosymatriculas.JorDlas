@@ -14,7 +14,7 @@ const accesoAlumnoRoutes = require('./routes/accesoAlumnoRoutes')
 const tareasRoutes = require('./routes/tareasRoutes')
 const accesoProfesorRoutes = require('./routes/accesoProfesorRoutes')
 const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
-
+const foroProfesoresRoutes = require('./routes/foroProfesoresRoutes')
 
 console.log('app.js cargado');
 
@@ -68,6 +68,7 @@ app.use('/api/tareas', tareasRoutes)
 app.use('/api/perfil-alumno', perfilAlumnoRoutes);
 app.use('/api/acceso-profesor', accesoProfesorRoutes)
 app.use('/api/foro-alumnos', foroAlumnosRoutes)
+app.use('/api/foro-profesores', foroProfesoresRoutes)
 
 // 404: siempre al final
 app.use((req, res) => {

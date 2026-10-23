@@ -123,65 +123,152 @@
           {{ mensaje }}
         </p>
 
-        <!-- MÓDULOS -->
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <button
-            type="button"
-            @click="seleccionarModulo('horarios')"
-            class="rounded-xl border p-6 text-left hover:bg-blue-50"
-          >
-            <span class="mb-3 block text-3xl">🗓️</span>
-            <h3 class="text-xl font-bold">Gestión de horarios</h3>
-          </button>
+        
+        <!-- MÓDULOS PRINCIPALES -->
+        <section>
+          <h3 class="mb-4 text-xl font-bold text-gray-900">
+            Gestión de la escuela
+          </h3>
 
-          <button
-            type="button"
-            @click="seleccionarModulo('escuelas')"
-            class="rounded-xl border p-6 text-left hover:bg-blue-50"
-          >
-            <span class="mb-3 block text-3xl">🏫</span>
-            <h3 class="text-xl font-bold">Escuelas y cursos</h3>
-            <p class="mt-2 text-sm text-gray-600">
-              Gestión futura de escuelas y cursos.
-            </p>
-          </button>
+          <p class="mb-5 text-sm text-gray-600">
+            Accede a cada apartado para organizar las escuelas y las clases.
+          </p>
 
-          <button
-            type="button"
-            @click="seleccionarModulo('foros')"
-            class="rounded-xl border border-red-200 bg-red-50 p-6 text-left hover:bg-red-100"
-          >
-            <span class="mb-3 block text-3xl">🛡️</span>
-            <h3 class="text-xl font-bold">Moderación y convivencia</h3>
-            <p class="mt-2 text-sm text-gray-700">
-              Consultar, ocultar, restaurar y retirar publicaciones.
-            </p>
-          </button>
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
-          <button
-            type="button"
-            @click="seleccionarModulo('archivos')"
-            class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-left hover:bg-blue-100"
-          >
-            <span class="mb-3 block text-3xl">📁</span>
-            <h3 class="text-xl font-bold">Archivos y materiales</h3>
-            <p class="mt-2 text-sm text-gray-700">
-              Consultar y retirar materiales publicados.
-            </p>
-          </button>
+            <!-- ESCUELAS, CURSOS Y GRUPOS -->
+            <button
+              type="button"
+              @click="seleccionarModulo('escuelas')"
+              class="rounded-xl border border-indigo-200 bg-indigo-50 p-6 text-left transition hover:bg-indigo-100"
+            >
+              <span class="mb-3 block text-3xl">🏫</span>
+              <h3 class="text-xl font-bold text-gray-900">
+                Escuelas y cursos
+              </h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Escuelas, cursos y grupos.
+              </p>
+              <span class="mt-4 block font-semibold text-indigo-800">
+                Gestionar →
+              </span>
+            </button>
 
-          <button
-            type="button"
-            @click="seleccionarModulo('voluntarios')"
-            class="rounded-xl border border-teal-200 bg-teal-50 p-6 text-left hover:bg-teal-100"
-          >
-            <span class="mb-3 block text-3xl">🤝</span>
-            <h3 class="text-xl font-bold">Gestión de voluntariado</h3>
-            <p class="mt-2 text-sm text-gray-700">
-              Consultar solicitudes y gestionar su estado.
-            </p>
-          </button>
-        </div>
+            <!-- PROFESORES, ALUMNOS Y MATRÍCULAS -->
+            <button
+              type="button"
+              @click="seleccionarModulo('personas')"
+              class="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-left transition hover:bg-emerald-100"
+            >
+              <span class="mb-3 block text-3xl">👥</span>
+              <h3 class="text-xl font-bold text-gray-900">
+                Profesores y alumnos
+              </h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Personas y matrículas.
+              </p>
+              <span class="mt-4 block font-semibold text-emerald-800">
+                Gestionar →
+              </span>
+            </button>
+
+            <!-- HORARIOS -->
+            <button
+              type="button"
+              @click="seleccionarModulo('horarios')"
+              class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-left transition hover:bg-amber-100"
+            >
+              <span class="mb-3 block text-3xl">🗓️</span>
+              <h3 class="text-xl font-bold text-gray-900">
+                Gestión de horarios
+              </h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Días y horas de clase.
+              </p>
+              <span class="mt-4 block font-semibold text-amber-900">
+                Gestionar →
+              </span>
+            </button>
+
+            <!-- DATOS DE LA ESCUELA -->
+            <button
+              type="button"
+              @click="seleccionarModulo('datos')"
+              class="rounded-xl border border-sky-200 bg-sky-50 p-6 text-left transition hover:bg-sky-100"
+            >
+              <span class="mb-3 block text-3xl">🗄️</span>
+              <h3 class="text-xl font-bold text-gray-900">
+                Datos de la escuela
+              </h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Consultar y mantener los datos.
+              </p>
+              <span class="mt-4 block font-semibold text-sky-800">
+                Consultar →
+              </span>
+            </button>
+
+          </div>
+        </section>
+
+        <!-- MÓDULOS COMPLEMENTARIOS -->
+        <section class="mt-8">
+          <h3 class="mb-4 text-xl font-bold text-gray-900">
+            Otras herramientas
+          </h3>
+
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+            <!-- MODERACIÓN: SE CONSERVA -->
+            <button
+              type="button"
+              @click="seleccionarModulo('foros')"
+              class="rounded-xl border border-red-200 bg-red-50 p-6 text-left transition hover:bg-red-100"
+            >
+              <span class="mb-3 block text-3xl">🛡️</span>
+              <h3 class="text-xl font-bold">Moderación y convivencia</h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Consultar, ocultar, restaurar y retirar publicaciones.
+              </p>
+              <span class="mt-4 block font-semibold text-red-800">
+                Gestionar →
+              </span>
+            </button>
+
+            <!-- ARCHIVOS: SE CONSERVA -->
+            <button
+              type="button"
+              @click="seleccionarModulo('archivos')"
+              class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-left transition hover:bg-blue-100"
+            >
+              <span class="mb-3 block text-3xl">📁</span>
+              <h3 class="text-xl font-bold">Archivos y materiales</h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Consultar y retirar materiales publicados.
+              </p>
+              <span class="mt-4 block font-semibold text-blue-800">
+                Gestionar →
+              </span>
+            </button>
+
+            <!-- VOLUNTARIADO: SE CONSERVA -->
+            <button
+              type="button"
+              @click="seleccionarModulo('voluntarios')"
+              class="rounded-xl border border-teal-200 bg-teal-50 p-6 text-left transition hover:bg-teal-100"
+            >
+              <span class="mb-3 block text-3xl">🤝</span>
+              <h3 class="text-xl font-bold">Gestión de voluntariado</h3>
+              <p class="mt-2 text-sm text-gray-700">
+                Consultar solicitudes y gestionar su estado.
+              </p>
+              <span class="mt-4 block font-semibold text-teal-800">
+                Gestionar →
+              </span>
+            </button>
+
+          </div>
+        </section>
 
         <!-- HORARIOS -->
         <section
@@ -191,16 +278,97 @@
           <GestionHorariosAdmin />
         </section>
 
-        <!-- ESCUELAS -->
+       
+        <!-- ESCUELAS, CURSOS Y GRUPOS -->
         <section
           v-if="moduloSeleccionado === 'escuelas'"
-          class="mt-8 rounded-xl border p-5"
+          class="mt-8 rounded-xl border border-indigo-200 bg-white p-6"
         >
-          <h3 class="text-xl font-bold">Escuelas y cursos</h3>
+          <h3 class="text-2xl font-bold text-gray-900">
+            Escuelas, cursos y grupos
+          </h3>
+
           <p class="mt-2 text-gray-600">
-            Este módulo todavía no está implementado.
+            Desde aquí organizaremos las escuelas, los cursos y los grupos
+            de clase de Biblioteca Joan Miró y Ateneu Aula 502.
+          </p>
+
+          <div class="mt-5 rounded-xl bg-indigo-50 p-4">
+            <p class="font-semibold text-indigo-900">
+              Base de datos: BaseDeDatosEscuelas
+            </p>
+            <p class="mt-1 text-sm text-indigo-800">
+              La conexión para consultar, crear y editar estos datos
+              se implementará a través de la API del servidor.
+            </p>
+          </div>
+
+          <p class="mt-4 text-sm text-gray-500">
+            Este apartado todavía necesita sus operaciones de gestión.
+            No modifica ni elimina los datos actuales.
           </p>
         </section>
+
+        <!-- PROFESORES, ALUMNOS Y MATRÍCULAS -->
+        <section
+          v-if="moduloSeleccionado === 'personas'"
+          class="mt-8 rounded-xl border border-emerald-200 bg-white p-6"
+        >
+          <h3 class="text-2xl font-bold text-gray-900">
+            Profesores, alumnos y matrículas
+          </h3>
+
+          <p class="mt-2 text-gray-600">
+            Aquí podremos consultar las personas de cada escuela,
+            gestionar sus datos y comprobar a qué grupos pertenecen.
+          </p>
+
+          <div class="mt-5 rounded-xl bg-emerald-50 p-4">
+            <p class="font-semibold text-emerald-900">
+              Gestión por escuela
+            </p>
+            <p class="mt-1 text-sm text-emerald-800">
+              Los datos de Biblioteca Joan Miró y Ateneu Aula 502
+              deben mantenerse separados.
+            </p>
+          </div>
+
+          <p class="mt-4 text-sm text-gray-500">
+            La interfaz se conectará a las rutas existentes de profesores,
+            alumnos y matrículas después de comprobar sus operaciones.
+          </p>
+        </section>
+
+        <!-- DATOS DE LA ESCUELA -->
+        <section
+          v-if="moduloSeleccionado === 'datos'"
+          class="mt-8 rounded-xl border border-sky-200 bg-white p-6"
+        >
+          <h3 class="text-2xl font-bold text-gray-900">
+            Datos de la escuela
+          </h3>
+
+          <p class="mt-2 text-gray-600">
+            Apartado para consultar el estado de la información y las
+            operaciones administrativas de la base de datos.
+          </p>
+
+          <div class="mt-5 rounded-xl bg-sky-50 p-4">
+            <p class="font-semibold text-sky-900">
+              Información centralizada
+            </p>
+            <p class="mt-1 text-sm text-sky-800">
+              La aplicación consultará los datos mediante el backend,
+              sin exponer las credenciales de MySQL en el navegador.
+            </p>
+          </div>
+
+          <p class="mt-4 text-sm text-gray-500">
+            Este apartado es informativo por ahora. No ejecuta consultas
+            SQL ni modifica datos directamente.
+          </p>
+        </section>
+
 
         <!-- MODERACIÓN DE FOROS -->
         <section
