@@ -12,7 +12,7 @@
         <h1>Espai Docent</h1>
         <p>
           Un espacio para compartir ideas, resolver dudas y colaborar
-          entre los equipos docentes de Ateneu y Biblioteca Joan Miró.
+          entre los equipos docentes de Ateneu y de la Biblioteca Joan Miró.
         </p>
 
         <div class="escuelas">
@@ -116,19 +116,81 @@
 
         <h3>{{ item.titulo }}</h3>
 
-        <div class="autor">
-          <span class="avatar" aria-hidden="true">
-            {{ iniciales(item.nombreProfesor, item.apellidosProfesor) }}
-          </span>
-          <div>
-            <strong>
-              {{ item.nombreProfesor }} {{ item.apellidosProfesor }}
-            </strong>
-            <span>Equipo docente</span>
-          </div>
-        </div>
+        
+<div class="autor">
+  <img
+    v-if="item.foto"
+    class="avatar avatar-foto"
+    :src="`${base}${item.foto}`"
+    :alt="`Foto de ${item.nombreProfesor}`"
+    @error="(evento) => evento.target.style.display = 'none'"
+  />
+  <span v-else class="avatar" aria-hidden="true">
+    {{ iniciales(item.nombreProfesor, item.apellidosProfesor) }}
+  </span>
 
-        <p class="contenido">{{ item.mensaje }}</p>
+  <div>
+    <strong>
+      {{ item.nombreProfesor }} {{ item.apellidosProfesor }}
+    </strong>
+    <span>Equipo docente</span>
+  </div>
+</div>
+
+<p class="contenido">{{ item.mensaje }}</p>
+
+<section class="respuestas">
+  <h4>Respuestas ({{ item.respuestas?.length || 0 }})</h4>
+
+  <div
+    v-for="respuesta in (item.respuestas || [])"
+    :key="respuesta.id"
+    class="respuesta"
+  >
+    <div class="autor">
+      <img
+        v-if="respuesta.foto"
+        class="avatar avatar-foto"
+        :src="`${base}${respuesta.foto}`"
+        :alt="`Foto de ${respuesta.nombreProfesor}`"
+        @error="(evento) => evento.target.style.display = 'none'"
+      />
+      <span v-else class="avatar" aria-hidden="true">
+        {{ iniciales(respuesta.nombreProfesor, respuesta.apellidosProfesor) }}
+      </span>
+
+      <div>
+        <strong>
+          {{ respuesta.nombreProfesor }} {{ respuesta.apellidosProfesor }}
+        </strong>
+        <span>{{ respuesta.escuela }} · {{ fechaLegible(respuesta.fechaCreacion) }}</span>
+      </div>
+    </div>
+
+    <p class="contenido">{{ respuesta.respuesta }}</p>
+  </div>
+
+  <form @submit.prevent="responder(item)">
+    <label :for="`respuesta-${item.id}`">Escribe una respuesta</label>
+    <textarea
+      :id="`respuesta-${item.id}`"
+      v-model="textosRespuesta[item.id]"
+      maxlength="5000"
+      rows="3"
+      required
+      placeholder="Comparte tu respuesta con el equipo docente..."
+    ></textarea>
+
+    <button
+      class="boton-principal"
+      type="submit"
+      :disabled="respondiendo === item.id"
+    >
+      {{ respondiendo === item.id ? 'Enviando…' : 'Responder ↗' }}
+    </button>
+  </form>
+</section>
+
       </article>
     </section>
 
@@ -139,11 +201,13 @@
   </main>
 </template>
 
+
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
 const base = (import.meta.env.VITE_API_URL || 'http://localhost:5555')
   .replace(/\/+$/, '')
 
@@ -154,9 +218,11 @@ const cargando = ref(false)
 const publicando = ref(false)
 const aviso = ref('')
 const error = ref('')
+const textosRespuesta = ref({})
+const respondiendo = ref(null)
 
 const volverPerfil = () => {
-  router.push('/joanmiro/tutores/perfil')
+  router.push('/ateneu/tutores/perfil')
 }
 
 const comprobarSesion = async () => {
@@ -171,9 +237,9 @@ const comprobarSesion = async () => {
     !respuesta.ok ||
     !resultado.ok ||
     !resultado.profesor ||
-    Number(resultado.profesor.escuelaId) !== 1
+    Number(resultado.profesor.escuelaId) !== 2
   ) {
-    router.replace('/joanmiro/tutores/acceso')
+    router.replace('/ateneu/tutores/acceso')
     return false
   }
 
@@ -193,7 +259,7 @@ const cargarMensajes = async () => {
     const resultado = await respuesta.json().catch(() => ({}))
 
     if (respuesta.status === 401 || respuesta.status === 403) {
-      router.replace('/joanmiro/tutores/acceso')
+      router.replace('/ateneu/tutores/acceso')
       return
     }
 
@@ -244,17 +310,20 @@ const publicar = async () => {
     const resultado = await respuesta.json().catch(() => ({}))
 
     if (respuesta.status === 401 || respuesta.status === 403) {
-      router.replace('/joanmiro/tutores/acceso')
+      router.replace('/ateneu/tutores/acceso')
       return
     }
 
     if (!respuesta.ok || !resultado.ok) {
-      throw new Error(resultado.mensaje || 'No se ha podido publicar.')
+      throw new Error(
+        resultado.mensaje || 'No se ha podido publicar el mensaje.'
+      )
     }
 
     titulo.value = ''
     mensaje.value = ''
     aviso.value = 'Mensaje publicado correctamente.'
+
     await cargarMensajes()
   } catch (e) {
     error.value = e.message || 'Error al publicar el mensaje.'
@@ -263,26 +332,86 @@ const publicar = async () => {
   }
 }
 
+const responder = async (item) => {
+  aviso.value = ''
+  error.value = ''
+
+  const texto = String(textosRespuesta.value[item.id] || '').trim()
+
+  if (!texto) {
+    error.value = 'Escribe una respuesta antes de enviarla.'
+    return
+  }
+
+  respondiendo.value = item.id
+
+  try {
+    const respuesta = await fetch(
+      `${base}/api/foro-profesores/${item.id}/respuestas`,
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({ respuesta: texto })
+      }
+    )
+
+    const resultado = await respuesta.json().catch(() => ({}))
+
+    if (respuesta.status === 401 || respuesta.status === 403) {
+      router.replace('/ateneu/tutores/acceso')
+      return
+    }
+
+    if (!respuesta.ok || !resultado.ok) {
+      throw new Error(
+        resultado.mensaje || 'No se ha podido publicar la respuesta.'
+      )
+    }
+
+    textosRespuesta.value[item.id] = ''
+    aviso.value = 'Respuesta publicada correctamente.'
+
+    await cargarMensajes()
+  } catch (e) {
+    error.value = e.message || 'Error al publicar la respuesta.'
+  } finally {
+    respondiendo.value = null
+  }
+}
+
 const iniciales = (nombre = '', apellidos = '') => {
-  return `${nombre.trim().charAt(0)}${apellidos.trim().charAt(0)}`
-    .toUpperCase() || 'P'
+  const resultado = `${nombre.trim().charAt(0)}${apellidos.trim().charAt(0)}`
+    .toUpperCase()
+
+  return resultado || 'P'
 }
 
 const claseEscuela = (escuela = '') => {
   const nombre = escuela.toLowerCase()
+
   return nombre.includes('ateneu')
     ? 'escuela-ateneu'
-    : 'escuela-joanmiro'
+    : 'escuela-joan'
 }
 
 const fechaISO = (fecha) => {
   const date = new Date(fecha)
-  return Number.isNaN(date.getTime()) ? '' : date.toISOString()
+
+  return Number.isNaN(date.getTime())
+    ? ''
+    : date.toISOString()
 }
 
 const fechaLegible = (fecha) => {
   const date = new Date(fecha)
-  if (Number.isNaN(date.getTime())) return fecha
+
+  if (Number.isNaN(date.getTime())) {
+    return fecha || ''
+  }
 
   return new Intl.DateTimeFormat('es-ES', {
     dateStyle: 'medium',
@@ -295,11 +424,13 @@ onMounted(async () => {
     if (await comprobarSesion()) {
       await cargarMensajes()
     }
-  } catch {
-    router.replace('/joanmiro/tutores/acceso')
+  } catch (e) {
+    console.error('Error al comprobar la sesión del profesor:', e)
+    router.replace('/ateneu/tutores/acceso')
   }
 })
 </script>
+
 
 <style scoped>
 .foro {
@@ -738,5 +869,39 @@ button:disabled {
   .boton-principal {
     width: 100%;
   }
+}
+.avatar-foto {
+  display: block;
+  object-fit: cover;
+}
+
+.respuestas {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #edf1ee;
+}
+
+.respuestas h4 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+}
+
+.respuesta {
+  margin-bottom: 18px;
+  padding: 15px;
+  border-radius: 14px;
+  background: #f7faf8;
+}
+
+.respuesta .autor {
+  margin-bottom: 10px;
+}
+
+.respuesta .contenido {
+  padding-top: 10px;
+}
+
+.respuestas form {
+  margin-top: 18px;
 }
 </style>

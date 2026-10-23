@@ -6,13 +6,14 @@ const authProfesor = require('../middlewares/authProfesor')
 
 const {
     getMensajes,
-    publicarMensaje
+    publicarMensaje,
+    publicarRespuesta
 } = require('../controllers/foroProfesoresController')
 
-// Todas las rutas de este archivo requieren sesión de profesor.
 router.use(authProfesor)
 
 router.get('/', getMensajes)
 router.post('/', publicarMensaje)
+router.post('/:mensajeId/respuestas', publicarRespuesta)
 
 module.exports = router
