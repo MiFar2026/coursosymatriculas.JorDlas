@@ -1,8 +1,10 @@
 
 const express = require('express')
+
 const { loginAdmin } = require('../controllers/adminController')
 const authAdmin = require('../middlewares/authAdmin')
 
+// Controladores de moderación y recursos.
 const {
     getForoEstudiantes,
     ocultarMensajeEstudiante,
@@ -16,18 +18,37 @@ const {
     retirarRecurso
 } = require('../controllers/adminModeracionController')
 
+// Controladores de profesores y grupos.
+const {
+    listarProfesores,
+    obtenerHistorialProfesor,
+    actualizarProfesor,
+    listarGruposAdmin,
+    asignarProfesorGrupo
+} = require('../controllers/adminProfesoresController')
+
+// Controladores de voluntariado.
 const {
     listarVoluntarios,
     cambiarEstadoVoluntario
 } = require('../controllers/voluntariosAdminController')
+
 const router = express.Router()
 
-// Acceso público para iniciar sesión.
+// =====================================================
+// ACCESO DE ADMINISTRADOR
+// =====================================================
+
+// Ruta pública para iniciar sesión.
 router.post('/login', loginAdmin)
 
-// El resto de las rutas requieren autenticación de administrador.
+// Todas las rutas siguientes requieren autenticación.
 router.use(authAdmin)
-// Gestión de voluntariado.
+
+// =====================================================
+// VOLUNTARIADO
+// =====================================================
+
 router.get(
     '/voluntarios',
     listarVoluntarios
@@ -38,7 +59,43 @@ router.patch(
     cambiarEstadoVoluntario
 )
 
-// Foro de estudiantes.
+// =====================================================
+// PROFESORES
+// =====================================================
+
+router.get(
+    '/profesores',
+    listarProfesores
+)
+
+router.get(
+    '/profesores/:id/historial',
+    obtenerHistorialProfesor
+)
+
+router.put(
+    '/profesores/:id',
+    actualizarProfesor
+)
+
+// =====================================================
+// GRUPOS Y ASIGNACIÓN DE PROFESORES
+// =====================================================
+
+router.get(
+    '/grupos',
+    listarGruposAdmin
+)
+
+router.patch(
+    '/grupos/:id/profesor',
+    asignarProfesorGrupo
+)
+
+// =====================================================
+// MODERACIÓN DEL FORO DE ESTUDIANTES
+// =====================================================
+
 router.get(
     '/moderacion/foro-estudiantes',
     getForoEstudiantes
@@ -59,7 +116,10 @@ router.post(
     eliminarMensajeEstudiante
 )
 
-// Foro de profesores.
+// =====================================================
+// MODERACIÓN DEL FORO DE PROFESORES
+// =====================================================
+
 router.get(
     '/moderacion/foro-profesores',
     getForoProfesores
@@ -80,8 +140,10 @@ router.post(
     eliminarMensajeProfesor
 )
 
+// =====================================================
+// RECURSOS Y MATERIALES
+// =====================================================
 
-// Materiales.
 router.get(
     '/moderacion/recursos',
     getRecursosAdmin

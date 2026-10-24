@@ -256,20 +256,6 @@
                             📍 Mapa
                         </a>
 
-                        <!-- SEPARADOR -->
-
-                        <div class="border-t border-gray-300 my-2"></div>
-
-                        <!-- ENLACE A ATENEU -->
-
-                        <RouterLink
-                            to="/ateneu"
-                            @click="menuAbierto = false"
-                            class="mobile-link school-link"
-                        >
-                            Escuela Ateneu Aula 502 →
-                        </RouterLink>
-
                     </div>
 
                 </div>

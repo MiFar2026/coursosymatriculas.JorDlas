@@ -1,25 +1,23 @@
 
-const express = require('express');
-const cors = require('cors');
+const express = require('express')
+const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const path = require('path')
 
-const app = express();
+const app = express()
 
-const routes = require('./routes/routes.js');
-const perfilAlumnoRoutes = require('./routes/perfilAlumnoRoutes');
-
-const voluntariosRoutes = require('./routes/voluntariosRoutes.js');
-const horariosRoutes = require('./routes/horariosRoutes.js');
+const routes = require('./routes/routes.js')
+const perfilAlumnoRoutes = require('./routes/perfilAlumnoRoutes')
+const voluntariosRoutes = require('./routes/voluntariosRoutes.js')
+const horariosRoutes = require('./routes/horariosRoutes.js')
 const accesoAlumnoRoutes = require('./routes/accesoAlumnoRoutes')
 const tareasRoutes = require('./routes/tareasRoutes')
 const accesoProfesorRoutes = require('./routes/accesoProfesorRoutes')
 const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
 const foroProfesoresRoutes = require('./routes/foroProfesoresRoutes')
 const perfilProfesorRoutes = require('./routes/perfilProfesorRoutes')
-const path = require('path')
 
-
-console.log('app.js cargado');
+console.log('app.js cargado')
 
 const origenesPermitidos = [
   'http://localhost:5173',
@@ -31,8 +29,8 @@ const origenesPermitidos = [
 ]
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Permitir peticiones sin Origin, por ejemplo desde algunas herramientas locales.
+  origin(origin, callback) {
+    // Permitir peticiones sin Origin y los frontends locales autorizados.
     if (!origin || origenesPermitidos.includes(origin)) {
       return callback(null, true)
     }
@@ -45,47 +43,48 @@ app.use(cors({
 app.use(express.json({ limit: '32kb' }))
 app.use(cookieParser())
 
+// Archivos estáticos: fotos guardadas en backend/uploads.
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
+// Comprobar que la API funciona.
 app.get('/', (req, res) => {
   res.json({
     ok: true,
     mensaje: 'API Cursos Generales funcionando correctamente'
-  });
-});
+  })
+})
 
-// Rutas de horarios
-app.use('/api/horarios', horariosRoutes);
+// Rutas de horarios.
+app.use('/api/horarios', horariosRoutes)
 
-// Rutas de voluntariado
-app.use('/api/voluntarios', voluntariosRoutes);
+// Rutas de voluntariado.
+app.use('/api/voluntarios', voluntariosRoutes)
 
-//Ruta de acceso alumno
+// Acceso del alumnado.
+app.use('/api/acceso-alumno', accesoAlumnoRoutes)
 
-app.use('/api/acceso-alumno', accesoAlumnoRoutes);
-
-
-// Rutas existentes
-app.use('/api', routes);
+// Rutas generales existentes.
+app.use('/api', routes)
 app.use('/api/tareas', tareasRoutes)
+app.use('/api/perfil-alumno', perfilAlumnoRoutes)
 
-app.use('/api/perfil-alumno', perfilAlumnoRoutes);
+// Acceso del profesorado.
 app.use('/api/acceso-profesor', accesoProfesorRoutes)
+
+// Foros.
 app.use('/api/foro-alumnos', foroAlumnosRoutes)
 app.use('/api/foro-profesores', foroProfesoresRoutes)
-app.use('/api/perfil-profesor', perfilProfesorRoutes)
-app.use(
-    '/uploads/fotos/tutores',
-    express.static(
-        path.join(__dirname, 'uploads', 'fotos', 'tutores')
-    )
-)
 
-// 404: siempre al final
+// Perfil y foto del profesorado.
+// Se registra una sola vez.
+app.use('/api/perfil-profesor', perfilProfesorRoutes)
+
+// 404: siempre al final, después de todas las rutas.
 app.use((req, res) => {
   res.status(404).json({
     ok: false,
     mensaje: 'Ruta no encontrada'
-  });
-});
+  })
+})
 
-module.exports = app;
+module.exports = app

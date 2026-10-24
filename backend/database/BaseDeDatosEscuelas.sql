@@ -921,4 +921,65 @@ WHERE c.activo = 1
 COMMIT;
 
 
+CREATE TABLE historial_perfil_profesores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    profesor_id INT NOT NULL,
+    campo_modificado VARCHAR(50) NOT NULL,
+    valor_anterior TEXT,
+    valor_nuevo TEXT,
+    modificado_por INT, -- ID del usuario que hizo el cambio
+    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+DELIMITER //
+
+-- 1. Eliminamos el trigger anterior para limpiar la memoria
+DROP TRIGGER IF EXISTS auditar_cambios_profesor;
+
+-- 2. Cambiamos el delimitador para el nuevo bloque
+DELIMITER //
+
+-- 3. Creamos la versión definitiva con los 5 campos protegidos
+CREATE TRIGGER auditar_cambios_profesor
+AFTER UPDATE ON profesores
+FOR EACH ROW
+BEGIN
+    -- 1. Monitorear cambio en el nombre
+    IF NOT (OLD.nombre <=> NEW.nombre) THEN
+        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
+        VALUES (OLD.id, 'nombre', OLD.nombre, NEW.nombre, NULL);
+    END IF;
+
+    -- 2. Monitorear cambio en los apellidos
+    IF NOT (OLD.apellidos <=> NEW.apellidos) THEN
+        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
+        VALUES (OLD.id, 'apellidos', OLD.apellidos, NEW.apellidos, NULL);
+    END IF;
+
+    -- 3. Monitorear cambio en el email
+    IF NOT (OLD.email <=> NEW.email) THEN
+        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
+        VALUES (OLD.id, 'email', OLD.email, NEW.email, NULL);
+    END IF;
+
+    -- 4. Monitorear cambio en la especialidad
+    IF NOT (OLD.especialidad <=> NEW.especialidad) THEN
+        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
+        VALUES (OLD.id, 'especialidad', OLD.especialidad, NEW.especialidad, NULL);
+    END IF;
+
+    -- 5. Monitorear cambio en la foto
+    IF NOT (OLD.foto <=> NEW.foto) THEN
+        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
+        VALUES (OLD.id, 'foto', OLD.foto, NEW.foto, NULL);
+    END IF;
+END //
+
+DELIMITER ;
+
+
+
+
+
 

@@ -1,7 +1,24 @@
 
 <template>
-  <div class="min-h-screen bg-stone-50 text-gray-800">
-    <!-- NAVBAR -->
+<div class="min-h-screen relative text-gray-800">
+  <!-- Foto de fondo con transparencia -->
+  <div
+    class="fixed inset-0 pointer-events-none"
+    aria-hidden="true"
+    style="
+      background-image: url('/fotos/prof/profe.1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      opacity: 0.50;
+      z-index: 0;
+    "
+  ></div>
+
+  <!-- Contenido por encima de la foto -->
+  <div class="relative" style="z-index: 1;">    <!-- NAVBAR -->
+       <!-- NAVBAR -->
     <NavbarAteneu />
 
     <main>
@@ -220,6 +237,7 @@
       </section>
     </main>
   </div>
+</div>
 </template>
 
 <script setup>

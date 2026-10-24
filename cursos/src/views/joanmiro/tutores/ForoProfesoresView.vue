@@ -237,7 +237,7 @@ const comprobarSesion = async () => {
     !respuesta.ok ||
     !resultado.ok ||
     !resultado.profesor ||
-    Number(resultado.profesor.escuelaId) !== 2
+  ![1, 2].includes(Number(resultado.profesor.escuelaId))
   ) {
     router.replace('/ateneu/tutores/acceso')
     return false

@@ -310,34 +310,432 @@
         </section>
 
         <!-- PROFESORES, ALUMNOS Y MATRÍCULAS -->
-        <section
-          v-if="moduloSeleccionado === 'personas'"
-          class="mt-8 rounded-xl border border-emerald-200 bg-white p-6"
+        
+<!-- GESTIÓN DE PROFESORES Y ASIGNACIONES -->
+<section
+  v-if="moduloSeleccionado === 'personas'"
+  class="mt-8 space-y-6"
+>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-900">
+        Gestión de profesores
+      </h3>
+      <p class="mt-2 text-gray-600">
+        Una misma persona puede impartir varios cursos en ambas escuelas.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="cargarGestionProfesores"
+      :disabled="cargandoDatos || procesandoId !== null"
+      class="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      Actualizar
+    </button>
+  </div>
+
+  <!-- EXPLICACIÓN -->
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+    <p class="font-semibold text-emerald-900">
+      Biblioteca Joan Miró y Ateneu Aula 502
+    </p>
+    <p class="mt-1 text-sm text-emerald-800">
+      Cada profesor tiene una sola ficha. Sus asignaciones se gestionan
+      por grupo, curso, escuela y turno.
+    </p>
+  </div>
+
+  <!-- LISTA DE PROFESORES -->
+  <div class="rounded-xl border p-5">
+    <h4 class="mb-4 text-xl font-bold">Profesores registrados</h4>
+
+    <p
+      v-if="!cargandoDatos && profesoresAdmin.length === 0"
+      class="rounded-lg bg-gray-50 p-4 text-gray-600"
+    >
+      No hay profesores registrados.
+    </p>
+
+    <article
+      v-for="profesor in profesoresAdmin"
+      :key="profesor.id"
+      class="mb-4 rounded-xl border p-4 last:mb-0"
+    >
+      <div class="flex flex-col justify-between gap-3 sm:flex-row">
+        <div>
+          <h5 class="text-lg font-bold">
+            {{ profesor.nombre }} {{ profesor.apellidos }}
+          </h5>
+          <p class="mt-1 text-sm text-gray-600">
+            {{ profesor.especialidad || 'Especialidad no indicada' }}
+          </p>
+          <p class="text-sm text-gray-600">
+            Correo: {{ profesor.email || 'No indicado' }}
+          </p>
+          <p class="text-sm text-gray-600">
+            Teléfono: {{ profesor.telefono || 'No indicado' }}
+          </p>
+          <p class="mt-2 text-sm">
+            Estado:
+            <span
+              :class="Number(profesor.activo) === 1
+                ? 'font-semibold text-green-700'
+                : 'font-semibold text-red-700'"
+            >
+              {{ Number(profesor.activo) === 1 ? 'Activo' : 'Inactivo' }}
+            </span>
+          </p>
+        </div>
+
+        <div class="flex flex-wrap content-start gap-2">
+          <button
+            type="button"
+            @click="editarProfesorAdmin(profesor)"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+          >
+            Editar datos
+          </button>
+
+          <button
+            type="button"
+            @click="cargarHistorialProfesor(profesor)"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+          >
+            Historial
+          </button>
+
+          <button
+            type="button"
+            @click="cambiarEstadoProfesor(profesor)"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            :class="Number(profesor.activo) === 1
+              ? 'bg-red-700 hover:bg-red-800'
+              : 'bg-green-700 hover:bg-green-800'"
+          >
+            {{ Number(profesor.activo) === 1 ? 'Desactivar' : 'Activar' }}
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- EDITAR PROFESOR -->
+  <div
+    v-if="profesorEditando"
+    class="rounded-xl border border-blue-200 bg-white p-5"
+  >
+    <h4 class="mb-4 text-xl font-bold">
+      Editar ficha del profesor
+    </h4>
+
+    <form class="grid grid-cols-1 gap-4 sm:grid-cols-2" @submit.prevent="guardarProfesorAdmin">
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-tipo-documento">
+          Tipo de documento
+        </label>
+        <select
+          id="prof-tipo-documento"
+          v-model="formProfesor.tipo_documento"
+          required
+          class="w-full rounded-lg border px-3 py-2"
         >
-          <h3 class="text-2xl font-bold text-gray-900">
-            Profesores, alumnos y matrículas
-          </h3>
+          <option value="DNI">DNI</option>
+          <option value="NIE">NIE</option>
+          <option value="PASAPORTE">Pasaporte</option>
+        </select>
+      </div>
 
-          <p class="mt-2 text-gray-600">
-            Aquí podremos consultar las personas de cada escuela,
-            gestionar sus datos y comprobar a qué grupos pertenecen.
-          </p>
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-documento">
+          Documento
+        </label>
+        <input
+          id="prof-documento"
+          v-model.trim="formProfesor.documento"
+          required
+          maxlength="30"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
 
-          <div class="mt-5 rounded-xl bg-emerald-50 p-4">
-            <p class="font-semibold text-emerald-900">
-              Gestión por escuela
-            </p>
-            <p class="mt-1 text-sm text-emerald-800">
-              Los datos de Biblioteca Joan Miró y Ateneu Aula 502
-              deben mantenerse separados.
-            </p>
-          </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-nombre">
+          Nombre
+        </label>
+        <input
+          id="prof-nombre"
+          v-model.trim="formProfesor.nombre"
+          required
+          maxlength="100"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
 
-          <p class="mt-4 text-sm text-gray-500">
-            La interfaz se conectará a las rutas existentes de profesores,
-            alumnos y matrículas después de comprobar sus operaciones.
-          </p>
-        </section>
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-apellidos">
+          Apellidos
+        </label>
+        <input
+          id="prof-apellidos"
+          v-model.trim="formProfesor.apellidos"
+          required
+          maxlength="100"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-nacimiento">
+          Año de nacimiento
+        </label>
+        <input
+          id="prof-nacimiento"
+          v-model="formProfesor.anio_nacimiento"
+          type="number"
+          min="1900"
+          :max="new Date().getFullYear()"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-telefono">
+          Teléfono
+        </label>
+        <input
+          id="prof-telefono"
+          v-model.trim="formProfesor.telefono"
+          maxlength="30"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-email">
+          Correo electrónico
+        </label>
+        <input
+          id="prof-email"
+          v-model.trim="formProfesor.email"
+          type="email"
+          maxlength="150"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium" for="prof-especialidad">
+          Especialidad
+        </label>
+        <input
+          id="prof-especialidad"
+          v-model.trim="formProfesor.especialidad"
+          maxlength="100"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-sm font-medium" for="prof-foto">
+          Foto (ruta o referencia existente)
+        </label>
+        <input
+          id="prof-foto"
+          v-model.trim="formProfesor.foto"
+          maxlength="255"
+          class="w-full rounded-lg border px-3 py-2"
+        />
+      </div>
+
+      <div class="flex flex-wrap gap-3 sm:col-span-2">
+        <button
+          type="submit"
+          :disabled="procesandoId !== null"
+          class="rounded-lg bg-blue-800 px-5 py-3 font-semibold text-white disabled:opacity-50"
+        >
+          Guardar cambios
+        </button>
+
+        <button
+          type="button"
+          @click="profesorEditando = null"
+          :disabled="procesandoId !== null"
+          class="rounded-lg border px-5 py-3 disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ASIGNACIÓN DE GRUPOS -->
+  <div class="rounded-xl border p-5">
+    <div class="mb-4">
+      <h4 class="text-xl font-bold">Asignación de profesores a grupos</h4>
+      <p class="mt-1 text-sm text-gray-600">
+        Elige un profesor para cada grupo. Puedes repetir el mismo profesor
+        en diferentes cursos, turnos y escuelas.
+      </p>
+    </div>
+
+    <div class="mb-4">
+      <label for="filtro-escuela-grupos" class="mb-1 block font-medium">
+        Filtrar por escuela
+      </label>
+      <select
+        id="filtro-escuela-grupos"
+        v-model="filtroEscuelaGrupos"
+        @change="cargarGruposAdmin"
+        :disabled="cargandoDatos || procesandoId !== null"
+        class="w-full rounded-lg border px-3 py-2 sm:max-w-md"
+      >
+        <option value="">Todas las escuelas</option>
+        <option value="1">Biblioteca Joan Miró</option>
+        <option value="2">Ateneu Aula 502</option>
+      </select>
+    </div>
+
+    <p
+      v-if="!cargandoDatos && gruposAdmin.length === 0"
+      class="rounded-lg bg-gray-50 p-4 text-gray-600"
+    >
+      No hay grupos para mostrar con este filtro.
+    </p>
+
+    <article
+      v-for="grupo in gruposAdmin"
+      :key="grupo.grupo_id"
+      class="mb-4 rounded-xl border p-4 last:mb-0"
+    >
+      <div class="mb-3">
+        <h5 class="font-bold">{{ grupo.grupo }}</h5>
+        <p class="mt-1 text-sm text-gray-600">
+          {{ grupo.escuela }} · {{ grupo.curso }}
+          <span v-if="grupo.idioma"> · {{ grupo.idioma }}</span>
+          <span v-if="grupo.nivel"> · Nivel {{ grupo.nivel }}</span>
+        </p>
+        <p class="text-sm text-gray-600">
+          Turno: {{ grupo.turno || 'No indicado' }}
+          · Aula: {{ grupo.aula || 'No indicada' }}
+        </p>
+      </div>
+
+      <label
+        :for="`profesor-grupo-${grupo.grupo_id}`"
+        class="mb-1 block text-sm font-medium"
+      >
+        Profesor asignado
+      </label>
+
+      <select
+        :id="`profesor-grupo-${grupo.grupo_id}`"
+        v-model="profesorPorGrupo[grupo.grupo_id]"
+        @change="asignarProfesorAGrupo(grupo)"
+        :disabled="procesandoId !== null || cargandoDatos || Number(grupo.grupo_activo) !== 1"
+        class="w-full rounded-lg border px-3 py-2"
+      >
+        <option value="">Sin profesor asignado</option>
+        <option
+          v-for="profesor in profesoresAdmin.filter(p => Number(p.activo) === 1)"
+          :key="profesor.id"
+          :value="String(profesor.id)"
+        >
+          {{ profesor.nombre }} {{ profesor.apellidos }}
+        </option>
+      </select>
+
+      <p
+        v-if="Number(grupo.grupo_activo) !== 1"
+        class="mt-2 text-sm text-amber-800"
+      >
+        Este grupo está inactivo y no admite nuevas asignaciones.
+      </p>
+    </article>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div
+    v-if="historialProfesorSeleccionado"
+    class="rounded-xl border border-amber-200 p-5"
+  >
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h4 class="text-xl font-bold">
+        Historial: {{ historialProfesorSeleccionado.nombre }}
+        {{ historialProfesorSeleccionado.apellidos }}
+      </h4>
+      <button
+        type="button"
+        @click="historialProfesorSeleccionado = null"
+        class="rounded-lg border px-3 py-2"
+      >
+        Cerrar historial
+      </button>
+    </div>
+
+    <h5 class="mb-2 mt-5 font-semibold">Cambios de la ficha</h5>
+    <p
+      v-if="historialProfesorSeleccionado.cambiosPerfil.length === 0"
+      class="text-sm text-gray-600"
+    >
+      No hay cambios de perfil registrados.
+    </p>
+
+    <div
+      v-for="cambio in historialProfesorSeleccionado.cambiosPerfil"
+      :key="`campo-${cambio.id}`"
+      class="mb-3 rounded-lg bg-gray-50 p-3"
+    >
+      <p class="font-medium">{{ cambio.campo_modificado }}</p>
+      <p class="mt-1 break-words text-sm text-gray-600">
+        Antes: {{ cambio.valor_anterior ?? 'Vacío' }}
+      </p>
+      <p class="break-words text-sm text-gray-600">
+        Después: {{ cambio.valor_nuevo ?? 'Vacío' }}
+      </p>
+      <p class="mt-1 text-xs text-gray-500">
+        {{ formatearFecha(cambio.fecha_modificacion) }}
+      </p>
+    </div>
+
+    <h5 class="mb-2 mt-5 font-semibold">Registro de operaciones</h5>
+    <p
+      v-if="historialProfesorSeleccionado.historial.length === 0"
+      class="text-sm text-gray-600"
+    >
+      No hay operaciones registradas en el historial general.
+    </p>
+
+    <div
+      v-for="cambio in historialProfesorSeleccionado.historial"
+      :key="`historial-${cambio.historial_id}`"
+      class="mb-3 rounded-lg border p-3"
+    >
+      <p class="font-semibold">{{ cambio.accion }}</p>
+      <p class="mt-1 text-sm text-gray-600">
+        {{ formatearFecha(cambio.fecha_cambio) }}
+      </p>
+      <details class="mt-2">
+        <summary class="cursor-pointer text-sm font-medium">
+          Ver datos registrados
+        </summary>
+        <pre class="mt-2 overflow-x-auto whitespace-pre-wrap break-words text-xs">{{ JSON.stringify({
+          anteriores: cambio.datos_anteriores,
+          nuevos: cambio.datos_nuevos
+        }, null, 2) }}</pre>
+      </details>
+    </div>
+  </div>
+
+  <p class="text-sm text-gray-500">
+    La gestión de alumnos y matrículas se conectará por separado.
+    El borrado definitivo de profesores no está habilitado.
+  </p>
+</section>
 
         <!-- DATOS DE LA ESCUELA -->
         <section
@@ -868,6 +1266,20 @@ const recursos = ref([])
 
 const foroAbierto = ref('estudiantes')
 
+/* =====================================================
+   GESTIÓN ADMINISTRATIVA DE PROFESORES Y GRUPOS
+   ===================================================== */
+
+const profesoresAdmin = ref([])
+const gruposAdmin = ref([])
+const profesorPorGrupo = ref({})
+const filtroEscuelaGrupos = ref('')
+
+const profesorEditando = ref(null)
+const formProfesor = ref({})
+
+const historialProfesorSeleccionado = ref(null)
+
 // Formulario único de moderación.
 const moderacionAbierta = ref(null)
 const motivoModeracion = ref('')
@@ -947,11 +1359,15 @@ function seleccionarModulo(modulo) {
   mensaje.value = ''
   cancelarModeracion()
 
-  if (modulo === 'foros') {
-    cargarForos()
-  } else if (modulo === 'archivos') {
-    cargarRecursos()
-  }
+
+if (modulo === 'foros') {
+  cargarForos()
+} else if (modulo === 'archivos') {
+  cargarRecursos()
+} else if (modulo === 'personas') {
+  cargarGestionProfesores()
+}
+
 }
 
 function volverAlPanel() {
@@ -1233,6 +1649,351 @@ async function retirarMaterial(item) {
       error.message || 'No se pudo retirar el material.'
   } finally {
     procesandoId.value = null
+  }
+}
+
+/* =====================================================
+   CARGAR PROFESORES Y GRUPOS
+   ===================================================== */
+
+async function cargarGestionProfesores() {
+  if (cargandoDatos.value || procesandoId.value !== null) return
+
+  cargandoDatos.value = true
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin('/admin/profesores')
+
+    profesoresAdmin.value = Array.isArray(resultado?.profesores)
+      ? resultado.profesores
+      : []
+
+    await cargarGruposAdminInterno()
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron cargar los profesores.'
+  } finally {
+    cargandoDatos.value = false
+  }
+}
+
+async function cargarGruposAdminInterno() {
+  const parametros = filtroEscuelaGrupos.value
+    ? `?escuelaId=${encodeURIComponent(filtroEscuelaGrupos.value)}`
+    : ''
+
+  const resultado = await peticionAdmin(`/admin/grupos${parametros}`)
+
+  gruposAdmin.value = Array.isArray(resultado?.grupos)
+    ? resultado.grupos
+    : []
+
+  const asignaciones = {}
+
+  for (const grupo of gruposAdmin.value) {
+    asignaciones[grupo.grupo_id] = grupo.profesor_id == null
+      ? ''
+      : String(grupo.profesor_id)
+  }
+
+  profesorPorGrupo.value = asignaciones
+}
+
+async function cargarGruposAdmin() {
+  if (cargandoDatos.value || procesandoId.value !== null) return
+
+  cargandoDatos.value = true
+  mensaje.value = ''
+
+  try {
+    await cargarGruposAdminInterno()
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron cargar los grupos.'
+  } finally {
+    cargandoDatos.value = false
+  }
+}
+
+/* =====================================================
+   ASIGNAR UN PROFESOR A UN GRUPO
+   ===================================================== */
+
+async function asignarProfesorAGrupo(grupo) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  const grupoId = Number(grupo.grupo_id)
+  const valorSeleccionado = profesorPorGrupo.value[grupoId]
+  const profesorId = valorSeleccionado === ''
+    ? null
+    : Number(valorSeleccionado)
+
+  if (
+    !Number.isSafeInteger(grupoId) ||
+    grupoId <= 0 ||
+    (
+      profesorId !== null &&
+      (!Number.isSafeInteger(profesorId) || profesorId <= 0)
+    )
+  ) {
+    mensaje.value = 'El grupo o el profesor seleccionado no son válidos.'
+    await cargarGruposAdmin()
+    return
+  }
+
+  const asignacionAnterior = grupo.profesor_id == null
+    ? ''
+    : String(grupo.profesor_id)
+
+  // Evita guardar una asignación que no ha cambiado.
+  if (String(valorSeleccionado) === asignacionAnterior) return
+
+  procesandoId.value = `grupo-${grupoId}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/grupos/${grupoId}/profesor`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          profesor_id: profesorId
+        })
+      }
+    )
+
+    mensaje.value =
+      resultado?.mensaje || 'Asignación actualizada correctamente.'
+
+    // Volver a consultar el servidor para mostrar los datos reales.
+    await cargarGruposAdminInterno()
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo modificar la asignación.'
+
+    // Restablecer el selector al valor guardado en el servidor.
+    try {
+      await cargarGruposAdminInterno()
+    } catch (errorRecarga) {
+      console.error('Error al actualizar los grupos:', errorRecarga)
+    }
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+/* =====================================================
+   EDITAR LA FICHA DE UN PROFESOR
+   ===================================================== */
+
+function editarProfesorAdmin(profesor) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  formProfesor.value = {
+    tipo_documento: profesor.tipo_documento || 'DNI',
+    documento: profesor.documento || '',
+    nombre: profesor.nombre || '',
+    apellidos: profesor.apellidos || '',
+    anio_nacimiento: profesor.anio_nacimiento ?? '',
+    telefono: profesor.telefono || '',
+    email: profesor.email || '',
+    especialidad: profesor.especialidad || '',
+    foto: profesor.foto || ''
+  }
+
+  profesorEditando.value = Number(profesor.id)
+  historialProfesorSeleccionado.value = null
+  mensaje.value = ''
+}
+
+async function guardarProfesorAdmin() {
+  const id = Number(profesorEditando.value)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const datos = {
+    tipo_documento: formProfesor.value.tipo_documento,
+    documento: formProfesor.value.documento.trim(),
+    nombre: formProfesor.value.nombre.trim(),
+    apellidos: formProfesor.value.apellidos.trim(),
+    anio_nacimiento: formProfesor.value.anio_nacimiento === ''
+      ? null
+      : Number(formProfesor.value.anio_nacimiento),
+    telefono: formProfesor.value.telefono.trim() || null,
+    email: formProfesor.value.email.trim() || null,
+    especialidad: formProfesor.value.especialidad.trim() || null,
+    foto: formProfesor.value.foto.trim() || null
+  }
+
+  if (!datos.documento || !datos.nombre || !datos.apellidos) {
+    mensaje.value = 'Documento, nombre y apellidos son obligatorios.'
+    return
+  }
+
+  if (
+    datos.anio_nacimiento !== null &&
+    (
+      !Number.isInteger(datos.anio_nacimiento) ||
+      datos.anio_nacimiento < 1900 ||
+      datos.anio_nacimiento > new Date().getFullYear()
+    )
+  ) {
+    mensaje.value = 'El año de nacimiento no es válido.'
+    return
+  }
+
+  procesandoId.value = `profesor-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/profesores/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(datos)
+      }
+    )
+
+    const indice = profesoresAdmin.value.findIndex(
+      profesor => Number(profesor.id) === id
+    )
+
+    if (indice !== -1 && resultado?.profesor) {
+      profesoresAdmin.value[indice] = resultado.profesor
+    }
+
+    profesorEditando.value = null
+    formProfesor.value = {}
+
+    mensaje.value =
+      resultado?.mensaje || 'Profesor actualizado correctamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron guardar los datos del profesor.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+/* =====================================================
+   ACTIVAR O DESACTIVAR PROFESORES
+   ===================================================== */
+
+async function cambiarEstadoProfesor(profesor) {
+  const id = Number(profesor.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const estaActivo = Number(profesor.activo) === 1
+  const nuevoEstado = estaActivo ? 0 : 1
+
+  const confirmacion = estaActivo
+    ? `¿Quieres desactivar a ${profesor.nombre} ${profesor.apellidos}? No podrá acceder al perfil docente mientras esté inactivo.`
+    : `¿Quieres activar a ${profesor.nombre} ${profesor.apellidos}?`
+
+  if (!window.confirm(confirmacion)) return
+
+  procesandoId.value = `profesor-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/profesores/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          activo: nuevoEstado
+        })
+      }
+    )
+
+    const indice = profesoresAdmin.value.findIndex(
+      item => Number(item.id) === id
+    )
+
+    if (indice !== -1 && resultado?.profesor) {
+      profesoresAdmin.value[indice] = resultado.profesor
+    }
+
+    mensaje.value =
+      resultado?.mensaje ||
+      (nuevoEstado === 1
+        ? 'Profesor activado correctamente.'
+        : 'Profesor desactivado correctamente.')
+
+    // Si se desactiva un profesor, sus asignaciones no se borran.
+    // El administrador podrá reasignar los grupos si lo necesita.
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo cambiar el estado del profesor.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+/* =====================================================
+   CONSULTAR HISTORIAL
+   ===================================================== */
+
+async function cargarHistorialProfesor(profesor) {
+  const id = Number(profesor.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  cargandoDatos.value = true
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/profesores/${id}/historial`
+    )
+
+    if (resultado?.profesorExiste === false) {
+      historialProfesorSeleccionado.value = null
+      mensaje.value = 'No se ha encontrado ese profesor.'
+      return
+    }
+
+    historialProfesorSeleccionado.value = {
+      id,
+      nombre: profesor.nombre,
+      apellidos: profesor.apellidos,
+      historial: Array.isArray(resultado?.historial)
+        ? resultado.historial
+        : [],
+      cambiosPerfil: Array.isArray(resultado?.cambiosPerfil)
+        ? resultado.cambiosPerfil
+        : []
+    }
+
+    profesorEditando.value = null
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo consultar el historial.'
+  } finally {
+    cargandoDatos.value = false
   }
 }
 
