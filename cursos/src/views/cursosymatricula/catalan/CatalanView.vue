@@ -688,7 +688,7 @@ import NavbarCursos from '../../../components/cursosymatricula/NavbarCursos.vue'
 // CONFIGURACIÓ DEL BACKEND
 // ============================================================
 
-const API_BASE_URL = 'http://localhost:3000/api'
+const API_BASE_URL = 'http://localhost:5555/api'
 
 
 // ============================================================
@@ -1139,7 +1139,7 @@ async function carregarRecursosProfessors() {
         )
 
         errorRecursos.value =
-            'Comprova que el servidor del backend funciona al port 3000. ' +
+            'Comprova que el servidor del backend funciona al port 5555. ' +
             (error.message || 'No s’ha pogut establir la connexió.')
 
     } finally {
@@ -1212,10 +1212,10 @@ function urlRecurs(recurs) {
     }
 
     if (ruta.startsWith('/')) {
-        return `http://localhost:3000${ruta}`
+        return `http://localhost:5555${ruta}`
     }
 
-    return `http://localhost:3000/${ruta.replace(/^\/+/, '')}`
+    return `http://localhost:5555/${ruta.replace(/^\/+/, '')}`
 
 }
 

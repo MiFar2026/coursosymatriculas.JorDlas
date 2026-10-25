@@ -1,27 +1,65 @@
 
 const express = require('express')
-const {
-    getEscuelas
-} = require('../controllers/escuelasController')
-
-const { getHorarios } = require('../controllers/horariosController')
-const { getRecursos } = require('../controllers/recursosController')
-
 const router = express.Router()
 
+const {
+  getEscuelas
+} = require('../controllers/escuelasController')
+
+const {
+  getHorarios
+} = require('../controllers/horariosController')
+
+const {
+  getRecursos,
+  getMisGruposRecursos,
+  publicarRecurso,
+  actualizarRecurso,
+  eliminarRecurso
+} = require('../controllers/recursosController')
+
+const authProfesor = require('../middlewares/authProfesor')
+const subirRecurso = require('../middlewares/validators/subirRecurso')
+// Rutas de consulta que ya existían.
 router.get('/', getEscuelas)
 router.get('/horarios', getHorarios)
 router.get('/recursos', getRecursos)
 
-// Métodos distintos de GET
-router.all('/', (req, res) => {
-    res.set('Allow', 'GET')
+// Gestión de recursos: solo profesores autenticados.
+router.get(
+  '/recursos/mis-grupos',
+  authProfesor,
+  getMisGruposRecursos
+)
 
-    res.status(405).json({
+router.put('/recursos/:id', authProfesor, actualizarRecurso)
+router.delete('/recursos/:id', authProfesor, eliminarRecurso)
+
+// Subida de recursos: solo profesores autenticados.
+router.post('/recursos', authProfesor, (req, res, next) => {
+  subirRecurso(req, res, error => {
+    if (error) {
+      const mensaje = error.code === 'LIMIT_FILE_SIZE'
+        ? 'El archivo no puede superar los 20 MB.'
+        : error.message || 'No se pudo subir el archivo.'
+
+      return res.status(400).json({
         ok: false,
-        mensaje: 'Método no permitido.',
-        datos: null
-    })
+        mensaje
+      })
+    }
+
+    next()
+  })
+}, publicarRecurso)
+
+router.all('/', (req, res) => {
+  res.set('Allow', 'GET')
+  res.status(405).json({
+    ok: false,
+    mensaje: 'Método no permitido.',
+    datos: null
+  })
 })
 
 module.exports = router

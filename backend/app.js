@@ -16,6 +16,7 @@ const accesoProfesorRoutes = require('./routes/accesoProfesorRoutes')
 const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
 const foroProfesoresRoutes = require('./routes/foroProfesoresRoutes')
 const perfilProfesorRoutes = require('./routes/perfilProfesorRoutes')
+const actividadesRoutes = require('./routes/actividadesRoutes')
 
 console.log('app.js cargado')
 
@@ -71,6 +72,11 @@ app.use('/api/perfil-alumno', perfilAlumnoRoutes)
 // Acceso del profesorado.
 app.use('/api/acceso-profesor', accesoProfesorRoutes)
 
+
+//tareas, actividades
+
+app.use('/api/actividades', actividadesRoutes)
+
 // Foros.
 app.use('/api/foro-alumnos', foroAlumnosRoutes)
 app.use('/api/foro-profesores', foroProfesoresRoutes)
@@ -86,5 +92,6 @@ app.use((req, res) => {
     mensaje: 'Ruta no encontrada'
   })
 })
+
 
 module.exports = app

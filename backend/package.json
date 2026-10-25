@@ -80,11 +80,13 @@
     "vary": "^1.1.2",
     "wrappy": "^1.0.2"
   },
-  "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  
+"scripts": {
+  "dev": "nodemon --exec \"node --use-system-ca\" server.js",
+  "start": "node --use-system-ca server.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
+
   "keywords": [],
   "author": "TWO SISTERS Farhani",
   "license": "ISC",

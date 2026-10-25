@@ -560,36 +560,32 @@
               </p>
             </RouterLink>
 
-            <RouterLink
-              to="/joanmiro/tutores/resultados-alumno"
-              class="tarjeta border-t-4 border-red-500"
-            >
-              <span class="text-3xl">📝</span>
-              <h3 class="titulo-tarjeta">Tareas y resultados</h3>
-              <p class="texto-tarjeta">
-                Revisar trabajos, registrar notas y comentarios, y devolver documentos corregidos.
-              </p>
-            </RouterLink>
+
+<RouterLink
+  to="/joanmiro/recursos"
+  class="tarjeta border-t-4 border-green-600"
+>
+  <span class="text-3xl">📚</span>
+
+  <h3 class="titulo-tarjeta">
+    Recursos, tareas y resultados
+  </h3>
+
+  <p class="texto-tarjeta">
+    Publicar materiales y actividades, consultar las tareas
+    enviadas por los alumnos, registrar notas y comentarios
+    y devolver documentos corregidos.
+  </p>
+</RouterLink>
 
             <RouterLink
               to="/joanmiro/tutores/mensaje-profesor"
-              class="tarjeta border-t-4 border-blue-500"
+              class="tarjeta border-t-4 border-red-500"
             >
               <span class="text-3xl">💬</span>
               <h3 class="titulo-tarjeta">Mensajes</h3>
               <p class="texto-tarjeta">
                 Enviar y recibir mensajes de los alumnos de esta escuela.
-              </p>
-            </RouterLink>
-
-            <RouterLink
-              to="/joanmiro/recursos"
-              class="tarjeta border-t-4 border-green-600"
-            >
-              <span class="text-3xl">📚</span>
-              <h3 class="titulo-tarjeta">Recursos educativos</h3>
-              <p class="texto-tarjeta">
-                Acceder al espacio de recursos de Biblioteca Joan Miró.
               </p>
             </RouterLink>
 

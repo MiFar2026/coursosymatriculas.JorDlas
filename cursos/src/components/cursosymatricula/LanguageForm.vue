@@ -319,8 +319,8 @@ async function cargarDatos() {
 
     try {
         const [respuestaEscuelas, respuestaCursos] = await Promise.all([
-            fetch('http://localhost:3000/api/escuelas'),
-            fetch('http://localhost:3000/api/cursos')
+            fetch('http://localhost:5555/api/escuelas'),
+            fetch('http://localhost:5555/api/cursos')
         ])
 
         if (!respuestaEscuelas.ok || !respuestaCursos.ok) {
@@ -559,7 +559,7 @@ const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
  */
 
 const respuesta = await fetch(
-    'http://localhost:3000/api/matriculas/solicitudes',
+    'http://localhost:5555/api/matriculas/solicitudes',
     {
         method: 'POST',
 

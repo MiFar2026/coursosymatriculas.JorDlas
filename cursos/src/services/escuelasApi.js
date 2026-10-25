@@ -1,7 +1,7 @@
 
 const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
-    'http://localhost:3000/api/escuelas'
+    'http://localhost:5555/api/escuelas'
 
 
 async function solicitar(endpoint, opciones = {}) {
@@ -20,7 +20,7 @@ async function solicitar(endpoint, opciones = {}) {
         })
     } catch {
         throw new Error(
-'No se pudo conectar con el servidor Express. Comprueba que esté funcionando en el puerto 3000.'    }
+'No se pudo conectar con el servidor Express. Comprueba que esté funcionando en el puerto 5555.'    }
 
     let resultado
 

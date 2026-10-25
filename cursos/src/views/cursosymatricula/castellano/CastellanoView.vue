@@ -273,7 +273,7 @@
 
                             <p class="mt-2 text-sm text-red-700">
                                 Comprueba que el backend esté funcionando
-                                en el puerto 3000.
+                                en el puerto 5555.
                             </p>
                         </div>
 
@@ -784,7 +784,7 @@ import NavbarCursos from '../../../components/cursosymatricula/NavbarCursos.vue'
 // BACKEND
 // ============================================================
 
-const API_BASE_URL = 'http://localhost:3000/api'
+const API_BASE_URL = 'http://localhost:5555/api'
 
 // ============================================================
 // RECURSOS GRATUITOS ONLINE
@@ -1187,7 +1187,7 @@ async function cargarRecursosProfesor() {
         )
 
         errorRecursos.value =
-            'Comprueba que el backend funciona en el puerto 3000. ' +
+            'Comprueba que el backend funciona en el puerto 5555. ' +
             (error.message || 'No se pudo establecer la conexión.')
 
     } finally {
@@ -1210,7 +1210,7 @@ function urlRecurso(ruta) {
         return valor
     }
 
-    return `http://localhost:3000/${valor.replace(/^\/+/, '')}`
+    return `http://localhost:5555/${valor.replace(/^\/+/, '')}`
 }
 
 // ============================================================
