@@ -542,8 +542,94 @@ async function eliminarRecurso(req, res) {
   }
 }
 
+// Consultar los recursos publicados que corresponden al alumno
+// según su matrícula activa, escuela y grupo.
+async function getRecursosAlumno(req, res) {
+  try {
+    const alumnoId = req.alumnoId
+
+    const sql = `
+      SELECT
+        r.id,
+        r.profesor_id,
+        r.titulo,
+        r.descripcion,
+        r.nombre_archivo,
+        r.ruta_archivo,
+        r.url,
+        r.tipo,
+        r.fecha_publicacion,
+        e.nombre AS escuela,
+        g.id AS grupo_id,
+        g.nombre AS grupo,
+        c.nombre AS curso,
+        c.idioma,
+        c.nivel,
+        p.nombre AS profesor_nombre,
+        p.apellidos AS profesor_apellidos
+      FROM recursos r
+      INNER JOIN (
+        SELECT m.alumno_id, m.grupo_id
+        FROM matriculas m
+        INNER JOIN (
+          SELECT alumno_id, MAX(id) AS matricula_id
+          FROM matriculas
+          WHERE estado = 'ACTIVA'
+          GROUP BY alumno_id
+        ) ultima ON ultima.matricula_id = m.id
+        WHERE m.alumno_id = ?
+          AND m.estado = 'ACTIVA'
+      ) matricula ON 1 = 1
+      INNER JOIN grupos ga
+        ON ga.id = matricula.grupo_id
+        AND ga.activo = 1
+      INNER JOIN escuelas e
+        ON e.id = ga.escuela_id
+        AND e.activa = 1
+      INNER JOIN profesores p
+        ON p.id = r.profesor_id
+        AND p.activo = 1
+      LEFT JOIN grupos g
+        ON g.id = r.grupo_id
+        AND g.escuela_id = r.escuela_id
+        AND g.activo = 1
+      LEFT JOIN cursos c
+        ON c.id = g.curso_id
+      WHERE r.escuela_id = e.id
+        AND r.publicado = 1
+        AND (
+          r.grupo_id IS NULL
+          OR g.id = ga.id
+        )
+      ORDER BY r.fecha_publicacion DESC, r.id DESC
+    `
+
+    const [recursos] = await db.query(sql, [alumnoId])
+
+    return res.status(200).json({
+      ok: true,
+      mensaje: recursos.length
+        ? 'Recursos encontrados.'
+        : 'Todavía no hay recursos publicados para tu grupo.',
+      datos: recursos
+    })
+  } catch (error) {
+    console.error(
+      'Error al obtener los recursos del alumno:',
+      error.message
+    )
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: 'No se pudieron consultar los recursos.',
+      datos: null
+    })
+  }
+}
+
 module.exports = {
   getRecursos,
+  getRecursosAlumno,
   getMisGruposRecursos,
   publicarRecurso,
   actualizarRecurso,

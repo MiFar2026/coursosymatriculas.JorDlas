@@ -3,7 +3,6 @@ const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
     'http://localhost:5555/api/escuelas'
 
-
 async function solicitar(endpoint, opciones = {}) {
     let respuesta
 
@@ -20,7 +19,9 @@ async function solicitar(endpoint, opciones = {}) {
         })
     } catch {
         throw new Error(
-'No se pudo conectar con el servidor Express. Comprueba que esté funcionando en el puerto 5555.'    }
+            'No se pudo conectar con el servidor Express. Comprueba que esté funcionando en el puerto 5555.'
+        )
+    }
 
     let resultado
 
@@ -28,7 +29,8 @@ async function solicitar(endpoint, opciones = {}) {
         resultado = await respuesta.json()
     } catch {
         throw new Error(
-'El servidor no ha devuelto una respuesta JSON válida.'        )
+            'El servidor no ha devuelto una respuesta JSON válida.'
+        )
     }
 
     if (!respuesta.ok || resultado.ok === false) {
@@ -40,14 +42,11 @@ async function solicitar(endpoint, opciones = {}) {
     return resultado.datos
 }
 
-
 export function obtenerHorarios(escuela) {
     return solicitar(
         `horarios?escuela=${encodeURIComponent(escuela)}`
     )
 }
-
-
 
 export function obtenerRecursos(escuela, grupoId = '') {
     const parametros = new URLSearchParams({ escuela })
@@ -58,7 +57,6 @@ export function obtenerRecursos(escuela, grupoId = '') {
 
     return solicitar(`recursos?${parametros.toString()}`)
 }
-
 
 export function buscarPerfilAlumno(datos) {
     return solicitar('perfil-alumno.php', {

@@ -12,6 +12,7 @@ const {
 
 const {
   getRecursos,
+  getRecursosAlumno,
   getMisGruposRecursos,
   publicarRecurso,
   actualizarRecurso,
@@ -19,12 +20,17 @@ const {
 } = require('../controllers/recursosController')
 
 const authProfesor = require('../middlewares/authProfesor')
+const autenticarAlumno = require('../middlewares/autenticarAlumno')
 const subirRecurso = require('../middlewares/validators/subirRecurso')
 // Rutas de consulta que ya existían.
 router.get('/', getEscuelas)
 router.get('/horarios', getHorarios)
 router.get('/recursos', getRecursos)
-
+router.get(
+  '/recursos/alumno',
+  autenticarAlumno,
+  getRecursosAlumno
+)
 // Gestión de recursos: solo profesores autenticados.
 router.get(
   '/recursos/mis-grupos',

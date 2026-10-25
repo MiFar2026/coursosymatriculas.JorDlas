@@ -126,7 +126,7 @@
           v-for="item in secciones"
           :key="item.id"
           type="button"
-          @click="item.id === 'foro' ? irAlForo() : seccion = item.id"
+@click="cambiarSeccion(item.id)"
           :aria-current="seccion === item.id ? 'page' : undefined"
           :class="[
             'shrink-0 rounded-xl px-4 py-3 text-sm font-bold transition',
@@ -434,6 +434,126 @@
           </div>
         </div>
       </section>
+
+      <!-- RECURSOS DEL ALUMNO -->
+<section
+  v-else-if="seccion === 'recursos'"
+  class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"
+>
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800">
+        Recursos de aprendizaje
+      </h2>
+
+      <p class="mt-2 text-sm text-slate-600">
+        Consulta los materiales publicados por tus profesores
+        para tu escuela y grupo.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="cargarRecursosAlumno"
+      :disabled="cargandoRecursos"
+      class="rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {{ cargandoRecursos ? 'Cargando...' : 'Actualizar recursos' }}
+    </button>
+  </div>
+
+  <p
+    v-if="cargandoRecursos"
+    class="py-6 text-center text-slate-600"
+  >
+    Cargando recursos...
+  </p>
+
+  <div
+    v-else-if="errorRecursos"
+    class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700"
+  >
+    <p>{{ errorRecursos }}</p>
+
+    <button
+      type="button"
+      @click="cargarRecursosAlumno"
+      class="mt-3 font-bold underline"
+    >
+      Intentar de nuevo
+    </button>
+  </div>
+
+  <div
+    v-else-if="recursosAlumno.length === 0"
+    class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center"
+  >
+    <p class="font-semibold text-slate-700">
+      Todavía no hay recursos publicados para tu grupo.
+    </p>
+
+    <p class="mt-2 text-sm text-slate-500">
+      Cuando tus profesores publiquen materiales, aparecerán aquí.
+    </p>
+  </div>
+
+  <div v-else class="grid gap-4 md:grid-cols-2">
+    <article
+      v-for="recurso in recursosAlumno"
+      :key="recurso.id"
+      class="rounded-xl border border-slate-200 p-5 transition hover:border-teal-300 hover:bg-teal-50/30"
+    >
+      <h3 class="text-lg font-bold text-slate-800">
+        {{ recurso.titulo }}
+      </h3>
+
+      <p
+        v-if="recurso.descripcion"
+        class="mt-2 whitespace-pre-line text-sm text-slate-600"
+      >
+        {{ recurso.descripcion }}
+      </p>
+
+      <div class="mt-4 space-y-1 text-sm text-slate-500">
+        <p v-if="recurso.curso">
+          <strong>Curso:</strong>
+          {{ recurso.curso }}
+          <span v-if="recurso.nivel"> · {{ recurso.nivel }}</span>
+        </p>
+
+        <p v-if="recurso.grupo">
+          <strong>Grupo:</strong> {{ recurso.grupo }}
+        </p>
+
+        <p v-if="recurso.profesor_nombre || recurso.profesor_apellidos">
+          <strong>Profesor/a:</strong>
+          {{ recurso.profesor_nombre }}
+          {{ recurso.profesor_apellidos }}
+        </p>
+      </div>
+
+      <a
+        v-if="recurso.url"
+        :href="recurso.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-5 inline-flex rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"
+      >
+        Abrir recurso
+      </a>
+
+     <a
+  v-else-if="recurso.ruta_archivo"
+  :href="`http://localhost:5555${recurso.ruta_archivo}`"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="mt-5 inline-flex rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"
+>
+  Abrir archivo
+</a>
+    </article>
+  </div>
+</section> 
 
       <!-- Trabajos -->
       <section
@@ -885,6 +1005,7 @@ const secciones = [
   { id: 'inicio', nombre: 'Inicio', icono: '🏠' },
   { id: 'perfil', nombre: 'Mi perfil', icono: '👤' },
   { id: 'clase', nombre: 'Mi clase', icono: '📚' },
+  { id: 'recursos', nombre: 'Recursos', icono: '📂' },
   { id: 'trabajos', nombre: 'Trabajos', icono: '📤' },
   { id: 'resultados', nombre: 'Resultados', icono: '📊' },
   { id: 'avisos', nombre: 'Avisos', icono: '🔔' },
@@ -960,6 +1081,9 @@ const iniciales = computed(() => {
 const cargandoPerfil = ref(true)
 const errorPerfil = ref('')
 const mensajePerfil = ref('')
+const recursosAlumno = ref([])
+const cargandoRecursos = ref(false)
+const errorRecursos = ref('')
 
 const formPerfil = reactive({
   email: '',
@@ -1063,6 +1187,45 @@ async function cargarPerfil() {
     cargandoPerfil.value = false
   }
 }
+
+// Cargar Recursos
+
+async function cargarRecursosAlumno() {
+  cargandoRecursos.value = true
+  errorRecursos.value = ''
+
+  try {
+    const respuesta = await fetch(
+      `${API_BASE}/api/escuelas/recursos/alumno`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        }
+      }
+    )
+
+    const resultado = await respuesta.json().catch(() => ({}))
+
+    if (!respuesta.ok || !resultado.ok) {
+      throw new Error(
+        resultado.mensaje || 'No se pudieron cargar los recursos.'
+      )
+    }
+
+    recursosAlumno.value = Array.isArray(resultado.datos)
+      ? resultado.datos
+      : []
+  } catch (error) {
+    console.error('Error al cargar los recursos:', error)
+
+    errorRecursos.value =
+      error.message || 'No se pudieron cargar los recursos.'
+  } finally {
+    cargandoRecursos.value = false
+  }
+} 
 
 // Cargar horario
 async function cargarHorario() {
@@ -1400,6 +1563,19 @@ function prepararMensaje() {
 
   mensajeChat.value =
     'Tu mensaje está preparado, pero todavía no se ha enviado. Conectaremos la mensajería al servidor en el siguiente paso.'
+}
+
+function cambiarSeccion(id) {
+  if (id === 'foro') {
+    irAlForo()
+    return
+  }
+
+  seccion.value = id
+
+  if (id === 'recursos') {
+    cargarRecursosAlumno()
+  }
 }
 
 // Carga inicial
