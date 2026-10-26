@@ -39,7 +39,10 @@
             v-for="item in secciones"
             :key="item.id"
             type="button"
-            @click="seccionActiva = item.id"
+            @click="
+  seccionActiva = item.id;
+  if (item.id === 'tareas') cargarTareas()
+"
             :class="seccionActiva === item.id
               ? 'border-purple-300 bg-slate-950 text-white'
               : 'border-gray-200 bg-white text-gray-800 hover:border-purple-200'"
@@ -383,18 +386,111 @@
           </div>
         </section>
 
-        <!-- Tareas -->
-        <section
-          v-if="seccionActiva === 'tareas'"
-          class="max-w-5xl mx-auto px-6 py-10"
-        >
-          <div class="rounded-2xl border bg-white/95 p-8">
-            <h2 class="text-2xl font-bold mb-3">Gestión de tareas</h2>
+        
+      <!-- Tareas entregadas por el alumnado -->
+      <section
+        v-if="seccionActiva === 'tareas'"
+        class="max-w-5xl mx-auto px-6 py-10"
+      >
+        <div class="rounded-2xl border bg-white/95 p-6 md:p-8">
+          <h2 class="text-2xl font-bold mb-3">
+            Tareas entregadas por el alumnado
+          </h2>
+
+          <p class="text-gray-600 mb-6">
+            Consulta y descarga los archivos enviados por los alumnos
+            de {{ nombreEscuela }}.
+          </p>
+
+          <div v-if="cargandoTareas" class="rounded-xl bg-gray-50 p-5">
+            Cargando tareas entregadas...
+          </div>
+
+          <div
+            v-else-if="errorTareas"
+            class="rounded-xl border border-red-200 bg-red-50 p-5"
+          >
+            <p class="text-red-800 mb-4">{{ errorTareas }}</p>
+
+            <button
+              type="button"
+              @click="cargarTareas"
+              class="rounded-lg bg-red-900 px-4 py-2 text-white hover:bg-red-800"
+            >
+              Volver a intentar
+            </button>
+          </div>
+
+          <div
+            v-else-if="tareas.length === 0"
+            class="rounded-xl bg-gray-50 p-6 text-center"
+          >
+            <p class="text-3xl mb-3">📂</p>
+            <h3 class="font-bold text-lg mb-2">
+              Todavía no hay tareas entregadas
+            </h3>
             <p class="text-gray-600">
-              Este espacio queda preparado para incorporar la gestión de tareas.
+              Cuando el alumnado envíe sus trabajos, aparecerán aquí.
             </p>
           </div>
-        </section>
+
+          <div v-else class="space-y-4">
+            <article
+              v-for="tarea in tareas"
+              :key="tarea.id"
+              class="rounded-xl border border-gray-200 p-5"
+            >
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                  <h3 class="text-lg font-bold">
+                    {{ tarea.titulo || 'Tarea sin título' }}
+                  </h3>
+
+                  <p class="mt-1 text-sm text-gray-600">
+                    Alumno/a:
+                    {{ tarea.nombre_alumno || tarea.alumno || 'No disponible' }}
+                  </p>
+
+                  <p class="mt-1 text-sm text-gray-600">
+                    Archivo:
+                    {{ tarea.nombre_archivo || 'Archivo adjunto' }}
+                  </p>
+
+                  <p v-if="tarea.fecha_envio" class="mt-1 text-sm text-gray-500">
+                    Entregada:
+                    {{ new Date(tarea.fecha_envio).toLocaleString('es-ES') }}
+                  </p>
+
+                  <p
+                    v-if="tarea.comentario"
+                    class="mt-3 whitespace-pre-wrap text-gray-700"
+                  >
+                    {{ tarea.comentario }}
+                  </p>
+
+                  <p class="mt-3 text-sm font-semibold">
+                    Estado: {{ tarea.estado || 'ENVIADA' }}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  @click="descargarTarea(tarea)"
+                  :disabled="descargandoId === tarea.id"
+                  class="shrink-0 rounded-lg bg-red-900 px-4 py-2 font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+                >
+                  {{
+                    descargandoId === tarea.id
+                      ? 'Descargando...'
+                      : 'Descargar archivo'
+                  }}
+                </button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
 
         <!-- Resultados -->
         <section
@@ -460,6 +556,10 @@ const secciones = [
 const recursos = ref([])
 const cargando = ref(false)
 const error = ref(false)
+const tareas = ref([])
+const cargandoTareas = ref(false)
+const errorTareas = ref('')
+const descargandoId = ref(null)
 
 const profesor = ref(null)
 const sesionComprobada = ref(false)
@@ -818,6 +918,89 @@ async function publicarRecurso() {
     publicando.value = false
   }
 }
+
+
+async function cargarTareas() {
+  cargandoTareas.value = true
+  errorTareas.value = ''
+
+  try {
+    const respuesta = await fetch(
+      'http://localhost:5555/api/tareas-profesor',
+      {
+        method: 'GET',
+        credentials: 'include'
+      }
+    )
+
+    const resultado = await respuesta.json()
+
+    if (!respuesta.ok || resultado.ok === false) {
+      throw new Error(
+        resultado.mensaje || 'No se pudieron cargar las tareas.'
+      )
+    }
+
+    tareas.value = Array.isArray(resultado.datos)
+      ? resultado.datos
+      : Array.isArray(resultado.tareas)
+        ? resultado.tareas
+        : []
+  } catch (err) {
+    console.error('Error al cargar las tareas:', err)
+    errorTareas.value =
+      err.message || 'No se pudieron cargar las tareas entregadas.'
+  } finally {
+    cargandoTareas.value = false
+  }
+}
+
+async function descargarTarea(tarea) {
+  if (!tarea?.id) return
+
+  descargandoId.value = tarea.id
+
+  try {
+    const respuesta = await fetch(
+      `http://localhost:5555/api/tareas-profesor/${encodeURIComponent(tarea.id)}/descargar`,
+      {
+        method: 'GET',
+        credentials: 'include'
+      }
+    )
+
+    if (!respuesta.ok) {
+      let mensaje = 'No se pudo descargar el archivo.'
+
+      try {
+        const resultado = await respuesta.json()
+        mensaje = resultado.mensaje || mensaje
+      } catch {
+        // La respuesta no contiene JSON.
+      }
+
+      throw new Error(mensaje)
+    }
+
+    const archivo = await respuesta.blob()
+    const urlTemporal = URL.createObjectURL(archivo)
+    const enlace = document.createElement('a')
+
+    enlace.href = urlTemporal
+    enlace.download = tarea.nombre_archivo || `tarea-${tarea.id}`
+    document.body.appendChild(enlace)
+    enlace.click()
+    enlace.remove()
+
+    URL.revokeObjectURL(urlTemporal)
+  } catch (err) {
+    console.error('Error al descargar la tarea:', err)
+    alert(err.message || 'No se pudo descargar el archivo.')
+  } finally {
+    descargandoId.value = null
+  }
+}
+
 
 onMounted(async () => {
   await Promise.all([

@@ -17,6 +17,11 @@ const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
 const foroProfesoresRoutes = require('./routes/foroProfesoresRoutes')
 const perfilProfesorRoutes = require('./routes/perfilProfesorRoutes')
 const actividadesRoutes = require('./routes/actividadesRoutes')
+const tareasProfesorRoutes = require('./routes/tareasProfesorRoutes')
+console.log('CARGADO tareasProfesorRoutes:', {
+  tipo: typeof tareasProfesorRoutes,
+  rutas: tareasProfesorRoutes.stack.map(r => r.route?.path)
+})
 
 console.log('app.js cargado')
 
@@ -84,6 +89,8 @@ app.use('/api/foro-profesores', foroProfesoresRoutes)
 // Perfil y foto del profesorado.
 // Se registra una sola vez.
 app.use('/api/perfil-profesor', perfilProfesorRoutes)
+app.use('/api/tareas-profesor', tareasProfesorRoutes)
+
 
 // 404: siempre al final, después de todas las rutas.
 app.use((req, res) => {
