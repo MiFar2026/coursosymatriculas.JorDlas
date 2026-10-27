@@ -34,6 +34,11 @@ const {
     cambiarEstadoVoluntario
 } = require('../controllers/voluntariosAdminController')
 
+const {
+    obtenerNotasFinales,
+  actualizarEstadoCertificado
+} = require('../controllers/resultadosController')
+
 const router = express.Router()
 
 // =====================================================
@@ -45,6 +50,20 @@ router.post('/login', loginAdmin)
 
 // Todas las rutas siguientes requieren autenticación.
 router.use(authAdmin)
+
+
+// =====================================================
+// RESULTADOS FINALES PARA CERTIFICADOS
+// =====================================================
+
+router.get(
+    '/resultados-finales',
+    obtenerNotasFinales
+)
+router.patch(
+  '/resultados-finales/:id/certificado',
+  actualizarEstadoCertificado
+)
 
 // =====================================================
 // VOLUNTARIADO

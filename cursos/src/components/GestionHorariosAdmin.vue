@@ -175,8 +175,7 @@ function etiquetaGrupo(grupo) {
   return [
     grupo.nombre_escuela,
     grupo.nombre_curso ?? grupo.nombre,
-    grupo.turno,
-    grupo.nombre
+    grupo.turno
   ].filter(Boolean).join(' · ')
 }
 

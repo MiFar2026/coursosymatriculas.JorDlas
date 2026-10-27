@@ -502,12 +502,16 @@
             <p class="text-gray-600 mb-6">
               Consulta y registra las evaluaciones del alumnado.
             </p>
-            <RouterLink
-              to="/ateneu/tutores/resultados-alumno"
-              class="inline-block rounded-xl bg-slate-950 px-5 py-3 text-white hover:bg-slate-800"
-            >
-              Ir a resultados
-            </RouterLink>
+            
+<RouterLink
+  :to="$route.path.startsWith('/joanmiro')
+    ? '/joanmiro/tutores/resultados-alumno'
+    : '/ateneu/tutores/resultados-alumno'"
+  class="inline-block rounded-xl bg-slate-950 px-5 py-3 text-white hover:bg-slate-800"
+>
+  Ir a resultados
+</RouterLink>
+
           </div>
         </section>
       </main>

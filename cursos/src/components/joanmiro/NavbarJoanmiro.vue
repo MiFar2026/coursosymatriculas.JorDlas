@@ -109,14 +109,11 @@
                             Alumnos
                         </RouterLink>
 
-                        <!-- RECURSOS -->
+                        <!-- informacion-util -->
 
-                        <RouterLink
-                            to="/joanmiro/recursos"
-                            class="nav-link"
-                        >
-                            Recursos
-                        </RouterLink>
+                       <RouterLink to="/joanmiro/informacion-util">
+  Información útil
+</RouterLink>
 
                         <!-- HORARIOS -->
 
@@ -214,14 +211,14 @@
                             Alumnos
                         </RouterLink>
 
-                        <!-- RECURSOS -->
+                        <!-- informacion-util -->
 
                         <RouterLink
-                            to="/joanmiro/recursos"
+                            to="/joanmiro/informacion-util"
                             @click="menuAbierto = false"
                             class="mobile-link"
                         >
-                            Recursos
+                            informacion-util
                         </RouterLink>
 
                         <!-- HORARIOS -->

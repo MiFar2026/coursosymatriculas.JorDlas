@@ -1,5 +1,7 @@
 
 require('dotenv').config()
+console.log('SERVIDOR ACTUAL:', __filename)
+
 const app = require('./app')
 
 const PORT = process.env.PORT || 5555

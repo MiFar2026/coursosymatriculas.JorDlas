@@ -921,65 +921,238 @@ WHERE c.activo = 1
 COMMIT;
 
 
-CREATE TABLE historial_perfil_profesores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS profesores_historial (
+    historial_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
     profesor_id INT NOT NULL,
-    campo_modificado VARCHAR(50) NOT NULL,
-    valor_anterior TEXT,
-    valor_nuevo TEXT,
-    modificado_por INT, -- ID del usuario que hizo el cambio
-    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    accion ENUM(
+        'INICIAL',
+        'MODIFICACION',
+        'ELIMINACION'
+    ) NOT NULL,
+
+    fecha_cambio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    usuario_mysql VARCHAR(150),
+
+    datos_anteriores JSON NULL,
+    datos_nuevos JSON NULL,
+
+    INDEX idx_profesor_historial (profesor_id),
+    INDEX idx_fecha_historial (fecha_cambio)
 );
 
 
-DELIMITER //
+USE BaseDeDatosEscuelas;
 
--- 1. Eliminamos el trigger anterior para limpiar la memoria
-DROP TRIGGER IF EXISTS auditar_cambios_profesor;
+DELIMITER $$
 
--- 2. Cambiamos el delimitador para el nuevo bloque
-DELIMITER //
-
--- 3. Creamos la versión definitiva con los 5 campos protegidos
-CREATE TRIGGER auditar_cambios_profesor
+CREATE TRIGGER profesores_historial_update
 AFTER UPDATE ON profesores
 FOR EACH ROW
 BEGIN
-    -- 1. Monitorear cambio en el nombre
-    IF NOT (OLD.nombre <=> NEW.nombre) THEN
-        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
-        VALUES (OLD.id, 'nombre', OLD.nombre, NEW.nombre, NULL);
-    END IF;
+    INSERT INTO profesores_historial (
+        profesor_id,
+        accion,
+        usuario_mysql,
+        datos_anteriores,
+        datos_nuevos
+    )
+    VALUES (
+        OLD.id,
+        'MODIFICACION',
+        CURRENT_USER(),
 
-    -- 2. Monitorear cambio en los apellidos
-    IF NOT (OLD.apellidos <=> NEW.apellidos) THEN
-        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
-        VALUES (OLD.id, 'apellidos', OLD.apellidos, NEW.apellidos, NULL);
-    END IF;
+        JSON_OBJECT(
+            'tipo_documento', OLD.tipo_documento,
+            'documento', OLD.documento,
+            'nombre', OLD.nombre,
+            'apellidos', OLD.apellidos,
+            'anio_nacimiento', OLD.anio_nacimiento,
+            'telefono', OLD.telefono,
+            'email', OLD.email,
+            'especialidad', OLD.especialidad,
+            'activo', OLD.activo,
+            'fecha_creacion', OLD.fecha_creacion
+        ),
 
-    -- 3. Monitorear cambio en el email
-    IF NOT (OLD.email <=> NEW.email) THEN
-        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
-        VALUES (OLD.id, 'email', OLD.email, NEW.email, NULL);
-    END IF;
+        JSON_OBJECT(
+            'tipo_documento', NEW.tipo_documento,
+            'documento', NEW.documento,
+            'nombre', NEW.nombre,
+            'apellidos', NEW.apellidos,
+            'anio_nacimiento', NEW.anio_nacimiento,
+            'telefono', NEW.telefono,
+            'email', NEW.email,
+            'especialidad', NEW.especialidad,
+            'activo', NEW.activo,
+            'fecha_creacion', NEW.fecha_creacion
+        )
+    );
+END$$
 
-    -- 4. Monitorear cambio en la especialidad
-    IF NOT (OLD.especialidad <=> NEW.especialidad) THEN
-        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
-        VALUES (OLD.id, 'especialidad', OLD.especialidad, NEW.especialidad, NULL);
-    END IF;
+CREATE TRIGGER profesores_historial_delete
+BEFORE DELETE ON profesores
+FOR EACH ROW
+BEGIN
+    INSERT INTO profesores_historial (
+        profesor_id,
+        accion,
+        usuario_mysql,
+        datos_anteriores,
+        datos_nuevos
+    )
+    VALUES (
+        OLD.id,
+        'ELIMINACION',
+        CURRENT_USER(),
 
-    -- 5. Monitorear cambio en la foto
-    IF NOT (OLD.foto <=> NEW.foto) THEN
-        INSERT INTO historial_perfil_profesores (profesor_id, campo_modificado, valor_anterior, valor_nuevo, modificado_por)
-        VALUES (OLD.id, 'foto', OLD.foto, NEW.foto, NULL);
-    END IF;
-END //
+        JSON_OBJECT(
+            'tipo_documento', OLD.tipo_documento,
+            'documento', OLD.documento,
+            'nombre', OLD.nombre,
+            'apellidos', OLD.apellidos,
+            'anio_nacimiento', OLD.anio_nacimiento,
+            'telefono', OLD.telefono,
+            'email', OLD.email,
+            'especialidad', OLD.especialidad,
+            'activo', OLD.activo,
+            'fecha_creacion', OLD.fecha_creacion
+        ),
+
+        NULL
+    );
+END$$
 
 DELIMITER ;
 
 
+INSERT INTO profesores_historial (
+    profesor_id,
+    accion,
+    usuario_mysql,
+    datos_anteriores,
+    datos_nuevos
+)
+SELECT
+    p.id,
+    'INICIAL',
+    CURRENT_USER(),
+    NULL,
+    JSON_OBJECT(
+        'tipo_documento', p.tipo_documento,
+        'documento', p.documento,
+        'nombre', p.nombre,
+        'apellidos', p.apellidos,
+        'anio_nacimiento', p.anio_nacimiento,
+        'telefono', p.telefono,
+        'email', p.email,
+        'especialidad', p.especialidad,
+        'activo', p.activo,
+        'fecha_creacion', p.fecha_creacion
+    )
+FROM profesores AS p;
 
 
 
 
+USE BaseDeDatosEscuelas;
+
+-- 1. Actividades publicadas por los profesores
+CREATE TABLE actividades (
+    id INT NOT NULL AUTO_INCREMENT,
+    escuela_id INT NOT NULL,
+    grupo_id INT NOT NULL,
+    profesor_id INT NOT NULL,
+    titulo VARCHAR(200) NOT NULL,
+    descripcion TEXT DEFAULT NULL,
+    fecha_entrega DATETIME DEFAULT NULL,
+    publicado TINYINT(1) NOT NULL DEFAULT 1,
+    fecha_publicacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+    KEY idx_actividades_escuela (escuela_id),
+    KEY idx_actividades_grupo (grupo_id),
+    KEY idx_actividades_profesor (profesor_id),
+    KEY idx_actividades_publicadas (grupo_id, publicado),
+
+    CONSTRAINT fk_actividades_escuela
+        FOREIGN KEY (escuela_id)
+        REFERENCES escuelas(id),
+
+    CONSTRAINT fk_actividades_grupo
+        FOREIGN KEY (grupo_id)
+        REFERENCES grupos(id),
+
+    CONSTRAINT fk_actividades_profesor
+        FOREIGN KEY (profesor_id)
+        REFERENCES profesores(id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+
+-- 2. Vincular las entregas con la actividad publicada
+-- La columna admite NULL para conservar las entregas antiguas.
+ALTER TABLE tareas
+    ADD COLUMN actividad_id INT DEFAULT NULL,
+    ADD KEY idx_tareas_actividad (actividad_id),
+    ADD CONSTRAINT fk_tareas_actividad
+        FOREIGN KEY (actividad_id)
+        REFERENCES actividades(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+
+-- 3. Vincular los resultados con la actividad correspondiente
+-- Se mantiene la estructura de las notas existentes.
+ALTER TABLE resultados
+    ADD COLUMN actividad_id INT DEFAULT NULL,
+    ADD KEY idx_resultados_actividad (actividad_id),
+    ADD CONSTRAINT fk_resultados_actividad
+        FOREIGN KEY (actividad_id)
+        REFERENCES actividades(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+
+-- 4. Permitir recursos con archivo, enlace o ambos
+ALTER TABLE recursos
+    MODIFY COLUMN nombre_archivo VARCHAR(255) DEFAULT NULL,
+    MODIFY COLUMN ruta_archivo VARCHAR(500) DEFAULT NULL,
+    ADD COLUMN url VARCHAR(2048) DEFAULT NULL;
+
+
+
+USE BaseDeDatosEscuelas;
+
+ALTER TABLE resultados
+    ADD COLUMN archivo_corregido VARCHAR(255) NULL,
+    ADD COLUMN nombre_archivo_corregido VARCHAR(255) NULL;
+    
+    
+    ALTER TABLE resultados
+ADD COLUMN decision_apto ENUM('APTO', 'NO_APTO') NULL;
+
+
+UPDATE resultados
+SET decision_apto = CASE
+  WHEN nota >= 5 THEN 'APTO'
+  ELSE 'NO_APTO'
+END
+WHERE id = 3
+  AND tipo = 'FINAL';
+  
+  
+  ALTER TABLE resultados
+ADD COLUMN estado_certificado
+ENUM('PENDIENTE', 'EMITIDO', 'ENTREGADO')
+NOT NULL DEFAULT 'PENDIENTE';
+
+UPDATE resultados
+SET decision_apto = 'APTO'
+WHERE id = 6
+  AND tipo = 'FINAL'
+  AND nota >= 6
+  AND decision_apto IS NULL;

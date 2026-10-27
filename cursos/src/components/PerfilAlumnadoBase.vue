@@ -767,25 +767,139 @@
       </section>
 
       <!-- Resultados -->
-      <section
-        v-else-if="seccion === 'resultados'"
-        class="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-      >
-        <p class="text-sm font-bold uppercase tracking-wider text-indigo-700">
-          Evaluación
-        </p>
-        <h2 class="mt-1 text-2xl font-extrabold">Mis resultados</h2>
+      
+<!-- Resultados -->
+<section
+  v-else-if="seccion === 'resultados'"
+  class="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="text-sm font-bold uppercase tracking-wider text-indigo-700">
+        Evaluación
+      </p>
+      <h2 class="mt-1 text-2xl font-extrabold">Mis resultados</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Consulta las notas y las correcciones publicadas por tus profesores.
+      </p>
+    </div>
 
-        <div class="mt-6 rounded-xl bg-indigo-50 p-5">
-          <p class="font-bold text-indigo-900">
-            Todavía no hay resultados para mostrar
+    <button
+      type="button"
+      @click="cargarResultadosAlumno"
+      :disabled="cargandoResultados"
+      class="rounded-xl bg-indigo-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-800 disabled:opacity-50"
+    >
+      {{ cargandoResultados ? 'Actualizando...' : 'Actualizar resultados' }}
+    </button>
+  </div>
+
+  <p
+    v-if="cargandoResultados"
+    role="status"
+    class="mt-6 rounded-xl bg-indigo-50 p-5 text-sm text-indigo-800"
+  >
+    Cargando tus resultados...
+  </p>
+
+  <div
+    v-else-if="errorResultados"
+    role="alert"
+    class="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800"
+  >
+    <p>{{ errorResultados }}</p>
+    <button
+      type="button"
+      @click="cargarResultadosAlumno"
+      class="mt-3 font-bold underline"
+    >
+      Intentar de nuevo
+    </button>
+  </div>
+
+  <div
+    v-else-if="resultadosAlumno.length === 0"
+    class="mt-6 rounded-xl bg-indigo-50 p-5"
+  >
+    <p class="font-bold text-indigo-900">
+      Todavía no hay resultados para mostrar
+    </p>
+    <p class="mt-2 text-sm leading-6 text-slate-600">
+      Cuando tu profesor publique las notas de tus actividades o exámenes,
+      podrás consultarlas aquí.
+    </p>
+  </div>
+
+  <div v-else class="mt-6 space-y-4">
+    <article
+      v-for="resultado in resultadosAlumno"
+      :key="resultado.id"
+      class="rounded-xl border border-slate-200 p-5"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">
+            {{ resultado.titulo }}
+          </h3>
+          <p class="mt-1 text-sm text-slate-600">
+            {{ resultado.nombre_curso }}
+            <span v-if="resultado.nombre_grupo">
+              · {{ resultado.nombre_grupo }}
+            </span>
           </p>
-          <p class="mt-2 text-sm leading-6 text-slate-600">
-            Cuando el profesor publique las notas de tus actividades o exámenes,
-            podrás consultarlas aquí.
+          <p class="mt-1 text-xs text-slate-500">
+            {{ resultado.tipo }} ·
+            {{ formatearFecha(resultado.fecha_resultado) }}
           </p>
         </div>
-      </section>
+
+        
+<div class="rounded-xl bg-indigo-50 px-4 py-3 text-center">
+  <p class="text-xs font-semibold text-indigo-700">Nota</p>
+
+  <p class="text-2xl font-extrabold text-indigo-900">
+    {{ resultado.nota }}
+    <span class="text-sm font-semibold">/ 10</span>
+  </p>
+
+  <!-- Decisión de APTO / NO APTO para la nota final -->
+  <div
+    v-if="resultado.tipo === 'FINAL' && resultado.decision_apto"
+    class="mt-3"
+  >
+    <span
+      :class="resultado.decision_apto === 'APTO'
+        ? 'bg-emerald-100 text-emerald-800'
+        : 'bg-rose-100 text-rose-800'"
+      class="inline-flex rounded-full px-3 py-1.5 text-sm font-bold"
+    >
+      {{ resultado.decision_apto === 'APTO' ? 'APTO' : 'NO APTO' }}
+    </span>
+  </div>
+</div>
+
+      </div>
+
+      <p
+        v-if="resultado.comentario"
+        class="mt-4 whitespace-pre-line rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-700"
+      >
+        <strong>Comentario del profesor:</strong>
+        {{ resultado.comentario }}
+      </p>
+
+
+      <a
+        v-if="resultado.nombre_archivo_corregido"
+        :href="`${API_BASE}/api/resultados/alumno/${resultado.id}/archivo`"
+        class="mt-4 inline-flex rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800"
+      >
+        Descargar archivo corregido
+      </a>
+    </article>
+  </div>
+</section>
+
 
     
 <!-- Avisos -->
@@ -1108,6 +1222,10 @@ const enviandoEntrega = ref(false)
 const cargandoEntregas = ref(false)
 const errorEntregas = ref('')
 const trabajos = ref([])
+// Resultados y calificaciones del alumno
+const resultadosAlumno = ref([])
+const cargandoResultados = ref(false)
+const errorResultados = ref('')
 
 const extensionesPermitidas = [
   'jpg',
@@ -1305,6 +1423,45 @@ async function cargarEntregas() {
   }
 }
 
+
+async function cargarResultadosAlumno() {
+  if (cargandoResultados.value) return
+
+  cargandoResultados.value = true
+  errorResultados.value = ''
+
+  try {
+    const respuesta = await fetch(
+      `${API_BASE}/api/resultados/alumno`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        }
+      }
+    )
+
+    const resultado = await respuesta.json().catch(() => ({}))
+
+    if (!respuesta.ok || !resultado.ok) {
+      throw new Error(
+        resultado.mensaje || 'No se pudieron cargar tus resultados.'
+      )
+    }
+
+    resultadosAlumno.value = Array.isArray(resultado.datos)
+      ? resultado.datos
+      : []
+  } catch (error) {
+    console.error('Error al cargar los resultados:', error)
+
+    errorResultados.value =
+      error.message || 'No se pudieron cargar tus resultados.'
+  } finally {
+    cargandoResultados.value = false
+  }
+}
 
 /**
  * Carga los avisos correspondientes al alumno autenticado.
@@ -1575,6 +1732,10 @@ function cambiarSeccion(id) {
 
   if (id === 'recursos') {
     cargarRecursosAlumno()
+  }
+
+  if (id === 'resultados') {
+    cargarResultadosAlumno()
   }
 }
 

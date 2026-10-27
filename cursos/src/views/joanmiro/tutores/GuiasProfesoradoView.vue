@@ -15,7 +15,7 @@
     <div class="contenido-pagina relative z-10">
 
       <!-- NAVBAR -->
-      <NavbarAteneu />
+      <NavbarJoanmiro />
 
       <!-- CABECERA BIBLIOTECA JOAN MIRÓ -->
       <header class="cabecera-biblioteca relative isolate overflow-hidden">
@@ -212,7 +212,7 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import NavbarAteneu from '../../../components/ateneu/NavbarAteneu.vue'
+import NavbarJoanmiro from '../../../components/joanmiro/NavbarJoanmiro.vue';
 </script>
 
 <style>

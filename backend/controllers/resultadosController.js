@@ -102,6 +102,7 @@ async function obtenerAlumnosGrupo(req, res) {
 }
 
 // Registrar una nota y, opcionalmente, un archivo corregido.
+
 async function guardarResultado(req, res) {
   const archivo = req.file
 
@@ -158,6 +159,8 @@ async function guardarResultado(req, res) {
       })
     }
 
+    const nota = Number(notaTexto)
+
     if (comentario.length > 2000) {
       await eliminarArchivo(archivo)
       return res.status(400).json({
@@ -166,8 +169,44 @@ async function guardarResultado(req, res) {
       })
     }
 
-    // Comprobar que el profesor tiene asignado ese grupo
-    // y que el alumno pertenece activamente a él.
+    // La aptitud solo corresponde al resultado FINAL.
+    // Menos de 5: NO_APTO automático.
+    // De 5 a menos de 6: decisión de la profesora.
+    // Desde 6: APTO automático.
+    let decisionApto = null
+
+    if (tipo === 'FINAL') {
+      if (nota < 5) {
+        decisionApto = 'NO_APTO'
+      } else if (nota >= 6) {
+        decisionApto = 'APTO'
+      } else {
+        const decisionSolicitada = req.body.decision_apto
+
+        if (!['APTO', 'NO_APTO'].includes(decisionSolicitada)) {
+          await eliminarArchivo(archivo)
+          return res.status(400).json({
+            ok: false,
+            mensaje:
+              'Para una nota final entre 5 y menos de 6, la profesora debe seleccionar APTO o NO APTO.'
+          })
+        }
+
+        decisionApto = decisionSolicitada
+      }
+    } else if (
+      req.body.decision_apto !== undefined &&
+      req.body.decision_apto !== ''
+    ) {
+      await eliminarArchivo(archivo)
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'La decisión de aptitud solo corresponde al examen final.'
+      })
+    }
+
+    // Comprobar que el profesor tiene asignado el grupo
+    // y que el alumno pertenece activamente a ese grupo.
     const [autorizados] = await pool.execute(
       `SELECT g.id
        FROM grupos g
@@ -199,6 +238,7 @@ async function guardarResultado(req, res) {
       })
     }
 
+    // Guardar la calificación y la decisión de aptitud.
     const [resultado] = await pool.execute(
       `INSERT INTO resultados (
          alumno_id,
@@ -210,26 +250,73 @@ async function guardarResultado(req, res) {
          comentario,
          fecha_resultado,
          archivo_corregido,
-         nombre_archivo_corregido
+         nombre_archivo_corregido,
+         decision_apto
        )
-       VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE(), ?, ?, ?)`,
       [
         alumnoId,
         grupoId,
         req.profesor.id,
         tipo,
         titulo,
-        Number(notaTexto),
+        nota,
         comentario || null,
         archivo?.filename || null,
-        archivo?.originalname || null
+        archivo?.originalname || null,
+        decisionApto
       ]
     )
+
+    // Calcular la media de las actividades y localizar
+    // la nota del examen final para este alumno y grupo.
+    const [calificaciones] = await pool.execute(
+      `SELECT
+         AVG(CASE
+           WHEN tipo IN ('EXAMEN', 'TAREA', 'ACTIVIDAD', 'PARTICIPACION')
+           THEN nota
+         END) AS media_actividades,
+         MAX(CASE
+           WHEN tipo = 'FINAL' THEN nota
+         END) AS nota_examen_final,
+         COUNT(CASE
+           WHEN tipo = 'FINAL' THEN 1
+         END) AS cantidad_finales
+       FROM resultados
+       WHERE alumno_id = ? AND grupo_id = ?`,
+      [alumnoId, grupoId]
+    )
+
+    const datos = calificaciones[0]
+
+    const mediaActividades = datos.media_actividades === null
+      ? null
+      : Number(datos.media_actividades)
+
+    const notaExamenFinal = datos.nota_examen_final === null
+      ? null
+      : Number(datos.nota_examen_final)
+
+    // No hay nota ponderada definitiva hasta que existan
+    // al menos una actividad calificada y un examen FINAL.
+    const notaPonderada = (
+      mediaActividades !== null &&
+      notaExamenFinal !== null &&
+      Number(datos.cantidad_finales) > 0
+    )
+      ? Math.round(
+          (notaExamenFinal * 0.4 + mediaActividades * 0.6) * 100
+        ) / 100
+      : null
 
     return res.status(201).json({
       ok: true,
       mensaje: 'Resultado guardado correctamente.',
-      id: resultado.insertId
+      id: resultado.insertId,
+      decisionApto,
+      mediaActividades,
+      notaExamenFinal,
+      notaPonderada
     })
   } catch (error) {
     await eliminarArchivo(archivo)
@@ -242,10 +329,18 @@ async function guardarResultado(req, res) {
   }
 }
 
-// Resultados del alumno autenticado: nunca se usa un alumnoId
-// enviado por el navegador para decidir qué notas mostrar.
+
+ // Resultados del alumno autenticado.
+ // El ID del alumno procede exclusivamente de su sesión validada.
 async function obtenerMisResultados(req, res) {
   try {
+    if (!Number.isInteger(req.alumnoId) || req.alumnoId < 1) {
+      return res.status(401).json({
+        ok: false,
+        mensaje: 'La sesión del alumno no es válida.'
+      })
+    }
+
     const [resultados] = await pool.execute(
       `SELECT
          r.id,
@@ -255,6 +350,7 @@ async function obtenerMisResultados(req, res) {
          r.nota,
          r.comentario,
          r.fecha_resultado,
+         r.decision_apto,
          r.nombre_archivo_corregido,
          g.nombre AS nombre_grupo,
          c.nombre AS nombre_curso
@@ -266,9 +362,13 @@ async function obtenerMisResultados(req, res) {
       [req.alumnoId]
     )
 
-    return res.json({ ok: true, datos: resultados })
+    return res.status(200).json({
+      ok: true,
+      datos: resultados
+    })
   } catch (error) {
-    console.error(error)
+    console.error('Error al consultar los resultados del alumno:', error)
+
     return res.status(500).json({
       ok: false,
       mensaje: 'No se pudieron consultar tus resultados.'
@@ -376,6 +476,8 @@ async function descargarArchivoAlumno(req, res) {
 }
 
 // Consulta de notas finales para administración.
+// Consulta de notas finales para administración.
+
 async function obtenerNotasFinales(req, res) {
   try {
     const [resultados] = await pool.execute(
@@ -388,26 +490,132 @@ async function obtenerNotasFinales(req, res) {
          g.nombre AS nombre_grupo,
          g.escuela_id,
          e.nombre AS nombre_escuela,
+         c.nombre AS nombre_curso,
          r.titulo,
          r.nota,
+         r.decision_apto,
+         r.estado_certificado,
          r.fecha_resultado
        FROM resultados r
        INNER JOIN alumnos a ON a.id = r.alumno_id
        INNER JOIN grupos g ON g.id = r.grupo_id
+       INNER JOIN cursos c ON c.id = g.curso_id
        INNER JOIN escuelas e ON e.id = g.escuela_id
        WHERE r.tipo = 'FINAL'
-       ORDER BY e.id, a.apellidos, a.nombre`
+         AND NOT EXISTS (
+           SELECT 1
+           FROM resultados r2
+           WHERE r2.alumno_id = r.alumno_id
+             AND r2.grupo_id = r.grupo_id
+             AND r2.tipo = 'FINAL'
+             AND (
+               r2.nota > r.nota
+               OR (
+                 r2.nota = r.nota
+                 AND r2.id > r.id
+               )
+             )
+         )
+       ORDER BY
+         e.id,
+         a.apellidos,
+         a.nombre`,
     )
 
-    return res.json({ ok: true, datos: resultados })
+    return res.json({
+      ok: true,
+      datos: resultados
+    })
   } catch (error) {
-    console.error(error)
+    console.error(
+      'Error al consultar las notas finales para administración:',
+      error
+    )
+
     return res.status(500).json({
       ok: false,
       mensaje: 'No se pudieron consultar las notas finales.'
     })
   }
 }
+
+
+
+/**
+ * Actualiza el estado del certificado desde la administración.
+ * Solo permite gestionar certificados de resultados finales APTO.
+ */
+async function actualizarEstadoCertificado(req, res) {
+  try {
+    const resultadoId = Number(req.params.id)
+    const { estado_certificado } = req.body
+
+    const estadosPermitidos = ['PENDIENTE', 'EMITIDO', 'ENTREGADO']
+
+    if (!Number.isInteger(resultadoId) || resultadoId <= 0) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'El identificador del resultado no es válido.'
+      })
+    }
+
+    if (!estadosPermitidos.includes(estado_certificado)) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'El estado del certificado no es válido.'
+      })
+    }
+
+    // Comprobar que existe un resultado final declarado APTO.
+    const [resultados] = await pool.execute(
+      `SELECT id, tipo, decision_apto
+       FROM resultados
+       WHERE id = ?`,
+      [resultadoId]
+    )
+
+    if (resultados.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        mensaje: 'No se ha encontrado el resultado.'
+      })
+    }
+
+    const resultado = resultados[0]
+
+    if (
+      resultado.tipo !== 'FINAL' ||
+      resultado.decision_apto !== 'APTO'
+    ) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'Solo se pueden gestionar certificados de resultados finales APTO.'
+      })
+    }
+
+    await pool.execute(
+      `UPDATE resultados
+       SET estado_certificado = ?
+       WHERE id = ?`,
+      [estado_certificado, resultadoId]
+    )
+
+    return res.json({
+      ok: true,
+      mensaje: 'El estado del certificado se ha actualizado correctamente.',
+      id: resultadoId,
+      estado_certificado
+    })
+  } catch (error) {
+    console.error('Error al actualizar el estado del certificado:', error)
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: 'No se pudo actualizar el estado del certificado.'
+    })
+  }
+}
+
 
 module.exports = {
   obtenerGruposProfesor,
@@ -416,5 +624,6 @@ module.exports = {
   obtenerMisResultados,
   descargarArchivoProfesor,
   descargarArchivoAlumno,
-  obtenerNotasFinales
+  obtenerNotasFinales,
+  actualizarEstadoCertificado
 }

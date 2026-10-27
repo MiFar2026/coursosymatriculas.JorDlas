@@ -44,7 +44,7 @@
 
                  DERECHA:
                  blanco progresivo para mejorar
-                 Recursos / Horarios / Matrícula / Mapa
+                 informacion-util / Horarios / Matrícula / Mapa
             ================================================= -->
 
             <div
@@ -181,15 +181,11 @@
 
 
                         <!-- =================================================
-                             RECURSOS
-                        ================================================= -->
+informacion-util                        ================================================= -->
 
-                        <RouterLink
-                            to="/ateneu/recursos"
-                            class="nav-link"
-                        >
-                            Recursos
-                        </RouterLink>
+                        <RouterLink to="/ateneu/informacion-util">
+  Información útil
+</RouterLink>
 
 
                         <!-- =================================================
@@ -336,14 +332,14 @@
                         </RouterLink>
 
 
-                        <!-- RECURSOS -->
+                        <!-- informacion-util -->
 
                         <RouterLink
-                            to="/ateneu/recursos"
+                            to="/ateneu/informacion-util"
                             @click="menuAbierto = false"
                             class="mobile-link"
                         >
-                            Recursos
+                            informacion-util
                         </RouterLink>
 
 

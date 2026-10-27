@@ -399,9 +399,24 @@ const routes = [
     {
         path: '/premio/ganadores',
         component: () => import('../views/premio/ganadores/GanadoresPremioView.vue')
-    }
+    },
+
+      // --------------------------------------------------
+    // Recursos COMPARTIDOS
+    // --------------------------------------------------
+
+{
+  path: '/ateneu/informacion-util',
+  component: () => import('../views/compartidas/InformacionUtilView.vue')
+},
+{
+  path: '/joanmiro/informacion-util',
+  component: () => import('../views/compartidas/InformacionUtilView.vue')
+},
 
 ]
+
+
 
 // ======================================================
 // CREAR ROUTER

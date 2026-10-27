@@ -7,5 +7,5 @@
 
 <script setup>
 import PerfilAlumnadoBase from '../../../components/PerfilAlumnadoBase.vue'
-import NavbarAteneu from '../../../components/Ateneu/NavbarAteneu.vue'
+import NavbarAteneu from '../../../components/ateneu/NavbarAteneu.vue'
 </script>

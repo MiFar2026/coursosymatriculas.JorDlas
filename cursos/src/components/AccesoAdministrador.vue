@@ -266,10 +266,169 @@
                 Gestionar →
               </span>
             </button>
-
+<button
+  type="button"
+  @click="seleccionarModulo('certificados')"
+  class="rounded-xl border border-purple-200 bg-purple-50 p-6 text-left transition hover:bg-purple-100"
+>
+  <span class="mb-3 block text-3xl">🎓</span>
+  <h3 class="text-xl font-bold text-gray-900">
+    Resultados finales y certificados
+  </h3>
+  <p class="mt-2 text-sm text-gray-700">
+    Consultar las notas finales, la aptitud y gestionar los certificados.
+  </p>
+  <span class="mt-4 block font-semibold text-purple-800">
+    Gestionar →
+  </span>
+</button>
           </div>
         </section>
 
+<!-- RESULTADOS FINALES Y CERTIFICADOS -->
+
+
+<!-- RESULTADOS FINALES Y CERTIFICADOS -->
+<section
+  v-if="moduloSeleccionado === 'certificados'"
+  class="mt-8 space-y-6 rounded-xl border border-purple-200 bg-white p-6"
+>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-900">
+        Resultados finales y certificados
+      </h3>
+      <p class="mt-2 text-gray-600">
+        Resultados de Biblioteca Joan Miró y Ateneu Aula 502.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="cargarResultadosFinales"
+      :disabled="cargandoDatos || procesandoId !== null"
+      class="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      Actualizar
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="rounded-lg bg-gray-50 p-4">
+      <p class="text-sm text-gray-600">Resultados finales</p>
+      <p class="mt-1 text-2xl font-bold">
+        {{ resultadosFinales.length }}
+      </p>
+    </div>
+
+    <div class="rounded-lg bg-green-50 p-4">
+      <p class="text-sm text-green-800">Alumnos aptos</p>
+      <p class="mt-1 text-2xl font-bold text-green-900">
+        {{ resultadosFinales.filter(r => r.decision_apto === 'APTO').length }}
+      </p>
+    </div>
+  </div>
+
+  <p
+    v-if="!cargandoDatos && resultadosFinales.length === 0"
+    class="rounded-lg border border-dashed p-5 text-center text-gray-600"
+  >
+    No hay resultados finales registrados.
+  </p>
+
+  <div
+    v-for="resultado in resultadosFinales"
+    :key="resultado.id"
+    class="rounded-xl border p-5"
+  >
+    <div class="flex flex-col justify-between gap-4 md:flex-row">
+      <div>
+        <h4 class="text-lg font-bold text-gray-900">
+          {{ resultado.nombre }} {{ resultado.apellidos }}
+        </h4>
+
+        <p class="mt-1 text-sm text-gray-600">
+          {{ resultado.nombre_escuela }}
+        </p>
+
+        <p class="text-sm text-gray-600">
+          Curso: {{ resultado.nombre_curso || 'No indicado' }}
+        </p>
+
+        <p class="text-sm text-gray-600">
+          Grupo: {{ resultado.nombre_grupo }}
+        </p>
+
+        <p class="mt-3">
+          Nota final:
+          <strong>
+            {{ resultado.nota ?? 'No indicada' }}
+          </strong>
+        </p>
+
+        <p class="mt-2">
+          Aptitud:
+          <span
+            v-if="resultado.decision_apto === 'APTO'"
+            class="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800"
+          >
+            APTO
+          </span>
+
+          <span
+            v-else-if="resultado.decision_apto === 'NO_APTO'"
+            class="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-800"
+          >
+            NO APTO
+          </span>
+
+          <span
+            v-else
+            class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+          >
+            Sin decisión
+          </span>
+        </p>
+
+        <p class="mt-2 text-sm text-gray-500">
+          Fecha: {{ formatearFecha(resultado.fecha_resultado) }}
+        </p>
+      </div>
+
+      <div class="w-full md:max-w-xs">
+        <label
+          :for="`certificado-${resultado.id}`"
+          class="mb-2 block font-semibold"
+        >
+          Estado del certificado
+        </label>
+
+        <select
+          :id="`certificado-${resultado.id}`"
+          :value="resultado.estado_certificado"
+          @change="actualizarEstadoCertificado(resultado, $event.target.value)"
+          :disabled="
+            procesandoId !== null ||
+            cargandoDatos ||
+            resultado.decision_apto !== 'APTO'
+          "
+          class="w-full rounded-lg border px-3 py-2 disabled:bg-gray-100"
+        >
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="EMITIDO">Emitido</option>
+          <option value="ENTREGADO">Entregado</option>
+        </select>
+
+        <p
+          v-if="resultado.decision_apto !== 'APTO'"
+          class="mt-2 text-sm text-amber-800"
+        >
+          No se puede gestionar un certificado si el resultado no es APTO.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
         <!-- HORARIOS -->
         <section
           v-if="moduloSeleccionado === 'horarios'"
@@ -348,8 +507,8 @@
   </div>
 
   <!-- LISTA DE PROFESORES -->
-  <div class="rounded-xl border p-5">
-    <h4 class="mb-4 text-xl font-bold">Profesores registrados</h4>
+  <details class="rounded-xl border p-5">
+    <summary class="mb-4 text-xl font-bold">Profesores registrados</summary>
 
     <p
       v-if="!cargandoDatos && profesoresAdmin.length === 0"
@@ -422,7 +581,7 @@
         </div>
       </div>
     </article>
-  </div>
+  </details>
 
   <!-- EDITAR PROFESOR -->
   <div
@@ -573,20 +732,32 @@
     </form>
   </div>
 
-  <!-- ASIGNACIÓN DE GRUPOS -->
-  <div class="rounded-xl border p-5">
-    <div class="mb-4">
-      <h4 class="text-xl font-bold">Asignación de profesores a grupos</h4>
-      <p class="mt-1 text-sm text-gray-600">
-        Elige un profesor para cada grupo. Puedes repetir el mismo profesor
-        en diferentes cursos, turnos y escuelas.
-      </p>
-    </div>
+<!-- ASIGNACIÓN DE GRUPOS -->
+<details class="rounded-xl border p-5">
+  <summary
+    class="cursor-pointer list-none flex items-center justify-between gap-4 text-xl font-bold"
+  >
+    <span>Asignación de profesores a grupos</span>
+    <span class="text-gray-500 transition-transform">
+      ▼
+    </span>
+  </summary>
 
+  <div class="mt-4">
+    <p class="mb-4 text-sm text-gray-600">
+      Elige un profesor para cada grupo. Puedes repetir el mismo profesor
+      en diferentes cursos, turnos y escuelas.
+    </p>
+
+    <!-- FILTRAR POR ESCUELA -->
     <div class="mb-4">
-      <label for="filtro-escuela-grupos" class="mb-1 block font-medium">
+      <label
+        for="filtro-escuela-grupos"
+        class="mb-1 block font-medium"
+      >
         Filtrar por escuela
       </label>
+
       <select
         id="filtro-escuela-grupos"
         v-model="filtroEscuelaGrupos"
@@ -600,6 +771,7 @@
       </select>
     </div>
 
+    <!-- MENSAJE SI NO HAY GRUPOS -->
     <p
       v-if="!cargandoDatos && gruposAdmin.length === 0"
       class="rounded-lg bg-gray-50 p-4 text-gray-600"
@@ -607,24 +779,34 @@
       No hay grupos para mostrar con este filtro.
     </p>
 
+    <!-- LISTA DE GRUPOS -->
     <article
       v-for="grupo in gruposAdmin"
       :key="grupo.grupo_id"
       class="mb-4 rounded-xl border p-4 last:mb-0"
     >
       <div class="mb-3">
-        <h5 class="font-bold">{{ grupo.grupo }}</h5>
+        <h5 class="font-bold">
+          {{ grupo.grupo }}
+        </h5>
+
         <p class="mt-1 text-sm text-gray-600">
           {{ grupo.escuela }} · {{ grupo.curso }}
-          <span v-if="grupo.idioma"> · {{ grupo.idioma }}</span>
-          <span v-if="grupo.nivel"> · Nivel {{ grupo.nivel }}</span>
+          <span v-if="grupo.idioma">
+            · {{ grupo.idioma }}
+          </span>
+          <span v-if="grupo.nivel">
+            · Nivel {{ grupo.nivel }}
+          </span>
         </p>
+
         <p class="text-sm text-gray-600">
           Turno: {{ grupo.turno || 'No indicado' }}
           · Aula: {{ grupo.aula || 'No indicada' }}
         </p>
       </div>
 
+      <!-- ASIGNAR PROFESOR -->
       <label
         :for="`profesor-grupo-${grupo.grupo_id}`"
         class="mb-1 block text-sm font-medium"
@@ -636,12 +818,19 @@
         :id="`profesor-grupo-${grupo.grupo_id}`"
         v-model="profesorPorGrupo[grupo.grupo_id]"
         @change="asignarProfesorAGrupo(grupo)"
-        :disabled="procesandoId !== null || cargandoDatos || Number(grupo.grupo_activo) !== 1"
+        :disabled="
+          procesandoId !== null ||
+          cargandoDatos ||
+          Number(grupo.grupo_activo) !== 1
+        "
         class="w-full rounded-lg border px-3 py-2"
       >
         <option value="">Sin profesor asignado</option>
+
         <option
-          v-for="profesor in profesoresAdmin.filter(p => Number(p.activo) === 1)"
+          v-for="profesor in profesoresAdmin.filter(
+            p => Number(p.activo) === 1
+          )"
           :key="profesor.id"
           :value="String(profesor.id)"
         >
@@ -657,6 +846,7 @@
       </p>
     </article>
   </div>
+</details>
 
   <!-- HISTORIAL -->
   <div
@@ -1263,6 +1453,7 @@ const procesandoId = ref(null)
 const mensajesEstudiantes = ref([])
 const mensajesProfesores = ref([])
 const recursos = ref([])
+const resultadosFinales = ref([])
 
 const foroAbierto = ref('estudiantes')
 
@@ -1368,6 +1559,9 @@ if (modulo === 'foros') {
   cargarGestionProfesores()
 }
 
+else if (modulo === 'certificados') {
+  cargarResultadosFinales()
+}
 }
 
 function volverAlPanel() {
@@ -2019,6 +2213,118 @@ function formatearFecha(valor) {
   }
 
   return fecha.toLocaleString('es-ES')
+}
+
+
+// =====================================================
+// RESULTADOS FINALES Y CERTIFICADOS
+// =====================================================
+
+async function cargarResultadosFinales() {
+  if (cargandoDatos.value || procesandoId.value !== null) return
+
+  cargandoDatos.value = true
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      '/admin/resultados-finales'
+    )
+
+   resultadosFinales.value = Array.isArray(resultado?.datos)
+  ? resultado.datos
+  : Array.isArray(resultado?.resultados)
+    ? resultado.resultados
+    : Array.isArray(resultado)
+      ? resultado
+      : []
+
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron cargar los resultados finales.'
+  } finally {
+    cargandoDatos.value = false
+  }
+}
+
+async function actualizarEstadoCertificado(resultado, nuevoEstado) {
+  const id = Number(resultado?.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  if (resultado.decision_apto !== 'APTO') {
+    mensaje.value = 'Solo se pueden gestionar certificados de resultados APTO.'
+    return
+  }
+
+  const estadosPermitidos = ['PENDIENTE', 'EMITIDO', 'ENTREGADO']
+
+  if (!estadosPermitidos.includes(nuevoEstado)) {
+    mensaje.value = 'El estado del certificado no es válido.'
+    return
+  }
+
+  const estadoAnterior = resultado.estado_certificado
+
+  if (nuevoEstado === estadoAnterior) return
+
+  procesandoId.value = `certificado-${id}`
+  mensaje.value = ''
+
+  try {
+    const respuesta = await peticionAdmin(
+      `/admin/resultados-finales/${id}/certificado`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          estado_certificado: nuevoEstado
+        })
+      }
+    )
+
+    resultado.estado_certificado = nuevoEstado
+
+    mensaje.value =
+      respuesta?.mensaje || 'Estado del certificado actualizado correctamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo actualizar el certificado.'
+
+    // Recuperar el estado real del servidor.
+    try {
+      await cargarResultadosFinalesInterno()
+    } catch (errorRecarga) {
+      console.error(
+        'Error al recuperar los resultados finales:',
+        errorRecarga
+      )
+    }
+  } finally {
+    procesandoId.value = null
+  }
+}
+// =====================================================
+// RESULTADO
+// =====================================================
+async function cargarResultadosFinalesInterno() {
+  const resultado = await peticionAdmin(
+    '/admin/resultados-finales'
+  )
+
+  resultadosFinales.value = Array.isArray(resultado?.datos)
+  ? resultado.datos
+  : Array.isArray(resultado?.resultados)
+    ? resultado.resultados
+    : Array.isArray(resultado)
+      ? resultado
+      : []
 }
 
 // =====================================================
