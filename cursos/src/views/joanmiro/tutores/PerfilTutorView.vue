@@ -550,15 +550,15 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <RouterLink
-              to="/joanmiro/alumnos"
-              class="tarjeta border-t-4 border-teal-600"
-            >
-              <span class="text-3xl">👩‍🎓</span>
-              <h3 class="titulo-tarjeta">Alumnos</h3>
-              <p class="texto-tarjeta">
-                Acceder al espacio del alumnado de Biblioteca Joan Miró.
-              </p>
-            </RouterLink>
+  to="/joanmiro/tutores/asistencia"
+  class="tarjeta border-t-4 border-teal-600"
+>
+  <span class="text-3xl">👩‍🎓</span>
+  <h3 class="titulo-tarjeta">Asistencia del alumnado</h3>
+  <p class="texto-tarjeta">
+    Registrar, consultar y corregir la asistencia de los alumnos de Ateneu Aula 502.
+  </p>
+</RouterLink>
 
 
 <RouterLink

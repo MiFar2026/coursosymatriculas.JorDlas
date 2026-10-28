@@ -17,7 +17,15 @@ const accesoAlumnoRoutes = require('./routes/accesoAlumnoRoutes')
 const accesoProfesorRoutes = require('./routes/accesoProfesorRoutes')
 const tareasRoutes = require('./routes/tareasRoutes')
 const tareasProfesorRoutes = require('./routes/tareasProfesorRoutes')
+const asistenciaRoutes = require('./routes/asistenciaRoutes')
 const perfilAlumnoRoutes = require('./routes/perfilAlumnoRoutes')
+console.log(
+  'RUTAS PERFIL ALUMNO:',
+  perfilAlumnoRoutes.stack.map(r => ({
+    metodo: Object.keys(r.route?.methods || {}),
+    ruta: r.route?.path
+  }))
+)
 const perfilProfesorRoutes = require('./routes/perfilProfesorRoutes')
 const actividadesRoutes = require('./routes/actividadesRoutes')
 const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
@@ -106,6 +114,8 @@ app.use('/api/tareas', tareasRoutes)
 app.use('/api/tareas-profesor', tareasProfesorRoutes)
 app.use('/api/actividades', actividadesRoutes)
 
+// asistencia
+app.use('/api/asistencia', asistenciaRoutes)
 // Perfiles.
 app.use('/api/perfil-alumno', perfilAlumnoRoutes)
 app.use('/api/perfil-profesor', perfilProfesorRoutes)

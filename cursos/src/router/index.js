@@ -253,6 +253,12 @@ const routes = [
     )
 },
 {
+  path: '/joanmiro/tutores/asistencia',
+  component: () => import(
+    '../views/compartidas/AsistenciaAlumnosView.vue'
+  )
+},
+{
         path: '/joanmiro/tutores/mensaje-profesor',
         component: () => import('../views/joanmiro/tutores/MensajeProfesorView.vue')
     },
@@ -348,7 +354,12 @@ const routes = [
         '../views/ateneu/tutores/PerfilTutorView.vue'
     )
 },
-
+{
+  path: '/ateneu/tutores/asistencia',
+  component: () => import(
+    '../views/compartidas/AsistenciaAlumnosView.vue'
+  )
+},
     {
         path: '/ateneu/tutores/mensaje-profesor',
         component: () => import('../views/ateneu/tutores/MensajeProfesorView.vue')

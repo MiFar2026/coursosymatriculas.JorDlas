@@ -162,10 +162,10 @@
             >
               <span class="mb-3 block text-3xl">👥</span>
               <h3 class="text-xl font-bold text-gray-900">
-                Profesores y alumnos
+               Gestión de Profesores
               </h3>
               <p class="mt-2 text-sm text-gray-700">
-                Personas y matrículas.
+                Perfil del profesorado y asignación del grupo
               </p>
               <span class="mt-4 block font-semibold text-emerald-800">
                 Gestionar →
@@ -190,23 +190,28 @@
               </span>
             </button>
 
-            <!-- DATOS DE LA ESCUELA -->
-            <button
-              type="button"
-              @click="seleccionarModulo('datos')"
-              class="rounded-xl border border-sky-200 bg-sky-50 p-6 text-left transition hover:bg-sky-100"
-            >
-              <span class="mb-3 block text-3xl">🗄️</span>
-              <h3 class="text-xl font-bold text-gray-900">
-                Datos de la escuela
-              </h3>
-              <p class="mt-2 text-sm text-gray-700">
-                Consultar y mantener los datos.
-              </p>
-              <span class="mt-4 block font-semibold text-sky-800">
-                Consultar →
-              </span>
-            </button>
+            <!-- GESTIÓN DE ALUMNOS -->
+
+
+<button
+  type="button"
+  @click="seleccionarModulo('datos')"
+  class="rounded-xl border border-sky-200 bg-sky-50 p-6 text-left transition hover:bg-sky-100"
+>
+  <span class="mb-3 block text-3xl">👩‍🎓</span>
+
+  <h3 class="text-xl font-bold text-gray-900">
+    Gestión de Alumnos
+  </h3>
+
+  <p class="mt-2 text-sm text-gray-700">
+    Consultar, editar y gestionar los datos y horas de asistencia, resultados y certificados del alumnado.
+  </p>
+
+  <span class="mt-4 block font-semibold text-sky-800">
+    Gestionar →
+  </span>
+</button>
 
           </div>
         </section>
@@ -266,27 +271,10 @@
                 Gestionar →
               </span>
             </button>
-<button
-  type="button"
-  @click="seleccionarModulo('certificados')"
-  class="rounded-xl border border-purple-200 bg-purple-50 p-6 text-left transition hover:bg-purple-100"
->
-  <span class="mb-3 block text-3xl">🎓</span>
-  <h3 class="text-xl font-bold text-gray-900">
-    Resultados finales y certificados
-  </h3>
-  <p class="mt-2 text-sm text-gray-700">
-    Consultar las notas finales, la aptitud y gestionar los certificados.
-  </p>
-  <span class="mt-4 block font-semibold text-purple-800">
-    Gestionar →
-  </span>
-</button>
+
+          
           </div>
         </section>
-
-<!-- RESULTADOS FINALES Y CERTIFICADOS -->
-
 
 <!-- RESULTADOS FINALES Y CERTIFICADOS -->
 <section
@@ -429,6 +417,113 @@
     </div>
   </div>
 </section>
+
+<!-- HORAS DE ASISTENCIA -->
+<section
+  v-if="moduloSeleccionado === 'asistencia'"
+  class="mt-8 space-y-6 rounded-xl border border-orange-200 bg-white p-6"
+>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-900">
+        Horas de asistencia del alumnado
+      </h3>
+      <p class="mt-2 text-gray-600">
+        Resumen acumulado de Biblioteca Joan Miró y Ateneu Aula 502.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="cargarHorasAsistencia"
+      :disabled="cargandoDatos || procesandoId !== null"
+      class="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      Actualizar
+    </button>
+  </div>
+
+  <p
+    v-if="mensajeHorasAsistencia"
+    role="status"
+    class="rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-700"
+  >
+    {{ mensajeHorasAsistencia }}
+  </p>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-lg bg-orange-50 p-4">
+      <p class="text-sm text-orange-800">Alumnos registrados</p>
+      <p class="mt-1 text-2xl font-bold text-orange-900">
+        {{ horasAsistencia.length }}
+      </p>
+    </div>
+
+    <div class="rounded-lg bg-blue-50 p-4">
+      <p class="text-sm text-blue-800">Horas acumuladas</p>
+      <p class="mt-1 text-2xl font-bold text-blue-900">
+        {{
+          horasAsistencia
+            .reduce((total, alumno) => total + Number(alumno.total_horas || 0), 0)
+            .toFixed(2)
+        }}
+      </p>
+    </div>
+
+    <div class="rounded-lg bg-gray-50 p-4">
+      <p class="text-sm text-gray-600">Registros consultados</p>
+      <p class="mt-1 text-2xl font-bold text-gray-900">
+        {{ horasAsistencia.length }}
+      </p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto rounded-xl border">
+    <table class="w-full min-w-[700px] text-left text-sm">
+      <thead class="bg-gray-50 text-gray-700">
+        <tr>
+          <th class="px-4 py-3">Escuela</th>
+          <th class="px-4 py-3">Alumno/a</th>
+          <th class="px-4 py-3">Grupo</th>
+          <th class="px-4 py-3 text-right">Minutos</th>
+          <th class="px-4 py-3 text-right">Horas</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          v-for="alumno in horasAsistencia"
+          :key="`${alumno.alumno_id}-${alumno.grupo_id}`"
+          class="border-t"
+        >
+          <td class="px-4 py-3">{{ alumno.nombre_escuela }}</td>
+          <td class="px-4 py-3">
+            {{ alumno.nombre }} {{ alumno.apellidos }}
+          </td>
+          <td class="px-4 py-3">{{ alumno.nombre_grupo }}</td>
+          <td class="px-4 py-3 text-right">
+            {{ Number(alumno.total_minutos || 0) }}
+          </td>
+          <td class="px-4 py-3 text-right font-semibold">
+            {{ Number(alumno.total_horas || 0).toFixed(2) }}
+          </td>
+        </tr>
+
+        <tr v-if="!cargandoDatos && horasAsistencia.length === 0">
+          <td colspan="5" class="px-4 py-6 text-center text-gray-500">
+            No hay alumnos ni horas de asistencia para mostrar.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-sm text-gray-500">
+    Las horas se calculan a partir de los registros de asistencia guardados
+    en la base de datos. Las sesiones canceladas no deben contabilizarse.
+  </p>
+</section>
+
         <!-- HORARIOS -->
         <section
           v-if="moduloSeleccionado === 'horarios'"
@@ -471,6 +566,7 @@
         <!-- PROFESORES, ALUMNOS Y MATRÍCULAS -->
         
 <!-- GESTIÓN DE PROFESORES Y ASIGNACIONES -->
+
 <section
   v-if="moduloSeleccionado === 'personas'"
   class="mt-8 space-y-6"
@@ -485,14 +581,6 @@
       </p>
     </div>
 
-    <button
-      type="button"
-      @click="cargarGestionProfesores"
-      :disabled="cargandoDatos || procesandoId !== null"
-      class="rounded-lg border px-4 py-2 disabled:opacity-50"
-    >
-      Actualizar
-    </button>
   </div>
 
   <!-- EXPLICACIÓN -->
@@ -507,6 +595,136 @@
   </div>
 
   <!-- LISTA DE PROFESORES -->
+       <button
+  type="button"
+  @click="abrirAltaProfesor"
+  class="rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700"
+>
+  + Añadir profesor
+</button>
+    <button
+      type="button"
+      @click="cargarGestionProfesores"
+      :disabled="cargandoDatos || procesandoId !== null"
+      class="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      Actualizar
+    </button>
+
+<div
+  v-if="creandoProfesor"
+  class="mt-5 rounded-xl border border-indigo-200 bg-indigo-50 p-5"
+>
+  <h3 class="mb-4 text-xl font-bold text-gray-800">
+    Nuevo profesor
+  </h3>
+
+  <form
+    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+    @submit.prevent="crearProfesorAdmin"
+  >
+    <div>
+      <label class="mb-1 block font-medium">Tipo de documento *</label>
+      <select
+        v-model="formNuevoProfesor.tipo_documento"
+        required
+        class="w-full rounded-lg border p-2"
+      >
+        <option value="">Selecciona</option>
+        <option value="DNI">DNI</option>
+        <option value="NIE">NIE</option>
+        <option value="PASAPORTE">Pasaporte</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Número de documento *</label>
+      <input
+        v-model.trim="formNuevoProfesor.documento"
+        required
+        maxlength="30"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Nombre *</label>
+      <input
+        v-model.trim="formNuevoProfesor.nombre"
+        required
+        maxlength="100"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Apellidos *</label>
+      <input
+        v-model.trim="formNuevoProfesor.apellidos"
+        required
+        maxlength="150"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Año de nacimiento</label>
+      <input
+        v-model="formNuevoProfesor.anio_nacimiento"
+        type="number"
+        min="1900"
+        :max="new Date().getFullYear()"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Teléfono</label>
+      <input
+        v-model.trim="formNuevoProfesor.telefono"
+        type="tel"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Correo electrónico</label>
+      <input
+        v-model.trim="formNuevoProfesor.email"
+        type="email"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-medium">Especialidad</label>
+      <input
+        v-model.trim="formNuevoProfesor.especialidad"
+        maxlength="150"
+        class="w-full rounded-lg border p-2"
+      />
+    </div>
+
+    <div class="flex flex-wrap gap-3 md:col-span-2">
+      <button
+        type="submit"
+        :disabled="procesandoId !== null"
+        class="rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+      >
+        {{ procesandoId === 'nuevo-profesor' ? 'Guardando...' : 'Crear profesor' }}
+      </button>
+
+      <button
+        type="button"
+        @click="cancelarAltaProfesor"
+        class="rounded-lg border border-gray-300 bg-white px-4 py-2"
+      >
+        Cancelar
+      </button>
+    </div>
+  </form>
+</div>
+
   <details class="rounded-xl border p-5">
     <summary class="mb-4 text-xl font-bold">Profesores registrados</summary>
 
@@ -927,35 +1145,347 @@
   </p>
 </section>
 
-        <!-- DATOS DE LA ESCUELA -->
-        <section
-          v-if="moduloSeleccionado === 'datos'"
-          class="mt-8 rounded-xl border border-sky-200 bg-white p-6"
+       <!-- GESTIÓN DE ALUMNOS -->
+<section
+  v-if="moduloSeleccionado === 'datos'"
+  class="mt-8 rounded-xl border border-sky-200 bg-white p-6"
+>
+  <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-900">
+        Gestión de Alumnos
+      </h3>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Consulta, edita y administra los datos del alumnado.
+      </p>
+    </div>
+  </div>
+ <div class="mt-4 flex flex-wrap gap-3">  
+
+  <button
+    type="button"
+    @click="abrirAltaAlumno"
+    class="rounded-lg bg-sky-600 px-4 py-2 font-semibold text-white hover:bg-sky-700"
+  >
+    + Añadir alumno
+  </button>
+
+    <button
+      type="button"
+      @click="cargarAlumnosAdmin"
+      :disabled="cargandoDatos"
+      class="rounded-xl bg-sky-700 px-5 py-3 font-semibold text-white hover:bg-sky-800 disabled:opacity-50"
+    >
+      Actualizar lista
+    </button>
+ <button
+      type="button"
+      @click="exportarAlumnosCSV"
+      class="rounded-xl bg-sky-800 px-5 py-3 font-semibold text-white hover:bg-emerald-800"
+    >
+      Exportar a Excel
+    </button>
+    
+    <button
+      type="button"
+      @click="alumnoEditando = null"
+      class="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+    >
+      Cerrar edición
+    </button>
+   
+  </div>
+  <hr class="my-4 border-0 h-px bg-gray-300" />
+
+  <!-- FILTROS -->
+  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-gray-700">
+        Escuela
+      </span>
+
+      <select
+        v-model="filtroEscuelaAlumnos"
+        @change="cargarAlumnosAdmin"
+        class="w-full rounded-xl border border-gray-300 px-4 py-3"
+      >
+        <option value="">Todas las escuelas</option>
+        <option value="1">Biblioteca Joan Miró</option>
+        <option value="2">Ateneu Aula 502</option>
+      </select>
+
+    </label>
+
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-gray-700">
+        Buscar alumno
+      </span>
+
+      <input
+        v-model="busquedaAlumnos"
+        type="search"
+        placeholder="Nombre, documento o correo"
+        class="w-full rounded-xl border border-gray-300 px-4 py-3"
+      />
+    </label>   
+  </div>
+
+ 
+
+  <!-- MENSAJE -->
+  <p
+    v-if="mensaje"
+    class="mt-4 rounded-xl bg-sky-50 p-4 text-sm text-sky-900"
+    role="status"
+  >
+    {{ mensaje }}
+  </p>
+
+  <!-- TABLA -->
+  <div class="mt-6 overflow-x-auto rounded-xl border border-gray-200">
+    <table class="w-full min-w-[1250px] border-collapse text-left text-sm">
+      <thead class="bg-slate-100 text-slate-700">
+        <tr>
+          <th class="p-3">Nombre</th>
+          <th class="p-3">Apellidos</th>
+          <th class="p-3">Documento de identidad</th>
+          <th class="p-3">Clase asignada</th>
+          <th class="p-3">Correo electrónico</th>
+          <th class="p-3">Teléfono</th>
+          <th class="p-3">Horario asignado</th>
+          <th class="p-3">Profesor</th>
+          <th class="p-3">Escuela</th>
+          <th class="p-3">Estado</th>
+          <th class="p-3">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          v-for="alumnoFila in alumnosAdminFiltrados"
+          :key="alumnoFila.id"
+          class="border-t border-gray-200"
         >
-          <h3 class="text-2xl font-bold text-gray-900">
-            Datos de la escuela
-          </h3>
+          <td class="p-3">{{ alumnoFila.nombre }}</td>
+          <td class="p-3">{{ alumnoFila.apellidos }}</td>
 
-          <p class="mt-2 text-gray-600">
-            Apartado para consultar el estado de la información y las
-            operaciones administrativas de la base de datos.
-          </p>
+          <td class="p-3">
+            {{ alumnoFila.tipo_documento || '' }}
+            {{ alumnoFila.documento || '—' }}
+          </td>
 
-          <div class="mt-5 rounded-xl bg-sky-50 p-4">
-            <p class="font-semibold text-sky-900">
-              Información centralizada
-            </p>
-            <p class="mt-1 text-sm text-sky-800">
-              La aplicación consultará los datos mediante el backend,
-              sin exponer las credenciales de MySQL en el navegador.
-            </p>
-          </div>
+          <td class="p-3">
+            {{ alumnoFila.clase_asignada || alumnoFila.curso || alumnoFila.grupo || 'Sin asignar' }}
+          </td>
 
-          <p class="mt-4 text-sm text-gray-500">
-            Este apartado es informativo por ahora. No ejecuta consultas
-            SQL ni modifica datos directamente.
-          </p>
-        </section>
+          <td class="p-3">{{ alumnoFila.email || '—' }}</td>
+          <td class="p-3">{{ alumnoFila.telefono || '—' }}</td>
+
+          <td class="p-3">
+            {{ alumnoFila.horario_asignado || alumnoFila.turno || '—' }}
+          </td>
+
+          <td class="p-3">
+            {{ [alumnoFila.profesor_nombre, alumnoFila.profesor_apellidos].filter(Boolean).join(' ') || 'Sin asignar' }}
+          </td>
+
+          <td class="p-3">
+            {{ alumnoFila.escuela || 'Sin asignar' }}
+          </td>
+
+          <td class="p-3">
+            <span
+              :class="Number(alumnoFila.activo) === 1
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-gray-100 text-gray-700'"
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+            >
+              {{ Number(alumnoFila.activo) === 1 ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+
+          <td class="p-3">
+            <div class="flex flex-col gap-2">
+              <button
+                type="button"
+                @click="editarAlumnoAdmin(alumnoFila)"
+                class="rounded-lg border border-sky-300 px-3 py-2 font-semibold text-sky-800 hover:bg-sky-50"
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                @click="cambiarEstadoAlumnoAdmin(alumnoFila)"
+                class="rounded-lg border border-gray-300 px-3 py-2 font-semibold hover:bg-gray-50"
+              >
+                {{ Number(alumnoFila.activo) === 1 ? 'Desactivar' : 'Reactivar' }}
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr v-if="!cargandoDatos && alumnosAdminFiltrados.length === 0">
+          <td colspan="11" class="p-6 text-center text-gray-500">
+            No se han encontrado alumnos con estos filtros.
+          </td>
+        </tr>
+
+        <tr v-if="cargandoDatos">
+          <td colspan="11" class="p-6 text-center text-gray-500">
+            Cargando datos del alumnado…
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FORMULARIO DE EDICIÓN -->
+  <div
+    v-if="alumnoEditando"
+    class="mt-8 rounded-xl border border-sky-200 bg-sky-50 p-5"
+  >
+    <h4 class="text-xl font-bold text-gray-900">
+      Editar alumno:
+      {{ alumnoEditando.nombre }} {{ alumnoEditando.apellidos }}
+    </h4>
+
+    <p class="mt-2 text-sm text-gray-600">
+      Los cambios se guardarán en la base de datos.
+    </p>
+
+    <form
+      class="mt-5 grid gap-4 sm:grid-cols-2"
+      @submit.prevent="guardarAlumnoAdmin"
+    >
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Nombre</span>
+        <input
+          v-model.trim="formAlumnoAdmin.nombre"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Apellidos</span>
+        <input
+          v-model.trim="formAlumnoAdmin.apellidos"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Tipo de documento</span>
+        <select
+          v-model="formAlumnoAdmin.tipo_documento"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        >
+          <option value="">Sin especificar</option>
+          <option value="DNI">DNI</option>
+          <option value="NIE">NIE</option>
+          <option value="PASAPORTE">Pasaporte</option>
+        </select>
+      </label>
+
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Documento</span>
+        <input
+          v-model.trim="formAlumnoAdmin.documento"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Correo electrónico</span>
+        <input
+          v-model.trim="formAlumnoAdmin.email"
+          type="email"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Teléfono</span>
+        <input
+          v-model.trim="formAlumnoAdmin.telefono"
+          type="tel"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block text-sm font-semibold">Fecha de nacimiento</span>
+        <input
+          v-model="formAlumnoAdmin.fecha_nacimiento"
+          type="date"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <div class="flex flex-wrap items-end gap-3 sm:col-span-2">
+        <button
+          type="submit"
+          :disabled="procesandoId !== null"
+          class="rounded-xl bg-sky-700 px-5 py-3 font-semibold text-white hover:bg-sky-800 disabled:opacity-50"
+        >
+          Guardar cambios
+        </button>
+
+        <button
+          type="button"
+          @click="alumnoEditando = null"
+          class="rounded-xl border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+<hr class="my-4 border-0 h-px bg-gray-300" />
+
+  <!-- HORAS DE ASISTENCIA DEL ALUMNADO -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <button
+              type="button"
+              @click="seleccionarModulo('asistencia')"
+              class="rounded-xl border border-orange-200 bg-orange-50 p-6 text-left transition hover:bg-orange-100"
+            >
+              <span class="mb-3 block text-3xl">⏱️</span>
+
+              <h3 class="text-xl font-bold text-gray-900">
+                Horas de asistencia del alumnado
+              </h3>
+
+              <p class="mt-2 text-sm text-gray-700">
+                Consultar las horas acumuladas del alumnado de ambas escuelas.
+              </p>
+
+              <span class="mt-4 block font-semibold text-orange-800">
+                Consultar →
+              </span>
+            </button> 
+             <button
+  type="button"
+  @click="seleccionarModulo('certificados')"
+  class="rounded-xl border border-purple-200 bg-purple-50 p-6 text-left transition hover:bg-purple-100"
+>
+  <span class="mb-3 block text-3xl">🎓</span>
+  <h3 class="text-xl font-bold text-gray-900">
+    Resultados finales y certificados
+  </h3>
+  <p class="mt-2 text-sm text-gray-700">
+    Consultar las notas finales, la aptitud y gestionar los certificados.
+  </p>
+  <span class="mt-4 block font-semibold text-purple-800">
+    Gestionar →
+  </span>
+</button>          
+</div>
+</section>
 
 
         <!-- MODERACIÓN DE FOROS -->
@@ -1423,7 +1953,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+
+import { ref, computed } from 'vue'
 
 import GestionVoluntarios from '../components/GestionVoluntarios.vue'
 import GestionHorariosAdmin from './GestionHorariosAdmin.vue'
@@ -1454,6 +1985,8 @@ const mensajesEstudiantes = ref([])
 const mensajesProfesores = ref([])
 const recursos = ref([])
 const resultadosFinales = ref([])
+const horasAsistencia = ref([])
+const mensajeHorasAsistencia = ref('')
 
 const foroAbierto = ref('estudiantes')
 
@@ -1470,6 +2003,49 @@ const profesorEditando = ref(null)
 const formProfesor = ref({})
 
 const historialProfesorSeleccionado = ref(null)
+// =====================================================
+// GESTIÓN ADMINISTRATIVA DE ALUMNOS
+// =====================================================
+
+const alumnosAdmin = ref([])
+const filtroEscuelaAlumnos = ref('')
+const busquedaAlumnos = ref('')
+
+const alumnoEditando = ref(null)
+
+const formAlumnoAdmin = ref({
+  tipo_documento: '',
+  documento: '',
+  nombre: '',
+  apellidos: '',
+  email: '',
+  telefono: '',
+  fecha_nacimiento: ''
+})
+
+const alumnosAdminFiltrados = computed(() => {
+  const texto = busquedaAlumnos.value.trim().toLocaleLowerCase('es')
+
+  if (!texto) return alumnosAdmin.value
+
+  return alumnosAdmin.value.filter(alumno => {
+    const contenido = [
+      alumno.nombre,
+      alumno.apellidos,
+      alumno.documento,
+      alumno.email,
+      alumno.telefono,
+      alumno.escuela,
+      alumno.grupo,
+      alumno.curso
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLocaleLowerCase('es')
+
+    return contenido.includes(texto)
+  })
+})
 
 // Formulario único de moderación.
 const moderacionAbierta = ref(null)
@@ -1550,18 +2126,17 @@ function seleccionarModulo(modulo) {
   mensaje.value = ''
   cancelarModeracion()
 
-
-if (modulo === 'foros') {
-  cargarForos()
-} else if (modulo === 'archivos') {
-  cargarRecursos()
-} else if (modulo === 'personas') {
-  cargarGestionProfesores()
-}
-
-else if (modulo === 'certificados') {
-  cargarResultadosFinales()
-}
+  if (modulo === 'foros') {
+    cargarForos()
+  } else if (modulo === 'archivos') {
+    cargarRecursos()
+  } else if (modulo === 'personas') {
+    cargarGestionProfesores()
+  } else if (modulo === 'certificados') {
+    cargarResultadosFinales()
+  } else if (modulo === 'datos') {
+    cargarAlumnosAdmin()
+  }
 }
 
 function volverAlPanel() {
@@ -1572,6 +2147,376 @@ function volverAlPanel() {
   cancelarModeracion()
 }
 
+// =====================================================
+// CARGAR ALUMNOS
+// =====================================================
+
+async function cargarAlumnosAdmin() {
+  if (cargandoDatos.value || procesandoId.value !== null) return
+
+  cargandoDatos.value = true
+  mensaje.value = ''
+
+  try {
+    const parametros = filtroEscuelaAlumnos.value
+      ? `?escuelaId=${encodeURIComponent(filtroEscuelaAlumnos.value)}`
+      : ''
+
+    const resultado = await peticionAdmin(
+      `/admin/alumnos${parametros}`
+    )
+
+    alumnosAdmin.value = Array.isArray(resultado?.datos)
+      ? resultado.datos
+      : []
+
+    alumnoEditando.value = null
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo cargar la lista de alumnos.'
+  } finally {
+    cargandoDatos.value = false
+  }
+}
+
+// =====================================================
+// ABRIR EDICIÓN DE UN ALUMNO
+// =====================================================
+
+function editarAlumnoAdmin(alumno) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  alumnoEditando.value = alumno.id
+
+  formAlumnoAdmin.value = {
+    tipo_documento: alumno.tipo_documento || '',
+    documento: alumno.documento || '',
+    nombre: alumno.nombre || '',
+    apellidos: alumno.apellidos || '',
+    email: alumno.email || '',
+    telefono: alumno.telefono || '',
+    fecha_nacimiento: alumno.fecha_nacimiento
+      ? String(alumno.fecha_nacimiento).slice(0, 10)
+      : ''
+  }
+
+  mensaje.value = ''
+}
+
+// =====================================================
+// GUARDAR CAMBIOS DE UN ALUMNO
+// =====================================================
+
+async function guardarAlumnoAdmin() {
+  const id = Number(alumnoEditando.value)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const datos = {
+    tipo_documento: formAlumnoAdmin.value.tipo_documento || null,
+    documento: formAlumnoAdmin.value.documento.trim() || null,
+    nombre: formAlumnoAdmin.value.nombre.trim(),
+    apellidos: formAlumnoAdmin.value.apellidos.trim(),
+    email: formAlumnoAdmin.value.email.trim(),
+    telefono: formAlumnoAdmin.value.telefono.trim() || null,
+    fecha_nacimiento: formAlumnoAdmin.value.fecha_nacimiento || null
+  }
+
+  if (!datos.nombre || !datos.apellidos || !datos.email) {
+    mensaje.value = 'Nombre, apellidos y correo son obligatorios.'
+    return
+  }
+
+  procesandoId.value = `alumno-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/alumnos/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(datos)
+      }
+    )
+
+    alumnoEditando.value = null
+
+    await cargarAlumnosAdmin()
+
+    mensaje.value =
+      resultado?.mensaje || 'Alumno actualizado correctamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron guardar los datos del alumno.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+// Abrir y cancelar el alta de alumnos
+async function abrirAltaAlumno() {
+  formNuevoAlumno.value = {
+    tipo_documento: '',
+    documento: '',
+    nombre: '',
+    apellidos: '',
+    email: '',
+    telefono: '',
+    fecha_nacimiento: '',
+    grupo_id: ''
+  }
+
+  alumnoEditando.value = null
+  creandoAlumno.value = true
+
+  try {
+    await cargarGruposAdmin()
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron cargar los grupos.'
+  }
+}
+
+function cancelarAltaAlumno() {
+  creandoAlumno.value = false
+}
+
+// Crear alumno y matricularlo en el grupo elegido
+async function crearAlumnoAdmin() {
+  if (procesandoId.value !== null) return
+
+  procesandoId.value = 'nuevo-alumno'
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin('/admin/alumnos', {
+      method: 'POST',
+      body: JSON.stringify(formNuevoAlumno.value)
+    })
+
+    mensaje.value =
+      resultado?.mensaje || 'Alumno creado correctamente.'
+
+    creandoAlumno.value = false
+procesandoId.value = null
+await cargarAlumnosAdmin()
+  } catch (error) {
+    mensaje.value = error.message || 'No se pudo crear el alumno.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+// Abrir y cancelar el alta de profesores
+function abrirAltaProfesor() {
+  formNuevoProfesor.value = {
+    tipo_documento: '',
+    documento: '',
+    nombre: '',
+    apellidos: '',
+    anio_nacimiento: '',
+    telefono: '',
+    email: '',
+    especialidad: '',
+    foto: ''
+  }
+
+  creandoProfesor.value = true
+  profesorEditando.value = null
+}
+
+function cancelarAltaProfesor() {
+  creandoProfesor.value = false
+}
+
+// Crear profesor
+async function crearProfesorAdmin() {
+  if (procesandoId.value !== null) return
+
+  procesandoId.value = 'nuevo-profesor'
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin('/admin/profesores', {
+      method: 'POST',
+      body: JSON.stringify(formNuevoProfesor.value)
+    })
+
+    mensaje.value =
+      resultado?.mensaje || 'Profesor creado correctamente.'
+
+    creandoProfesor.value = false
+    await cargarGestionProfesores()
+  } catch (error) {
+    mensaje.value = error.message || 'No se pudo crear el profesor.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+// Alta de alumnos
+
+const creandoAlumno = ref(false)
+
+const formNuevoAlumno = ref({
+  tipo_documento: '',
+  documento: '',
+  nombre: '',
+  apellidos: '',
+  email: '',
+  telefono: '',
+  fecha_nacimiento: '',
+  grupo_id: ''
+})
+
+// Alta de profesores
+const creandoProfesor = ref(false)
+
+const formNuevoProfesor = ref({
+  tipo_documento: '',
+  documento: '',
+  nombre: '',
+  apellidos: '',
+  anio_nacimiento: '',
+  telefono: '',
+  email: '',
+  especialidad: '',
+  foto: ''
+})
+
+
+// =====================================================
+// DESACTIVAR O REACTIVAR UN ALUMNO
+// =====================================================
+
+async function cambiarEstadoAlumnoAdmin(alumno) {
+  const id = Number(alumno.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const estaActualmenteActivo = Number(alumno.activo) === 1
+  const nuevoEstado = estaActualmenteActivo ? 0 : 1
+
+  const nombreCompleto =
+    `${alumno.nombre || ''} ${alumno.apellidos || ''}`.trim()
+
+  const confirmacion = estaActualmenteActivo
+    ? `¿Quieres desactivar a ${nombreCompleto}? Sus datos se conservarán.`
+    : `¿Quieres reactivar a ${nombreCompleto}?`
+
+  if (!window.confirm(confirmacion)) return
+
+  procesandoId.value = `alumno-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/alumnos/${id}/estado`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          activo: nuevoEstado
+        })
+      }
+    )
+
+    await cargarAlumnosAdmin()
+
+    mensaje.value =
+      resultado?.mensaje ||
+      (nuevoEstado === 1
+        ? 'Alumno reactivado correctamente.'
+        : 'Alumno desactivado correctamente.')
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo cambiar el estado del alumno.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+// =====================================================
+// EXPORTAR ALUMNOS PARA EXCEL
+// =====================================================
+
+function exportarAlumnosCSV() {
+  if (alumnosAdminFiltrados.value.length === 0) {
+    mensaje.value = 'No hay alumnos para exportar.'
+    return
+  }
+
+  const columnas = [
+    ['Nombre', 'nombre'],
+    ['Apellidos', 'apellidos'],
+    ['Tipo de documento', 'tipo_documento'],
+    ['Documento de identidad', 'documento'],
+    ['Clase asignada', 'clase_asignada'],
+    ['Curso', 'curso'],
+    ['Correo electrónico', 'email'],
+    ['Teléfono', 'telefono'],
+    ['Horario asignado', 'horario_asignado'],
+    ['Turno', 'turno'],
+    ['Profesor', 'profesor_completo'],
+    ['Escuela', 'escuela'],
+    ['Estado', 'estado']
+  ]
+
+  const escaparCSV = valor => {
+    const texto = String(valor ?? '')
+    return `"${texto.replace(/"/g, '""')}"`
+  }
+
+  const filas = alumnosAdminFiltrados.value.map(alumno => {
+    const valores = {
+      ...alumno,
+      profesor_completo: [
+        alumno.profesor_nombre,
+        alumno.profesor_apellidos
+      ].filter(Boolean).join(' '),
+      estado: Number(alumno.activo) === 1 ? 'Activo' : 'Inactivo'
+    }
+
+    return columnas
+      .map(([, campo]) => escaparCSV(valores[campo]))
+      .join(';')
+  })
+
+  const contenido = [
+    columnas.map(([titulo]) => escaparCSV(titulo)).join(';'),
+    ...filas
+  ].join('\r\n')
+
+  const archivo = new Blob(
+    ['\uFEFF', contenido],
+    { type: 'text/csv;charset=utf-8;' }
+  )
+
+  const url = URL.createObjectURL(archivo)
+  const enlace = document.createElement('a')
+
+  enlace.href = url
+  enlace.download = 'gestion-alumnos.csv'
+  document.body.appendChild(enlace)
+  enlace.click()
+  enlace.remove()
+  URL.revokeObjectURL(url)
+
+  mensaje.value = 'Archivo exportado. Puedes abrirlo con Excel.'
+}
 // =====================================================
 // CARGAR FOROS
 // =====================================================
@@ -2308,6 +3253,48 @@ async function actualizarEstadoCertificado(resultado, nuevoEstado) {
     }
   } finally {
     procesandoId.value = null
+  }
+}
+
+// =====================================================
+// ASISTENCIA
+// =========================
+
+async function cargarHorasAsistencia() {
+  mensajeHorasAsistencia.value = ''
+  cargandoDatos.value = true
+
+  try {
+    const token = sessionStorage.getItem('exaequo_admin_token')
+
+    if (!token) {
+      throw new Error('La sesión de administración ha caducado.')
+    }
+
+    const respuesta = await fetch(
+      'http://localhost:5555/api/admin/asistencia/horas',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        credentials: 'include'
+      }
+    )
+
+    const resultado = await respuesta.json()
+
+    if (!respuesta.ok || !resultado.ok) {
+      throw new Error(
+        resultado.mensaje || 'No se pudieron cargar las horas de asistencia.'
+      )
+    }
+
+    horasAsistencia.value = resultado.datos || []
+  } catch (error) {
+    mensajeHorasAsistencia.value =
+      error.message || 'No se pudieron cargar las horas de asistencia.'
+  } finally {
+    cargandoDatos.value = false
   }
 }
 // =====================================================

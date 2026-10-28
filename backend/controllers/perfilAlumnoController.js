@@ -86,7 +86,103 @@ async function getMiPerfilAlumno(req, res) {
         });
     }
 }
+async function actualizarMiPerfilAlumno(req, res) {
+    const alumnoId = Number(req.alumnoId);
+    const { email, telefono } = req.body;
+
+    if (!Number.isInteger(alumnoId) || alumnoId < 1) {
+        return res.status(401).json({
+            ok: false,
+            mensaje: 'La sesión del alumno no es válida.'
+        });
+    }
+
+    if (typeof email !== 'string' || !email.trim()) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El correo electrónico es obligatorio.'
+        });
+    }
+
+    const emailLimpio = email.trim();
+    const telefonoLimpio =
+        telefono == null ? '' :
+        typeof telefono === 'string' ? telefono.trim() : null;
+
+    if (
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio) ||
+        emailLimpio.length > 150
+    ) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'Introduce un correo electrónico válido.'
+        });
+    }
+
+    if (
+        telefonoLimpio === null ||
+        telefonoLimpio.length > 30
+    ) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El teléfono no es válido.'
+        });
+    }
+
+    try {
+        const [resultado] = await db.query(
+            `UPDATE alumnos
+             SET email = ?, telefono = ?
+             WHERE id = ? AND activo = 1`,
+            [emailLimpio, telefonoLimpio || null, alumnoId]
+        );
+
+        if (resultado.affectedRows === 0) {
+            const [alumnos] = await db.query(
+                'SELECT id FROM alumnos WHERE id = ? AND activo = 1 LIMIT 1',
+                [alumnoId]
+            );
+
+            if (alumnos.length === 0) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: 'No se ha encontrado el perfil del alumno.'
+                });
+            }
+        }
+
+        const [alumnos] = await db.query(
+            `SELECT id, nombre, apellidos, tipo_documento, documento,
+                    pais_origen, telefono, email, fecha_nacimiento
+             FROM alumnos
+             WHERE id = ? AND activo = 1
+             LIMIT 1`,
+            [alumnoId]
+        );
+
+        return res.status(200).json({
+            ok: true,
+            mensaje: 'El perfil se ha actualizado correctamente.',
+            datos: alumnos[0]
+        });
+    } catch (error) {
+        console.error('Error al actualizar el perfil del alumno:', error);
+
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({
+                ok: false,
+                mensaje: 'Ese correo electrónico ya está registrado.'
+            });
+        }
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se ha podido actualizar el perfil del alumno.'
+        });
+    }
+}
 
 module.exports = {
-    getMiPerfilAlumno
+    getMiPerfilAlumno,
+    actualizarMiPerfilAlumno
 };

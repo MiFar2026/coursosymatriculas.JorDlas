@@ -1535,12 +1535,48 @@ async function cerrarSesion() {
 }
 
 // Guardar perfil: por ahora solo actualiza la vista local
-function guardarPerfil() {
-  alumno.email = formPerfil.email
-  alumno.telefono = formPerfil.telefono
+async function guardarPerfil() {
+  mensajePerfil.value = ''
 
-  mensajePerfil.value =
-    'Vista previa: los cambios solo están en esta pantalla y todavía no se han guardado en el servidor.'
+  try {
+    const respuesta = await fetch(
+      'http://localhost:5555/api/perfil-alumno/me',
+      {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formPerfil.email,
+          telefono: formPerfil.telefono
+        })
+      }
+    )
+
+    const resultado = await respuesta.json()
+
+    if (!respuesta.ok || !resultado.ok) {
+      throw new Error(
+        resultado.mensaje || 'No se han podido guardar los cambios.'
+      )
+    }
+
+    // Actualizar los datos visibles con los confirmados por el servidor.
+    alumno.email = resultado.datos.email
+    alumno.telefono = resultado.datos.telefono || ''
+
+    formPerfil.email = resultado.datos.email
+    formPerfil.telefono = resultado.datos.telefono || ''
+
+    mensajePerfil.value =
+      resultado.mensaje || 'Los cambios se han guardado correctamente.'
+  } catch (error) {
+    console.error('Error al guardar el perfil:', error)
+
+    mensajePerfil.value =
+      error.message || 'No se han podido guardar los cambios.'
+  }
 }
 
 // Seleccionar archivos para la entrega

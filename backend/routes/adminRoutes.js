@@ -20,12 +20,21 @@ const {
 
 // Controladores de profesores y grupos.
 const {
-    listarProfesores,
-    obtenerHistorialProfesor,
-    actualizarProfesor,
-    listarGruposAdmin,
-    asignarProfesorGrupo
+  listarProfesores,
+  crearProfesor,
+  obtenerHistorialProfesor,
+  actualizarProfesor,
+  listarGruposAdmin,
+  asignarProfesorGrupo
 } = require('../controllers/adminProfesoresController')
+
+const {
+  listarAlumnos,
+  obtenerAlumno,
+  actualizarAlumno,
+  cambiarEstadoAlumno,
+  crearAlumno
+} = require('../controllers/adminAlumnosController')
 
 // Controladores de voluntariado.
 
@@ -38,6 +47,11 @@ const {
     obtenerNotasFinales,
   actualizarEstadoCertificado
 } = require('../controllers/resultadosController')
+
+const {
+    getResumenHorasAsistencia
+} = require('../controllers/asistenciaAdminController')
+
 
 const router = express.Router()
 
@@ -52,6 +66,24 @@ router.post('/login', loginAdmin)
 router.use(authAdmin)
 
 
+// =====================================================
+// ASISTENCIA: RESUMEN GLOBAL DE HORAS
+// Solo administración autenticada.
+// =====================================================
+
+router.get(
+    '/asistencia/horas',
+    getResumenHorasAsistencia
+)
+// =====================================================
+// GESTIÓN DE ALUMNOS
+// Todas estas rutas requieren autenticación administrativa.
+// =====================================================
+router.post('/alumnos', crearAlumno)
+router.get('/alumnos', listarAlumnos)
+router.get('/alumnos/:id', obtenerAlumno)
+router.put('/alumnos/:id', actualizarAlumno)
+router.patch('/alumnos/:id/estado', cambiarEstadoAlumno)
 // =====================================================
 // RESULTADOS FINALES PARA CERTIFICADOS
 // =====================================================
@@ -83,20 +115,10 @@ router.patch(
 // PROFESORES
 // =====================================================
 
-router.get(
-    '/profesores',
-    listarProfesores
-)
-
-router.get(
-    '/profesores/:id/historial',
-    obtenerHistorialProfesor
-)
-
-router.put(
-    '/profesores/:id',
-    actualizarProfesor
-)
+router.post('/profesores', crearProfesor)
+router.get('/profesores', listarProfesores)
+router.get('/profesores/:id/historial', obtenerHistorialProfesor)
+router.put('/profesores/:id', actualizarProfesor)
 
 // =====================================================
 // GRUPOS Y ASIGNACIÓN DE PROFESORES

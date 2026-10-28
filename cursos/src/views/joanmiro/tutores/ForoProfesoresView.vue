@@ -222,7 +222,7 @@ const textosRespuesta = ref({})
 const respondiendo = ref(null)
 
 const volverPerfil = () => {
-  router.push('/ateneu/tutores/perfil')
+  router.push('/joanmiro/tutores/perfil')
 }
 
 const comprobarSesion = async () => {

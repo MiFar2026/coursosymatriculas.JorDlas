@@ -181,6 +181,147 @@ async function actualizarProfesor(req, res) {
     }
 }
 
+// CREACION DE PROFESORES
+// POST /api/admin/profesores
+// Crea una ficha nueva de profesor.
+async function crearProfesor(req, res) {
+  const cuerpo = req.body || {}
+
+  const tipoDocumento = String(cuerpo.tipo_documento || '').trim()
+  const documento = String(cuerpo.documento || '').trim()
+  const nombre = String(cuerpo.nombre || '').trim()
+  const apellidos = String(cuerpo.apellidos || '').trim()
+  const email = String(cuerpo.email || '').trim() || null
+  const telefono = String(cuerpo.telefono || '').trim() || null
+  const especialidad = String(cuerpo.especialidad || '').trim() || null
+  const foto = String(cuerpo.foto || '').trim() || null
+  const anioTexto = cuerpo.anio_nacimiento
+  const anio = anioTexto === '' || anioTexto == null
+    ? null
+    : Number(anioTexto)
+
+  if (!['DNI', 'NIE', 'PASAPORTE'].includes(tipoDocumento)) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'Selecciona un tipo de documento válido.'
+    })
+  }
+
+  if (!documento || !nombre || !apellidos) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'Documento, nombre y apellidos son obligatorios.'
+    })
+  }
+
+  if (
+    nombre.length > 100 ||
+    apellidos.length > 100 ||
+    documento.length > 30
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'Revisa la longitud del nombre, los apellidos o el documento.'
+    })
+  }
+
+  if (
+    email &&
+    (
+      email.length > 150 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    )
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'El correo electrónico no tiene un formato válido.'
+    })
+  }
+
+  if (
+    telefono && telefono.length > 30 ||
+    especialidad && especialidad.length > 100 ||
+    foto && foto.length > 255
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'Uno de los campos supera la longitud permitida.'
+    })
+  }
+
+  if (
+    anio !== null &&
+    (
+      !Number.isInteger(anio) ||
+      anio < 1900 ||
+      anio > new Date().getFullYear()
+    )
+  ) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'El año de nacimiento no es válido.'
+    })
+  }
+
+  try {
+    const [resultado] = await db.query(
+      `INSERT INTO profesores (
+        tipo_documento,
+        documento,
+        nombre,
+        apellidos,
+        anio_nacimiento,
+        telefono,
+        email,
+        especialidad,
+        foto
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        tipoDocumento,
+        documento,
+        nombre,
+        apellidos,
+        anio,
+        telefono,
+        email,
+        especialidad,
+        foto
+      ]
+    )
+
+    const [profesores] = await db.query(
+      `SELECT
+        id, tipo_documento, documento, nombre, apellidos,
+        anio_nacimiento, telefono, email, especialidad,
+        activo, fecha_creacion, foto
+       FROM profesores
+       WHERE id = ?`,
+      [resultado.insertId]
+    )
+
+    return res.status(201).json({
+      ok: true,
+      mensaje: 'Profesor creado correctamente.',
+      profesor: profesores[0]
+    })
+  } catch (error) {
+    console.error('Error al crear profesor:', error)
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({
+        ok: false,
+        mensaje: 'El documento o el correo ya pertenece a otro profesor.'
+      })
+    }
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: 'No se pudo crear el profesor.'
+    })
+  }
+}
+
+
 /**
  * GET /api/admin/grupos
  * Lista los grupos con su escuela, curso y profesor asignado.
@@ -399,10 +540,11 @@ async function asignarProfesorGrupo(req, res) {
 
 
 module.exports = {
-    listarProfesores,
-    obtenerHistorialProfesor,
-    actualizarProfesor,
-    listarGruposAdmin,
-    asignarProfesorGrupo
+  listarProfesores,
+  crearProfesor,
+  obtenerHistorialProfesor,
+  actualizarProfesor,
+  listarGruposAdmin,
+  asignarProfesorGrupo
 }
 

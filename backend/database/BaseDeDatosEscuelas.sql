@@ -1156,3 +1156,60 @@ WHERE id = 6
   AND tipo = 'FINAL'
   AND nota >= 6
   AND decision_apto IS NULL;
+  
+  
+  
+  
+USE BaseDeDatosEscuelas;
+
+-- 1. Una sesión de clase por fecha y horario.
+CREATE TABLE IF NOT EXISTS asistencia_sesiones (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    grupo_id INT NOT NULL,
+    horario_id INT NULL,
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    estado ENUM('REALIZADA', 'CANCELADA')
+        NOT NULL DEFAULT 'REALIZADA',
+    creado_por INT NULL,
+    actualizado_por INT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_asistencia_horario_fecha (horario_id, fecha),
+    INDEX idx_asistencia_grupo_fecha (grupo_id, fecha)
+);
+
+-- 2. Asistencia individual de cada alumno a cada sesión.
+CREATE TABLE IF NOT EXISTS asistencia_registros (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    sesion_id INT NOT NULL,
+    alumno_id INT NOT NULL,
+    estado ENUM('PRESENTE', 'AUSENTE', 'PARCIAL')
+        NOT NULL DEFAULT 'AUSENTE',
+    minutos_asistidos INT UNSIGNED NOT NULL DEFAULT 0,
+    registrado_por INT NOT NULL,
+    actualizado_por INT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_asistencia_alumno_sesion (sesion_id, alumno_id),
+    INDEX idx_asistencia_alumno (alumno_id),
+    INDEX idx_asistencia_sesion (sesion_id)
+);
+
+-- 3. Historial de rectificaciones.
+CREATE TABLE IF NOT EXISTS asistencia_historial (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    asistencia_id INT NOT NULL,
+    estado_anterior VARCHAR(20) NULL,
+    estado_nuevo VARCHAR(20) NOT NULL,
+    minutos_anteriores INT UNSIGNED NULL,
+    minutos_nuevos INT UNSIGNED NOT NULL,
+    profesor_id INT NOT NULL,
+    fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_historial_asistencia (asistencia_id)
+);
+
+SHOW TABLES;
