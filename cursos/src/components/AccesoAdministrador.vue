@@ -1840,6 +1840,130 @@
     </table>
   </div>
 
+  <!-- FORMULARIO PARA AÑADIR ALUMNO -->
+  <div
+    v-if="creandoAlumno"
+    class="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 p-5"
+  >
+    <h4 class="text-xl font-bold text-gray-900">
+      Añadir nuevo alumno
+    </h4>
+
+    <p class="mt-2 text-sm text-gray-600">
+      Introduce los datos del alumno y selecciona su grupo.
+    </p>
+
+    <form
+      class="mt-5 grid gap-4 sm:grid-cols-2"
+      @submit.prevent="crearAlumnoAdmin"
+    >
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Nombre</span>
+        <input
+          v-model.trim="formNuevoAlumno.nombre"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Apellidos</span>
+        <input
+          v-model.trim="formNuevoAlumno.apellidos"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Tipo de documento</span>
+        <select
+          v-model="formNuevoAlumno.tipo_documento"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        >
+          <option value="">Selecciona el tipo</option>
+          <option value="DNI">DNI</option>
+          <option value="NIE">NIE</option>
+          <option value="PASAPORTE">Pasaporte</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Número de documento</span>
+        <input
+          v-model.trim="formNuevoAlumno.documento"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Correo electrónico</span>
+        <input
+          v-model.trim="formNuevoAlumno.email"
+          type="email"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Teléfono</span>
+        <input
+          v-model.trim="formNuevoAlumno.telefono"
+          type="tel"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Fecha de nacimiento</span>
+        <input
+          v-model="formNuevoAlumno.fecha_nacimiento"
+          type="date"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-sm font-semibold">Grupo y horario</span>
+        <select
+          v-model="formNuevoAlumno.grupo_id"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        >
+          <option value="">Selecciona un grupo</option>
+          <option
+            v-for="grupo in gruposAdmin"
+            :key="grupo.grupo_id"
+            :value="String(grupo.grupo_id)"
+          >
+            {{ grupo.escuela }} — {{ grupo.grupo }}
+          </option>
+        </select>
+      </label>
+
+      <div class="flex flex-wrap items-end gap-3 sm:col-span-2">
+        <button
+          type="submit"
+          :disabled="procesandoId !== null"
+          class="rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+        >
+          {{ procesandoId === 'nuevo-alumno' ? 'Guardando...' : 'Crear alumno' }}
+        </button>
+
+        <button
+          type="button"
+          @click="cancelarAltaAlumno"
+          class="rounded-xl border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 hover:bg-gray-100"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
   <!-- FORMULARIO DE EDICIÓN -->
   <div
     v-if="alumnoEditando"
