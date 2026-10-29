@@ -30,6 +30,15 @@ const perfilProfesorRoutes = require('./routes/perfilProfesorRoutes')
 const actividadesRoutes = require('./routes/actividadesRoutes')
 const foroAlumnosRoutes = require('./routes/foroAlumnosRoutes')
 const foroProfesoresRoutes = require('./routes/foroProfesoresRoutes')
+const mensajesRoutes = require('./routes/mensajesRoutes')
+console.log(
+  'RUTAS MENSAJES CARGADAS:',
+  mensajesRoutes.stack.map(r => ({
+    metodo: Object.keys(r.route?.methods || {}),
+    ruta: r.route?.path
+  }))
+)
+
 const routes = require('./routes/routes.js')
 
 // =====================================================
@@ -124,6 +133,8 @@ app.use('/api/perfil-profesor', perfilProfesorRoutes)
 app.use('/api/foro-alumnos', foroAlumnosRoutes)
 app.use('/api/foro-profesores', foroProfesoresRoutes)
 
+// Mensajes privados entre alumnado y profesorado.
+app.use('/api/mensajes', mensajesRoutes)
 // =====================================================
 // RUTAS GENERALES
 // Deben ir después de las rutas específicas.

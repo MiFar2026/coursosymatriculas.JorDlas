@@ -135,24 +135,34 @@
           </p>
 
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+           
 
-            <!-- ESCUELAS, CURSOS Y GRUPOS -->
-            <button
-              type="button"
-              @click="seleccionarModulo('escuelas')"
-              class="rounded-xl border border-indigo-200 bg-indigo-50 p-6 text-left transition hover:bg-indigo-100"
-            >
-              <span class="mb-3 block text-3xl">🏫</span>
-              <h3 class="text-xl font-bold text-gray-900">
-                Escuelas y cursos
-              </h3>
-              <p class="mt-2 text-sm text-gray-700">
-                Escuelas, cursos y grupos.
-              </p>
-              <span class="mt-4 block font-semibold text-indigo-800">
-                Gestionar →
-              </span>
-            </button>
+
+  <!-- ESCUELAS, CURSOS Y GRUPOS -->
+  <button
+    type="button"
+    @click="mostrarEscuelasAdmin = !mostrarEscuelasAdmin"
+    :aria-expanded="mostrarEscuelasAdmin"
+    class="rounded-xl border border-indigo-200
+           bg-indigo-50 p-6 text-left transition
+           hover:bg-indigo-100"
+  >
+    <span class="mb-3 block text-3xl">🏫</span>
+
+    <h3 class="text-xl font-bold text-gray-900">
+      Escuelas, cursos y grupos
+    </h3>
+
+    <p class="mt-2 text-sm text-gray-700">
+      Consulta cursos, horarios, profesores y aulas
+    </p>
+
+    <span class="mt-4 block font-semibold text-indigo-800">
+      {{ mostrarEscuelasAdmin ? 'Cerrar ↑' : 'Gestionar →' }}
+    </span>
+  </button>
+
+
 
             <!-- PROFESORES, ALUMNOS Y MATRÍCULAS -->
             <button
@@ -532,39 +542,528 @@
           <GestionHorariosAdmin />
         </section>
 
-       
-        <!-- ESCUELAS, CURSOS Y GRUPOS -->
-        <section
-          v-if="moduloSeleccionado === 'escuelas'"
-          class="mt-8 rounded-xl border border-indigo-200 bg-white p-6"
+        
+<!--Gestión de Escuelas, Cursos-->
+
+  <!-- CONTENIDO DESPLEGABLE -->
+  <div
+    v-if="mostrarEscuelasAdmin"
+    class="mt-4 rounded-xl border border-gray-200
+           bg-white p-5 shadow-sm"
+  >
+    <!-- CABECERA Y ACTUALIZACIÓN -->
+    <div
+      class="mb-6 flex flex-wrap items-center
+             justify-between gap-3"
+    >
+      <div>
+        <h3 class="text-xl font-bold text-gray-900">
+          Listado de escuelas
+        </h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Selecciona una escuela para consultar sus grupos.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        @click="cargarEscuelasCursosAdmin"
+        :disabled="cargandoEscuelasAdmin"
+        class="inline-flex items-center gap-2 rounded-lg
+               bg-indigo-600 px-4 py-2.5 font-semibold
+               text-white transition hover:bg-indigo-700
+               disabled:cursor-not-allowed
+               disabled:opacity-50"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          :class="{ 'animate-spin': cargandoEscuelasAdmin }"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
         >
-          <h3 class="text-2xl font-bold text-gray-900">
-            Escuelas, cursos y grupos
-          </h3>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 4v5h5M20 20v-5h-5M5.6 9A7 7 0 0 1 18 6l2 3M4 15l2 3a7 7 0 0 0 12.4-3"
+          />
+        </svg>
 
-          <p class="mt-2 text-gray-600">
-            Desde aquí organizaremos las escuelas, los cursos y los grupos
-            de clase de Biblioteca Joan Miró y Ateneu Aula 502.
-          </p>
+        {{ cargandoEscuelasAdmin
+          ? 'Actualizando...'
+          : 'Actualizar datos' }}
+      </button>
+    </div>
+    <!-- ALTA DE CURSO, GRUPO Y HORARIO -->
+<section class="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-5">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h4 class="text-lg font-bold text-indigo-950">
+        Añadir curso, grupo y horario
+      </h4>
+      <p class="mt-1 text-sm text-indigo-800">
+        Los datos se guardarán en la base de datos.
+      </p>
+    </div>
 
-          <div class="mt-5 rounded-xl bg-indigo-50 p-4">
-            <p class="font-semibold text-indigo-900">
-              Base de datos: BaseDeDatosEscuelas
-            </p>
-            <p class="mt-1 text-sm text-indigo-800">
-              La conexión para consultar, crear y editar estos datos
-              se implementará a través de la API del servidor.
-            </p>
+    <button
+      type="button"
+      @click="abrirFormularioGrupoAdmin"
+      class="rounded-lg bg-indigo-700 px-4 py-2 font-semibold text-white hover:bg-indigo-800"
+    >
+      {{ mostrarFormularioGrupoAdmin ? 'Cerrar formulario' : '+ Añadir grupo' }}
+    </button>
+  </div>
+
+  <form
+    v-if="mostrarFormularioGrupoAdmin"
+    class="mt-5 space-y-5"
+    @submit.prevent="guardarGrupoAdmin"
+  >
+    <div
+      v-if="mensajeGrupoAdmin"
+      role="status"
+      aria-live="polite"
+      class="rounded-lg border border-indigo-200 bg-white p-3 text-sm text-gray-800"
+    >
+      {{ mensajeGrupoAdmin }}
+    </div>
+
+    <!-- ESCUELA -->
+    <div>
+      <label class="mb-1 block font-semibold" for="nueva-escuela-admin">
+        Escuela *
+      </label>
+
+      <select
+        id="nueva-escuela-admin"
+        v-model="formGrupoAdmin.escuela_id"
+        required
+        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+      >
+        <option value="1">Biblioteca Joan Miró</option>
+        <option value="2">Ateneu Aula 502</option>
+      </select>
+    </div>
+
+    <!-- ELEGIR CURSO EXISTENTE O CREAR UNO -->
+    <div class="rounded-lg border border-gray-200 bg-white p-4">
+      <label class="flex items-start gap-3">
+        <input
+          v-model="crearCursoNuevoAdmin"
+          type="checkbox"
+          class="mt-1"
+        />
+        <span>
+          <span class="block font-semibold">Crear un curso nuevo</span>
+          <span class="text-sm text-gray-600">
+            Si no marcas esta opción, podrás seleccionar un curso existente.
+          </span>
+        </span>
+      </label>
+
+      <div v-if="!crearCursoNuevoAdmin" class="mt-4">
+        <label class="mb-1 block font-semibold" for="curso-existente-admin">
+          Curso existente *
+        </label>
+
+        <select
+          id="curso-existente-admin"
+          v-model="formGrupoAdmin.curso_id"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        >
+          <option value="">Selecciona un curso</option>
+
+          <option
+            v-for="curso in cursosFormularioAdmin"
+            :key="curso.id"
+            :value="String(curso.id)"
+          >
+            {{ curso.nombre }} — {{ curso.idioma }} {{ curso.nivel }}
+          </option>
+        </select>
+
+        <p
+          v-if="cursosFormularioAdmin.length === 0"
+          class="mt-2 text-sm text-amber-800"
+        >
+          No hay cursos disponibles. Marca «Crear un curso nuevo».
+        </p>
+      </div>
+
+      <div v-else class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label>
+          <span class="mb-1 block font-semibold">Nombre del curso *</span>
+          <input
+            v-model.trim="formGrupoAdmin.curso_nombre"
+            required
+            maxlength="100"
+            placeholder="Ej.: Castellano A1"
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+          />
+        </label>
+
+        <label>
+          <span class="mb-1 block font-semibold">Idioma *</span>
+          <select
+            v-model="formGrupoAdmin.idioma"
+            required
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+          >
+            <option value="Castellano">Castellano</option>
+            <option value="Catalán">Catalán</option>
+            <option value="Alfabetización">Alfabetización</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="mb-1 block font-semibold">Nivel *</span>
+          <input
+            v-model.trim="formGrupoAdmin.nivel"
+            required
+            maxlength="20"
+            placeholder="Ej.: A1, A2, B1"
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- DATOS DEL GRUPO -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label>
+        <span class="mb-1 block font-semibold">Nombre del grupo *</span>
+        <input
+          v-model.trim="formGrupoAdmin.nombre"
+          required
+          maxlength="100"
+          placeholder="Ej.: Castellano A1 - Mañana"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block font-semibold">Turno *</span>
+        <select
+          v-model="formGrupoAdmin.turno"
+          required
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        >
+          <option value="Mañana">Mañana</option>
+          <option value="Tarde">Tarde</option>
+        </select>
+      </label>
+
+      <label>
+        <span class="mb-1 block font-semibold">Aula</span>
+        <input
+          v-model.trim="formGrupoAdmin.aula"
+          maxlength="50"
+          placeholder="Ej.: Aula 502"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        />
+      </label>
+
+      <label>
+        <span class="mb-1 block font-semibold">Profesor/a</span>
+        <select
+          v-model="formGrupoAdmin.profesor_id"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+        >
+          <option value="">Sin profesor asignado</option>
+
+          <option
+            v-for="profesor in profesoresAdmin.filter(
+              p => Number(p.activo) === 1
+            )"
+            :key="profesor.id"
+            :value="String(profesor.id)"
+          >
+            {{ profesor.nombre }} {{ profesor.apellidos }}
+          </option>
+        </select>
+      </label>
+    </div>
+
+    <!-- DÍAS Y HORAS -->
+    <div class="rounded-lg border border-gray-200 bg-white p-4">
+      <h5 class="font-bold text-gray-900">Horario de las clases</h5>
+
+      <p class="mt-1 text-sm text-gray-600">
+        Selecciona los días y establece la hora de inicio y de finalización.
+        Se aplicarán las mismas horas a todos los días seleccionados.
+      </p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <label
+          v-for="dia in diasSemanaGrupoAdmin"
+          :key="dia"
+          class="flex items-center gap-2 rounded-lg border border-gray-200 p-3"
+        >
+          <input
+            v-model="diasSeleccionadosGrupoAdmin"
+            type="checkbox"
+            :value="dia"
+          />
+          <span>{{ dia }}</span>
+        </label>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label>
+          <span class="mb-1 block font-semibold">Hora de inicio *</span>
+          <input
+            v-model="formGrupoAdmin.hora_inicio"
+            type="time"
+            required
+            class="w-full rounded-lg border border-gray-300 px-3 py-2"
+          />
+        </label>
+
+        <label>
+          <span class="mb-1 block font-semibold">Hora de finalización *</span>
+          <input
+            v-model="formGrupoAdmin.hora_fin"
+            type="time"
+            required
+            class="w-full rounded-lg border border-gray-300 px-3 py-2"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="flex flex-wrap gap-3">
+      <button
+        type="submit"
+        :disabled="guardandoGrupoAdmin"
+        class="rounded-lg bg-indigo-700 px-5 py-3 font-semibold text-white hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {{
+          guardandoGrupoAdmin
+            ? 'Guardando...'
+            : 'Guardar curso, grupo y horario'
+        }}
+      </button>
+
+      <!-- RESULTADO DE GUARDAR EL CURSO, GRUPO Y HORARIO -->
+<div
+  v-if="mensajeGrupoAdmin"
+  class="mt-4 rounded-lg border p-3 text-sm"
+  :class="mensajeGrupoAdmin.includes('correctamente')
+    ? 'border-green-300 bg-green-50 text-green-800'
+    : 'border-red-300 bg-red-50 text-red-800'"
+  role="status"
+>
+  {{ mensajeGrupoAdmin }}
+</div>
+
+      <button
+        type="button"
+        :disabled="guardandoGrupoAdmin"
+        @click="restablecerFormularioGrupoAdmin"
+        class="rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 disabled:opacity-50"
+      >
+        Limpiar formulario
+      </button>
+    </div>
+  </form>
+</section>
+
+    <!-- ERROR -->
+    <div
+      v-if="errorEscuelasAdmin"
+      role="alert"
+      class="mb-5 rounded-lg border border-red-200
+             bg-red-50 p-4 text-red-800"
+    >
+      {{ errorEscuelasAdmin }}
+    </div>
+
+    <!-- CARGANDO -->
+    <div
+      v-if="cargandoEscuelasAdmin"
+      class="py-8 text-center text-gray-500"
+    >
+      Consultando los datos...
+    </div>
+
+    <!-- LISTADO -->
+    <div
+      v-else-if="escuelasAdmin.length"
+      class="space-y-4"
+    >
+      <article
+        v-for="escuela in escuelasAdmin"
+        :key="escuela.id"
+        class="overflow-hidden rounded-xl
+               border border-gray-200"
+      >
+        <!-- BOTÓN DE CADA ESCUELA -->
+        <button
+          type="button"
+          @click="alternarEscuelaAdmin(escuela.id)"
+          :aria-expanded="Boolean(escuelasAbiertasAdmin[escuela.id])"
+          class="flex w-full items-center justify-between
+                 gap-3 bg-gray-50 p-4 text-left
+                 transition hover:bg-indigo-50"
+        >
+          <span class="flex min-w-0 items-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0
+                     items-center justify-center
+                     rounded-lg bg-indigo-100
+                     font-bold text-indigo-700"
+            >
+              {{ escuela.nombre?.charAt(0)?.toUpperCase() || 'E' }}
+            </span>
+
+            <span class="min-w-0">
+              <span
+                class="block truncate font-bold text-gray-900"
+              >
+                {{ escuela.nombre }}
+              </span>
+
+              <span class="mt-1 block text-xs text-gray-500">
+                Escuela ID: {{ escuela.id }}
+              </span>
+            </span>
+          </span>
+
+          <span
+            class="flex h-8 w-8 shrink-0 items-center
+                   justify-center rounded-full
+                   bg-white text-xl text-indigo-700
+                   shadow-sm"
+          >
+            {{
+              escuelasAbiertasAdmin[escuela.id]
+                ? '−'
+                : '+'
+            }}
+          </span>
+        </button>
+
+        <!-- DATOS DE LA ESCUELA -->
+        <div
+          v-if="escuelasAbiertasAdmin[escuela.id]"
+          class="border-t border-gray-200 p-4"
+        >
+          <div class="overflow-x-auto">
+            <table
+              class="w-full min-w-[900px]
+                     border-collapse text-left text-sm"
+            >
+              <thead>
+                <tr class="bg-gray-100 text-gray-700">
+                  <th class="border p-3">Horario y días</th>
+                  <th class="border p-3">Curso</th>
+                  <th class="border p-3">Grupo y turno</th>
+                  <th class="border p-3">Profesor/a</th>
+                  <th class="border p-3">Aula</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr
+                  v-for="grupo in gruposEscuelasAdmin.filter(
+                    item => Number(item.escuela_id) === Number(escuela.id)
+                  )"
+                  :key="grupo.grupo_id"
+                  class="align-top transition hover:bg-gray-50"
+                >
+                  <td class="border p-3">
+                    {{ obtenerHorarioGrupoAdmin(grupo.grupo_id) }}
+                  </td>
+
+                  <td class="border p-3">
+                    <span class="font-medium text-gray-900">
+                      {{ grupo.curso || 'Sin curso' }}
+                    </span>
+
+                    <span
+                      v-if="grupo.idioma || grupo.nivel"
+                      class="mt-1 block text-gray-500"
+                    >
+                      {{
+                        [grupo.idioma, grupo.nivel]
+                          .filter(Boolean)
+                          .join(' · ')
+                      }}
+                    </span>
+                  </td>
+
+                  <td class="border p-3">
+                    {{ grupo.grupo || 'Sin nombre' }}
+
+                    <span class="mt-1 block text-gray-500">
+                      {{ grupo.turno || 'Turno sin indicar' }}
+                    </span>
+                  </td>
+
+                  <td class="border p-3">
+                    <template v-if="grupo.profesor_id">
+                      {{
+                        [
+                          grupo.profesor_nombre,
+                          grupo.profesor_apellidos
+                        ].filter(Boolean).join(' ')
+                      }}
+                    </template>
+
+                    <span v-else class="text-gray-500">
+                      Sin profesor asignado
+                    </span>
+                  </td>
+
+                  <td class="border p-3">
+                    {{ grupo.aula || 'Aula sin indicar' }}
+                  </td>
+                </tr>
+
+                <tr
+                  v-if="!gruposEscuelasAdmin.some(
+                    item => Number(item.escuela_id) === Number(escuela.id)
+                  )"
+                >
+                  <td
+                    colspan="5"
+                    class="border p-6 text-center text-gray-500"
+                  >
+                    Todavía no hay grupos registrados para esta escuela.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          <p class="mt-4 text-sm text-gray-500">
-            Este apartado todavía necesita sus operaciones de gestión.
-            No modifica ni elimina los datos actuales.
+          <p class="mt-3 text-xs text-gray-500">
+            Los datos proceden de los grupos y horarios existentes.
           </p>
-        </section>
+        </div>
+      </article>
+    </div>
 
-        <!-- PROFESORES, ALUMNOS Y MATRÍCULAS -->
-        
+    <!-- SIN ESCUELAS -->
+    <div
+      v-else
+      class="rounded-lg border border-dashed
+             border-gray-300 p-8 text-center"
+    >
+      <p class="font-medium text-gray-700">
+        No hay escuelas para mostrar.
+      </p>
+      <p class="mt-1 text-sm text-gray-500">
+        Pulsa «Actualizar datos» para volver a consultar.
+      </p>
+    </div>
+  </div>
+
+
 <!-- GESTIÓN DE PROFESORES Y ASIGNACIONES -->
 
 <section
@@ -1990,6 +2489,8 @@ const mensajeHorasAsistencia = ref('')
 
 const foroAbierto = ref('estudiantes')
 
+const mostrarEscuelasAdmin = ref(false);
+
 /* =====================================================
    GESTIÓN ADMINISTRATIVA DE PROFESORES Y GRUPOS
    ===================================================== */
@@ -1998,6 +2499,240 @@ const profesoresAdmin = ref([])
 const gruposAdmin = ref([])
 const profesorPorGrupo = ref({})
 const filtroEscuelaGrupos = ref('')
+
+// ========================================
+// ESCUELAS, CURSOS, GRUPOS Y HORARIOS
+// ========================================
+
+const escuelasAdmin = [
+  { id: 1, nombre: 'Biblioteca Joan Miró' },
+  { id: 2, nombre: 'Ateneu Aula 502' }
+]
+
+const gruposEscuelasAdmin = ref([])
+const horariosEscuelasAdmin = ref({})
+const escuelasAbiertasAdmin = ref({})
+const cargandoEscuelasAdmin = ref(false)
+const errorEscuelasAdmin = ref('')
+
+// =====================================================
+// ALTA DE CURSOS, GRUPOS Y HORARIOS
+// =====================================================
+
+const mostrarFormularioGrupoAdmin = ref(false)
+const guardandoGrupoAdmin = ref(false)
+const mensajeGrupoAdmin = ref('')
+
+const cursosFormularioAdmin = ref([])
+
+const diasSemanaGrupoAdmin = [
+  'Lunes',
+  'Martes',
+  'Miércoles',
+  'Jueves',
+  'Viernes',
+  'Sábado',
+  'Domingo'
+]
+
+const diasSeleccionadosGrupoAdmin = ref(['Lunes'])
+
+const crearCursoNuevoAdmin = ref(false)
+
+function nuevoFormularioGrupoAdmin() {
+  return {
+    escuela_id: '1',
+    curso_id: '',
+    curso_nombre: '',
+    idioma: 'Castellano',
+    nivel: 'A1',
+    nombre: '',
+    turno: 'Mañana',
+    aula: '',
+    profesor_id: '',
+    hora_inicio: '09:00',
+    hora_fin: '10:00'
+  }
+}
+
+const formGrupoAdmin = ref(nuevoFormularioGrupoAdmin())
+
+async function abrirFormularioGrupoAdmin() {
+  if (mostrarFormularioGrupoAdmin.value) {
+    mostrarFormularioGrupoAdmin.value = false
+    return
+  }
+
+  mostrarFormularioGrupoAdmin.value = true
+  mensajeGrupoAdmin.value = ''
+
+  try {
+    const [respuestaCursos, respuestaProfesores] = await Promise.all([
+      peticionAdmin('/cursos'),
+      peticionAdmin('/admin/profesores')
+    ])
+
+    cursosFormularioAdmin.value = Array.isArray(respuestaCursos?.datos)
+      ? respuestaCursos.datos
+      : []
+
+    profesoresAdmin.value = Array.isArray(respuestaProfesores?.profesores)
+      ? respuestaProfesores.profesores
+      : []
+  } catch (error) {
+    mensajeGrupoAdmin.value =
+      error.message || 'No se pudieron cargar los cursos y profesores.'
+  }
+}
+
+function restablecerFormularioGrupoAdmin() {
+  formGrupoAdmin.value = nuevoFormularioGrupoAdmin()
+  diasSeleccionadosGrupoAdmin.value = ['Lunes']
+  crearCursoNuevoAdmin.value = false
+  mensajeGrupoAdmin.value = ''
+}
+
+async function guardarGrupoAdmin() {
+  if (guardandoGrupoAdmin.value) return
+
+  const formulario = formGrupoAdmin.value
+  const diasSeleccionados = diasSeleccionadosGrupoAdmin.value
+
+  if (!diasSeleccionados.length) {
+    mensajeGrupoAdmin.value = 'Selecciona al menos un día de clase.'
+    return
+  }
+
+  if (formulario.hora_inicio >= formulario.hora_fin) {
+    mensajeGrupoAdmin.value =
+      'La hora de finalización debe ser posterior a la hora de inicio.'
+    return
+  }
+
+  if (
+    !crearCursoNuevoAdmin.value &&
+    !formulario.curso_id
+  ) {
+    mensajeGrupoAdmin.value = 'Selecciona un curso existente.'
+    return
+  }
+
+  guardandoGrupoAdmin.value = true
+  mensajeGrupoAdmin.value = ''
+
+  let grupoCreadoId = null
+
+  try {
+    let cursoId
+
+    // 1. Crear el curso si se ha solicitado.
+    if (crearCursoNuevoAdmin.value) {
+      const respuestaCurso = await peticionAdmin('/admin/cursos', {
+        method: 'POST',
+        body: JSON.stringify({
+          nombre: formulario.curso_nombre,
+          idioma: formulario.idioma,
+          nivel: formulario.nivel
+        })
+      })
+
+      cursoId = Number(respuestaCurso?.curso?.id)
+
+      if (!Number.isSafeInteger(cursoId) || cursoId <= 0) {
+        throw new Error(
+          'El servidor no ha devuelto el identificador del curso.'
+        )
+      }
+    } else {
+      cursoId = Number(formulario.curso_id)
+    }
+
+    // 2. Crear el grupo en la escuela seleccionada.
+    const respuestaGrupo = await peticionAdmin('/admin/grupos', {
+      method: 'POST',
+      body: JSON.stringify({
+        escuela_id: Number(formulario.escuela_id),
+        curso_id: cursoId,
+        nombre: formulario.nombre,
+        turno: formulario.turno,
+        aula: formulario.aula || null,
+        profesor_id: formulario.profesor_id
+          ? Number(formulario.profesor_id)
+          : null
+      })
+    })
+
+    grupoCreadoId = Number(respuestaGrupo?.grupo_id)
+
+    if (!Number.isSafeInteger(grupoCreadoId) || grupoCreadoId <= 0) {
+      throw new Error(
+        'El grupo puede haberse creado, pero no se recibió su identificador.'
+      )
+    }
+
+    // 3. Guardar los siete días; solo los seleccionados quedan activos.
+    const horarios = diasSemanaGrupoAdmin.map(dia => {
+      const activo = diasSeleccionados.includes(dia)
+
+      return {
+        dia_semana: dia,
+        hora_inicio: activo ? formulario.hora_inicio : '09:00',
+        hora_fin: activo ? formulario.hora_fin : '18:00',
+        activo
+      }
+    })
+
+    await peticionAdmin('/horarios/', {
+      method: 'PUT',
+      body: JSON.stringify({
+        grupo_id: grupoCreadoId,
+        horarios
+      })
+    })
+
+    mensajeGrupoAdmin.value =
+      'Curso, grupo y horario guardados correctamente.'
+
+    // Actualizar la tabla de escuelas y sus horarios.
+    await cargarEscuelasCursosAdmin()
+
+    // Actualizar los grupos de la sección de asignaciones.
+    try {
+      await cargarGruposAdminInterno()
+    } catch (error) {
+      console.error('No se pudo actualizar la lista de grupos:', error)
+    }
+
+    // Actualizar el selector de cursos.
+    try {
+      const respuestaCursos = await peticionAdmin('/cursos')
+
+      cursosFormularioAdmin.value = Array.isArray(respuestaCursos?.datos)
+        ? respuestaCursos.datos
+        : []
+    } catch (error) {
+      console.error('No se pudo actualizar la lista de cursos:', error)
+    }
+
+    restablecerFormularioGrupoAdmin()
+    mostrarFormularioGrupoAdmin.value = false
+
+    mensaje.value =
+      'El curso, grupo y horario se han guardado correctamente.'
+  } catch (error) {
+    if (grupoCreadoId !== null) {
+      mensajeGrupoAdmin.value =
+        'El grupo se ha creado, pero no se pudo confirmar el guardado del horario. ' +
+        'Comprueba el horario antes de volver a crear el grupo. ' +
+        (error.message || '')
+    } else {
+      mensajeGrupoAdmin.value =
+        error.message || 'No se pudo guardar el curso o el grupo.'
+    }
+  } finally {
+    guardandoGrupoAdmin.value = false
+  }
+}
 
 const profesorEditando = ref(null)
 const formProfesor = ref({})
@@ -2119,6 +2854,7 @@ function cancelarLogin() {
 // NAVEGACIÓN
 // =====================================================
 
+
 function seleccionarModulo(modulo) {
   if (procesandoId.value !== null || cargandoDatos.value) return
 
@@ -2134,9 +2870,112 @@ function seleccionarModulo(modulo) {
     cargarGestionProfesores()
   } else if (modulo === 'certificados') {
     cargarResultadosFinales()
+  } else if (modulo === 'escuelas') {
+    cargarEscuelasCursosAdmin()
   } else if (modulo === 'datos') {
     cargarAlumnosAdmin()
   }
+}
+
+async function cargarEscuelasCursosAdmin() {
+  if (cargandoEscuelasAdmin.value) return
+
+  cargandoEscuelasAdmin.value = true
+  errorEscuelasAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin('/admin/grupos')
+
+    if (!Array.isArray(resultado?.grupos)) {
+      throw new Error(
+        'La API no ha devuelto una lista válida de grupos.'
+      )
+    }
+
+    gruposEscuelasAdmin.value = resultado.grupos
+
+    // Abrir las dos escuelas al entrar por primera vez.
+    if (Object.keys(escuelasAbiertasAdmin.value).length === 0) {
+      escuelasAbiertasAdmin.value = {
+        1: true,
+        2: true
+      }
+    }
+
+    // Consultar los horarios de los grupos activos.
+    const consultas = await Promise.all(
+      resultado.grupos.map(async grupo => {
+        const grupoId = Number(grupo.grupo_id)
+
+        if (Number(grupo.grupo_activo) !== 1) {
+          return [grupoId, []]
+        }
+
+        try {
+          const respuesta = await peticionAdmin(
+            `/horarios/?grupo_id=${encodeURIComponent(grupoId)}`
+          )
+
+          const dias = Array.isArray(respuesta)
+            ? respuesta
+            : Array.isArray(respuesta?.datos)
+              ? respuesta.datos
+              : null
+
+          if (!dias) {
+            throw new Error('Formato de horario no válido.')
+          }
+
+          return [grupoId, dias]
+        } catch (error) {
+          console.error(
+            `No se pudo cargar el horario del grupo ${grupoId}:`,
+            error
+          )
+
+          return [grupoId, null]
+        }
+      })
+    )
+
+    horariosEscuelasAdmin.value = Object.fromEntries(consultas)
+  } catch (error) {
+    errorEscuelasAdmin.value =
+      error.message || 'No se pudieron cargar las escuelas y los grupos.'
+  } finally {
+    cargandoEscuelasAdmin.value = false
+  }
+}
+
+function alternarEscuelaAdmin(escuelaId) {
+  escuelasAbiertasAdmin.value = {
+    ...escuelasAbiertasAdmin.value,
+    [escuelaId]: !escuelasAbiertasAdmin.value[escuelaId]
+  }
+}
+
+function obtenerHorarioGrupoAdmin(grupoId) {
+  const dias = horariosEscuelasAdmin.value[grupoId]
+
+  if (dias === null) {
+    return 'No se ha podido consultar el horario.'
+  }
+
+  if (!Array.isArray(dias)) {
+    return 'Sin horario configurado.'
+  }
+
+  const activos = dias.filter(dia => dia.activo)
+
+  if (!activos.length) {
+    return 'Sin días de clase configurados.'
+  }
+
+  return activos
+    .map(dia =>
+      `${dia.dia_semana}: ${String(dia.hora_inicio).slice(0, 5)}–${String(dia.hora_fin).slice(0, 5)}`
+    )
+    .join(' · ')
 }
 
 function volverAlPanel() {

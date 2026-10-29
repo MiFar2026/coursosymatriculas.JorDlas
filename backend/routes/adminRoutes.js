@@ -18,6 +18,13 @@ const {
     retirarRecurso
 } = require('../controllers/adminModeracionController')
 
+// Controlador de moderación de mensajes privados.
+const {
+    listarMensajesReportados,
+    revisarReporteMensaje,
+    retirarMensajeReportado
+} = require('../controllers/mensajesModeracionController')
+
 // Controladores de profesores y grupos.
 const {
   listarProfesores,
@@ -52,6 +59,10 @@ const {
     getResumenHorasAsistencia
 } = require('../controllers/asistenciaAdminController')
 
+const {
+  crearCursoAdmin,
+  crearGrupoAdmin
+} = require('../controllers/adminEscuelasController')
 
 const router = express.Router()
 
@@ -134,6 +145,19 @@ router.patch(
     asignarProfesorGrupo
 )
 
+ // =====================================================
+ // ESCUELAS, CURSOS Y GRUPOS
+ // =====================================================
+
+router.post('/cursos', crearCursoAdmin)
+router.post('/grupos', crearGrupoAdmin)
+router.get('/grupos', listarGruposAdmin)
+
+router.patch(
+  '/grupos/:id/profesor',
+  asignarProfesorGrupo
+)
+
 // =====================================================
 // MODERACIÓN DEL FORO DE ESTUDIANTES
 // =====================================================
@@ -194,6 +218,27 @@ router.get(
 router.patch(
     '/moderacion/recursos/:id/retirar',
     retirarRecurso
+)
+
+// =====================================================
+// MODERACIÓN DE MENSAJES PRIVADOS REPORTADOS
+// Solo administración autenticada.
+// No permite consultar conversaciones sin reportes.
+// =====================================================
+
+router.get(
+    '/moderacion/mensajes-reportados',
+    listarMensajesReportados
+)
+
+router.patch(
+    '/moderacion/mensajes-reportados/:reporteId/revisar',
+    revisarReporteMensaje
+)
+
+router.post(
+    '/moderacion/mensajes-reportados/:reporteId/retirar',
+    retirarMensajeReportado
 )
 
 module.exports = router

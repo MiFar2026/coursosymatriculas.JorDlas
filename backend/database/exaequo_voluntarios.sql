@@ -139,3 +139,10 @@ SHOW GRANTS FOR
 -- ============================================================
 -- FIN DEL SCRIPT
 -- ============================================================
+
+ALTER TABLE voluntarios
+ADD COLUMN tipo_documento
+ENUM('DNI', 'NIE', 'PASAPORTE')
+NULL
+AFTER documento_identidad;
+

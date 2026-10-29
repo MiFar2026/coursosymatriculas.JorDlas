@@ -129,6 +129,7 @@ import NavbarPrincipal from '../../components/NavbarPrincipal.vue'
 
 /* Icono */
 
+
 .icon-wrap {
   width: 130px;
   height: 130px;
@@ -139,6 +140,8 @@ import NavbarPrincipal from '../../components/NavbarPrincipal.vue'
   background: #e8efe5;
   border: 1px solid #dce7d8;
   border-radius: 25px;
+  overflow: hidden;
+
   transition:
     transform 0.3s ease,
     background 0.3s ease;
@@ -146,9 +149,11 @@ import NavbarPrincipal from '../../components/NavbarPrincipal.vue'
 
 .icon-wrap img {
   width: 100%;
-  height: 100px;
-  object-fit:cover;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
+
 
 .contact-card:hover .icon-wrap {
   transform: translateY(-4px);

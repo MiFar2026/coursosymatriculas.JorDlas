@@ -10,6 +10,12 @@ const tareasPermitidas = [
   'esponsor_financiero'
 ]
 
+const tiposDocumentoPermitidos = [
+  'DNI',
+  'NIE',
+  'PASAPORTE'
+]
+
 function limpiarTexto(valor, maximo) {
   if (typeof valor !== 'string') return ''
   return valor.trim().slice(0, maximo)
@@ -22,6 +28,7 @@ async function crearVoluntario(req, res) {
   const apellidos = limpiarTexto(body.apellidos, 150)
   const lugar = limpiarTexto(body.lugar_residencia, 150)
   const documento = limpiarTexto(body.documento_identidad, 40)
+  const tipoDocumento = body.tipo_documento
   const telefono = limpiarTexto(body.telefono, 30)
   const email = limpiarTexto(body.email, 254).toLowerCase()
   const tarea = body.tarea
@@ -35,6 +42,7 @@ async function crearVoluntario(req, res) {
     !apellidos ||
     !lugar ||
     !documento ||
+    !tiposDocumentoPermitidos.includes(tipoDocumento) ||
     !telefono ||
     !emailValido ||
     !Number.isInteger(anio) ||
@@ -57,13 +65,14 @@ async function crearVoluntario(req, res) {
         anyo_nacimiento,
         lugar_residencia,
         documento_identidad,
+        tipo_documento,
         telefono,
         email,
         tarea,
         mensaje,
         privacidad
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
 
     const valores = [
@@ -72,6 +81,7 @@ async function crearVoluntario(req, res) {
       anio,
       lugar,
       documento,
+      tipoDocumento,
       telefono,
       email,
       tarea,

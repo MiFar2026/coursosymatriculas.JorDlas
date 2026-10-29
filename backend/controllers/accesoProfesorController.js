@@ -20,7 +20,6 @@ const iniciarSesionProfesor = async (req, res) => {
         const {
             documento,
             telefono,
-            anioNacimiento,
             email,
             escuela
         } = req.body
@@ -29,6 +28,7 @@ const iniciarSesionProfesor = async (req, res) => {
 
         if (!secret) {
             console.error('Falta configurar JWT_PROFESOR_SECRET.')
+
             return res.status(500).json({
                 ok: false,
                 mensaje: 'La autenticación del profesorado no está configurada.'
@@ -42,9 +42,7 @@ const iniciarSesionProfesor = async (req, res) => {
             !telefono.trim() ||
             typeof email !== 'string' ||
             !email.trim() ||
-            !Number.isInteger(Number(anioNacimiento)) ||
-            Number(anioNacimiento) < 1900 ||
-            Number(anioNacimiento) > new Date().getFullYear() ||
+            typeof escuela !== 'string' ||
             !['ateneu', 'joanmiro'].includes(escuela)
         ) {
             return res.status(400).json({
@@ -53,7 +51,7 @@ const iniciarSesionProfesor = async (req, res) => {
             })
         }
 
-        // Joan Miró = 1; Ateneu = 2.
+        // Joan Miró = 1; Ateneu Aula 502 = 2.
         const escuelaId = escuela === 'joanmiro' ? 1 : 2
 
         const [profesores] = await db.query(
@@ -70,7 +68,6 @@ const iniciarSesionProfesor = async (req, res) => {
                 ON e.id = g.escuela_id
              WHERE p.documento = ?
                AND p.telefono = ?
-               AND p.anio_nacimiento = ?
                AND LOWER(p.email) = LOWER(?)
                AND p.activo = 1
                AND g.activo = 1
@@ -80,7 +77,6 @@ const iniciarSesionProfesor = async (req, res) => {
             [
                 documento.trim(),
                 telefono.trim(),
-                Number(anioNacimiento),
                 email.trim(),
                 escuelaId
             ]

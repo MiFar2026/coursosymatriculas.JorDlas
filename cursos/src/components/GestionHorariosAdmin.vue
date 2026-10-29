@@ -160,7 +160,13 @@ const DIAS = [
   'Viernes',
   'Sábado',
   'Domingo'
-]
+];
+
+function normalizarDia(dia) {
+  return String(dia ?? '')
+    .trim()
+    .normalize('NFC');
+}
 
 const grupos = ref([])
 const grupoSeleccionado = ref('')

@@ -2,7 +2,7 @@
 -- BASE DE DATOS COMPLETA PARA LAS DOS ESCUELAS
 -- ============================================================
 
-DROP DATABASE IF EXISTS BaseDeDatosEscuelas;
+-- DROP DATABASE IF EXISTS BaseDeDatosEscuelas;
 
 CREATE DATABASE BaseDeDatosEscuelas
 CHARACTER SET utf8mb4
@@ -27,9 +27,9 @@ CREATE TABLE escuelas (
     UNIQUE (nombre)
 ) ENGINE=InnoDB;
 
-
 -- ============================================================
 -- 2. PROFESORES
+-- Compatible con adminProfesoresController.js y el historial
 -- ============================================================
 
 CREATE TABLE profesores (
@@ -47,26 +47,38 @@ CREATE TABLE profesores (
 
     apellidos VARCHAR(100) NOT NULL,
 
-    telefono VARCHAR(30),
+    anio_nacimiento SMALLINT UNSIGNED NULL,
 
-    email VARCHAR(150),
+    telefono VARCHAR(30) NULL,
 
-    especialidad VARCHAR(100),
+    email VARCHAR(150) NULL,
+
+    especialidad VARCHAR(100) NULL,
+
+    foto VARCHAR(255) NULL,
 
     activo BOOLEAN NOT NULL DEFAULT TRUE,
 
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    UNIQUE (documento),
+    UNIQUE KEY uq_profesores_documento (documento),
 
-    UNIQUE (email),
+    UNIQUE KEY uq_profesores_email (email),
 
-    CHECK (
-        email IS NULL
-        OR email <> ''
-    )
-) ENGINE=InnoDB;
+    CONSTRAINT chk_profesores_anio
+        CHECK (
+            anio_nacimiento IS NULL
+            OR anio_nacimiento BETWEEN 1900 AND 2100
+        ),
 
+    CONSTRAINT chk_profesores_email
+        CHECK (
+            email IS NULL
+            OR email <> ''
+        )
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 3. ALUMNOS
@@ -1056,9 +1068,6 @@ FROM profesores AS p;
 
 
 
-
-USE BaseDeDatosEscuelas;
-
 -- 1. Actividades publicadas por los profesores
 CREATE TABLE actividades (
     id INT NOT NULL AUTO_INCREMENT,
@@ -1213,3 +1222,537 @@ CREATE TABLE IF NOT EXISTS asistencia_historial (
 );
 
 SHOW TABLES;
+
+
+-- =====================================================
+-- 1. MENSAJES PRIVADOS ENTRE ALUMNO Y PROFESOR
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS mensajes_privados (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    escuela_id INT NOT NULL,
+    grupo_id INT NOT NULL,
+    alumno_id INT NOT NULL,
+    profesor_id INT NOT NULL,
+
+    remitente_tipo ENUM('ALUMNO', 'PROFESOR') NOT NULL,
+    remitente_id INT NOT NULL,
+
+    mensaje TEXT NOT NULL,
+    fecha_envio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    estado ENUM('VISIBLE', 'RETIRADO') NOT NULL DEFAULT 'VISIBLE',
+
+    PRIMARY KEY (id),
+
+    INDEX idx_mensajes_conversacion (
+        escuela_id,
+        grupo_id,
+        alumno_id,
+        profesor_id,
+        id
+    ),
+
+    INDEX idx_mensajes_reportables (estado, id)
+);
+
+
+-- =====================================================
+-- 2. REPORTES DE MENSAJES
+-- Un mensaje puede tener varios reportes.
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS reportes_mensajes (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mensaje_id BIGINT UNSIGNED NOT NULL,
+
+    reportante_tipo ENUM('ALUMNO', 'PROFESOR') NOT NULL,
+    reportante_id INT NOT NULL,
+
+    motivo VARCHAR(150) NOT NULL,
+    comentario TEXT NULL,
+
+    estado ENUM(
+        'PENDIENTE',
+        'REVISADO',
+        'RETIRADO'
+    ) NOT NULL DEFAULT 'PENDIENTE',
+
+    fecha_reporte TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_revision TIMESTAMP NULL DEFAULT NULL,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_reportes_estado_fecha (estado, fecha_reporte),
+    INDEX idx_reportes_mensaje (mensaje_id),
+
+    CONSTRAINT fk_reportes_mensajes
+        FOREIGN KEY (mensaje_id)
+        REFERENCES mensajes_privados(id)
+        ON DELETE RESTRICT
+);
+
+
+-- =====================================================
+-- 3. HISTORIAL DE MODERACIÓN
+-- Conserva las decisiones administrativas.
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS mensajes_moderacion_auditoria (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mensaje_id BIGINT UNSIGNED NOT NULL,
+    reporte_id BIGINT UNSIGNED NULL,
+
+    accion ENUM(
+        'REVISION',
+        'RETIRADA'
+    ) NOT NULL,
+
+    administrador_id INT NULL,
+    detalle VARCHAR(1000) NULL,
+
+    fecha_accion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_auditoria_mensaje (mensaje_id, fecha_accion),
+
+    CONSTRAINT fk_auditoria_mensaje
+        FOREIGN KEY (mensaje_id)
+        REFERENCES mensajes_privados(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_auditoria_reporte
+        FOREIGN KEY (reporte_id)
+        REFERENCES reportes_mensajes(id)
+        ON DELETE RESTRICT
+);
+
+
+-- 1. Mensajes privados
+CREATE TABLE IF NOT EXISTS mensajes_privados (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    escuela_id INT NOT NULL,
+    grupo_id INT NOT NULL,
+    alumno_id INT NOT NULL,
+    profesor_id INT NOT NULL,
+    remitente_tipo ENUM('ALUMNO', 'PROFESOR') NOT NULL,
+    remitente_id INT NOT NULL,
+    mensaje TEXT NOT NULL,
+    fecha_envio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    estado ENUM('VISIBLE', 'RETIRADO') NOT NULL DEFAULT 'VISIBLE',
+
+    PRIMARY KEY (id),
+
+    INDEX idx_mensajes_conversacion (
+        escuela_id,
+        grupo_id,
+        alumno_id,
+        profesor_id,
+        id
+    ),
+
+    INDEX idx_mensajes_reportables (estado, id)
+);
+
+-- 2. Reportes de mensajes
+CREATE TABLE IF NOT EXISTS reportes_mensajes (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mensaje_id BIGINT UNSIGNED NOT NULL,
+    reportante_tipo ENUM('ALUMNO', 'PROFESOR') NOT NULL,
+    reportante_id INT NOT NULL,
+    motivo VARCHAR(150) NOT NULL,
+    comentario TEXT NULL,
+    estado ENUM(
+        'PENDIENTE',
+        'REVISADO',
+        'RETIRADO'
+    ) NOT NULL DEFAULT 'PENDIENTE',
+    fecha_reporte TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_revision TIMESTAMP NULL DEFAULT NULL,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_reportes_estado_fecha (estado, fecha_reporte),
+    INDEX idx_reportes_mensaje (mensaje_id),
+
+    CONSTRAINT fk_reportes_mensajes
+        FOREIGN KEY (mensaje_id)
+        REFERENCES mensajes_privados(id)
+        ON DELETE RESTRICT
+);
+
+-- 3. Auditoría de moderación
+CREATE TABLE IF NOT EXISTS mensajes_moderacion_auditoria (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mensaje_id BIGINT UNSIGNED NOT NULL,
+    reporte_id BIGINT UNSIGNED NULL,
+    accion ENUM('REVISION', 'RETIRADA') NOT NULL,
+    administrador_id INT NULL,
+    administrador_usuario VARCHAR(255) NULL,
+    detalle VARCHAR(1000) NULL,
+    fecha_accion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_auditoria_mensaje (mensaje_id, fecha_accion),
+
+    CONSTRAINT fk_auditoria_mensaje
+        FOREIGN KEY (mensaje_id)
+        REFERENCES mensajes_privados(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_auditoria_reporte
+        FOREIGN KEY (reporte_id)
+        REFERENCES reportes_mensajes(id)
+        ON DELETE RESTRICT
+);
+
+ALTER TABLE mensajes_moderacion_auditoria
+    ADD COLUMN administrador_usuario VARCHAR(255) NULL;
+    
+    
+    
+USE BaseDeDatosEscuelas;
+
+ALTER TABLE resultados
+  ADD COLUMN archivo_corregido VARCHAR(255) NULL,
+  ADD COLUMN nombre_archivo_corregido VARCHAR(255) NULL,
+  ADD COLUMN decision_apto ENUM('APTO', 'NO_APTO') NULL,
+  ADD COLUMN estado_certificado
+    ENUM('PENDIENTE', 'EMITIDO', 'ENTREGADO')
+    NOT NULL DEFAULT 'PENDIENTE';
+
+
+
+
+USE BaseDeDatosEscuelas;
+
+ALTER TABLE recursos
+  MODIFY COLUMN nombre_archivo VARCHAR(255) NULL,
+  MODIFY COLUMN ruta_archivo VARCHAR(500) NULL,
+  ADD COLUMN url VARCHAR(2048) NULL;
+
+
+
+
+USE BaseDeDatosEscuelas;
+
+CREATE TABLE IF NOT EXISTS actividades (
+    id INT NOT NULL AUTO_INCREMENT,
+    escuela_id INT NOT NULL,
+    grupo_id INT NOT NULL,
+    profesor_id INT NOT NULL,
+    titulo VARCHAR(200) NOT NULL,
+    descripcion TEXT NULL,
+    fecha_entrega DATE NULL,
+    publicado TINYINT(1) NOT NULL DEFAULT 1,
+    fecha_publicacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX idx_actividades_escuela (escuela_id),
+    INDEX idx_actividades_grupo (grupo_id),
+    INDEX idx_actividades_profesor (profesor_id)
+);
+
+
+
+ALTER TABLE tareas
+ADD COLUMN actividad_id INT NULL;
+
+ALTER TABLE resultados
+ADD COLUMN actividad_id INT NULL;
+
+
+
+USE BaseDeDatosEscuelas;
+
+DELIMITER $$
+
+CREATE TRIGGER profesores_historial_insert
+AFTER INSERT ON profesores
+FOR EACH ROW
+BEGIN
+    INSERT INTO profesores_historial (
+        profesor_id,
+        accion,
+        usuario_mysql,
+        datos_anteriores,
+        datos_nuevos
+    )
+    VALUES (
+        NEW.id,
+        'INICIAL',
+        CURRENT_USER(),
+        NULL,
+        JSON_OBJECT(
+            'id', NEW.id,
+            'tipo_documento', NEW.tipo_documento,
+            'documento', NEW.documento,
+            'nombre', NEW.nombre,
+            'apellidos', NEW.apellidos,
+            'anio_nacimiento', NEW.anio_nacimiento,
+            'telefono', NEW.telefono,
+            'email', NEW.email,
+            'especialidad', NEW.especialidad,
+            'foto', NEW.foto,
+            'activo', NEW.activo,
+            'fecha_creacion', NEW.fecha_creacion
+        )
+    );
+END$$
+
+CREATE TRIGGER profesores_historial_update
+AFTER UPDATE ON profesores
+FOR EACH ROW
+BEGIN
+    INSERT INTO profesores_historial (
+        profesor_id,
+        accion,
+        usuario_mysql,
+        datos_anteriores,
+        datos_nuevos
+    )
+    VALUES (
+        NEW.id,
+        'MODIFICACION',
+        CURRENT_USER(),
+        JSON_OBJECT(
+            'id', OLD.id,
+            'tipo_documento', OLD.tipo_documento,
+            'documento', OLD.documento,
+            'nombre', OLD.nombre,
+            'apellidos', OLD.apellidos,
+            'anio_nacimiento', OLD.anio_nacimiento,
+            'telefono', OLD.telefono,
+            'email', OLD.email,
+            'especialidad', OLD.especialidad,
+            'foto', OLD.foto,
+            'activo', OLD.activo,
+            'fecha_creacion', OLD.fecha_creacion
+        ),
+        JSON_OBJECT(
+            'id', NEW.id,
+            'tipo_documento', NEW.tipo_documento,
+            'documento', NEW.documento,
+            'nombre', NEW.nombre,
+            'apellidos', NEW.apellidos,
+            'anio_nacimiento', NEW.anio_nacimiento,
+            'telefono', NEW.telefono,
+            'email', NEW.email,
+            'especialidad', NEW.especialidad,
+            'foto', NEW.foto,
+            'activo', NEW.activo,
+            'fecha_creacion', NEW.fecha_creacion
+        )
+    );
+END$$
+
+CREATE TRIGGER profesores_historial_delete
+AFTER DELETE ON profesores
+FOR EACH ROW
+BEGIN
+    INSERT INTO profesores_historial (
+        profesor_id,
+        accion,
+        usuario_mysql,
+        datos_anteriores,
+        datos_nuevos
+    )
+    VALUES (
+        OLD.id,
+        'ELIMINACION',
+        CURRENT_USER(),
+        JSON_OBJECT(
+            'id', OLD.id,
+            'tipo_documento', OLD.tipo_documento,
+            'documento', OLD.documento,
+            'nombre', OLD.nombre,
+            'apellidos', OLD.apellidos,
+            'anio_nacimiento', OLD.anio_nacimiento,
+            'telefono', OLD.telefono,
+            'email', OLD.email,
+            'especialidad', OLD.especialidad,
+            'foto', OLD.foto,
+            'activo', OLD.activo,
+            'fecha_creacion', OLD.fecha_creacion
+        ),
+        NULL
+    );
+END$$
+
+DELIMITER ;
+
+USE BaseDeDatosEscuelas;
+
+INSERT INTO profesores_historial (
+    profesor_id,
+    accion,
+    usuario_mysql,
+    datos_anteriores,
+    datos_nuevos
+)
+SELECT
+    p.id,
+    'INICIAL',
+    CURRENT_USER(),
+    NULL,
+    JSON_OBJECT(
+        'id', p.id,
+        'tipo_documento', p.tipo_documento,
+        'documento', p.documento,
+        'nombre', p.nombre,
+        'apellidos', p.apellidos,
+        'anio_nacimiento', p.anio_nacimiento,
+        'telefono', p.telefono,
+        'email', p.email,
+        'especialidad', p.especialidad,
+        'foto', p.foto,
+        'activo', p.activo,
+        'fecha_creacion', p.fecha_creacion
+    )
+FROM profesores p
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM profesores_historial h
+    WHERE h.profesor_id = p.id
+);
+
+
+
+USE BaseDeDatosEscuelas;
+
+SELECT
+    g.id AS grupo_id,
+    e.nombre AS escuela,
+    c.nombre AS curso,
+    g.nombre AS grupo,
+    g.turno,
+    g.aula,
+    p.nombre AS profesor_nombre,
+    p.apellidos AS profesor_apellidos
+FROM grupos g
+INNER JOIN escuelas e ON e.id = g.escuela_id
+INNER JOIN cursos c ON c.id = g.curso_id
+LEFT JOIN profesores p ON p.id = g.profesor_id
+ORDER BY g.escuela_id, g.id;
+
+
+
+
+
+USE BaseDeDatosEscuelas;
+
+CREATE TABLE IF NOT EXISTS asistencia_sesiones (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    grupo_id INT NOT NULL,
+    horario_id INT NULL,
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    estado ENUM('REALIZADA', 'CANCELADA')
+        NOT NULL DEFAULT 'REALIZADA',
+    creado_por INT NULL,
+    actualizado_por INT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_asistencia_horario_fecha (horario_id, fecha),
+    INDEX idx_asistencia_grupo_fecha (grupo_id, fecha)
+);
+
+CREATE TABLE IF NOT EXISTS asistencia_registros (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    sesion_id INT NOT NULL,
+    alumno_id INT NOT NULL,
+    estado ENUM('PRESENTE', 'AUSENTE', 'PARCIAL')
+        NOT NULL DEFAULT 'AUSENTE',
+    minutos_asistidos INT UNSIGNED NOT NULL DEFAULT 0,
+    registrado_por INT NOT NULL,
+    actualizado_por INT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_asistencia_alumno_sesion (sesion_id, alumno_id),
+    INDEX idx_asistencia_alumno (alumno_id),
+    INDEX idx_asistencia_sesion (sesion_id)
+);
+
+CREATE TABLE IF NOT EXISTS asistencia_historial (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    asistencia_id INT NOT NULL,
+    estado_anterior VARCHAR(20) NULL,
+    estado_nuevo VARCHAR(20) NOT NULL,
+    minutos_anteriores INT UNSIGNED NULL,
+    minutos_nuevos INT UNSIGNED NOT NULL,
+    profesor_id INT NOT NULL,
+    fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_historial_asistencia (asistencia_id)
+);
+
+
+USE BaseDeDatosEscuelas;
+
+INSERT INTO profesores_historial (
+    profesor_id,
+    accion,
+    usuario_mysql,
+    datos_anteriores,
+    datos_nuevos
+)
+SELECT
+    p.id,
+    'INICIAL',
+    CURRENT_USER(),
+    NULL,
+    JSON_OBJECT(
+        'id', p.id,
+        'tipo_documento', p.tipo_documento,
+        'documento', p.documento,
+        'nombre', p.nombre,
+        'apellidos', p.apellidos,
+        'anio_nacimiento', p.anio_nacimiento,
+        'telefono', p.telefono,
+        'email', p.email,
+        'especialidad', p.especialidad,
+        'foto', p.foto,
+        'activo', p.activo,
+        'fecha_creacion', p.fecha_creacion
+    )
+FROM profesores p
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM profesores_historial h
+    WHERE h.profesor_id = p.id
+);
+
+SELECT
+    historial_id,
+    profesor_id,
+    accion,
+    fecha_cambio,
+    datos_nuevos
+FROM profesores_historial
+ORDER BY historial_id DESC;
+
+
+
+START TRANSACTION;
+
+UPDATE profesores
+SET telefono = '600000099'
+WHERE id = 1;
+
+SELECT
+    historial_id,
+    profesor_id,
+    accion,
+    datos_anteriores,
+    datos_nuevos
+FROM profesores_historial
+WHERE profesor_id = 1
+ORDER BY historial_id DESC
+LIMIT 2;
+
+ROLLBACK;
+
+

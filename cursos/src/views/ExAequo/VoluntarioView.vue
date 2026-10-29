@@ -9,6 +9,7 @@ const form = reactive({
   anyo_nacimiento: '',
   lugar_residencia: '',
   documento_identidad: '',
+  tipo_documento: '',
   telefono: '',
   email: '',
   tarea: '',
@@ -55,6 +56,7 @@ async function submitForm() {
       anyo_nacimiento: '',
       lugar_residencia: '',
       documento_identidad: '',
+      tipo_documento: '',
       telefono: '',
       email: '',
       tarea: '',
@@ -201,15 +203,31 @@ async function submitForm() {
               >
             </label>
 
-            <label>
-              DNI, NIE u otro documento de identidad
-              <input
-                v-model.trim="form.documento_identidad"
-                required
-                maxlength="40"
-                autocomplete="off"
-              >
-            </label>
+           <label>
+  Tipo de documento
+  <select
+    v-model="form.tipo_documento"
+    required
+  >
+    <option disabled value="">
+      Selecciona el tipo de documento
+    </option>
+    <option value="DNI">DNI</option>
+    <option value="NIE">NIE</option>
+    <option value="PASAPORTE">Pasaporte</option>
+  </select>
+</label>
+
+<label>
+  Número de documento
+  <input
+    v-model.trim="form.documento_identidad"
+    required
+    maxlength="40"
+    autocomplete="off"
+    placeholder="Número de DNI, NIE o pasaporte"
+  >
+</label>
 
             <label>
               Teléfono
