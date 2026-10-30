@@ -1756,3 +1756,10 @@ LIMIT 2;
 ROLLBACK;
 
 
+
+
+
+ALTER TABLE solicitudes_matricula
+ADD COLUMN turno_preferido ENUM('Mañana', 'Tarde') NULL
+AFTER escuela_id;
+

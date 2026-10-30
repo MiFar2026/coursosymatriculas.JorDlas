@@ -109,15 +109,15 @@ async function actualizarMiPerfilAlumno(req, res) {
         telefono == null ? '' :
         typeof telefono === 'string' ? telefono.trim() : null;
 
-    if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio) ||
-        emailLimpio.length > 150
-    ) {
-        return res.status(400).json({
-            ok: false,
-            mensaje: 'Introduce un correo electrónico válido.'
-        });
-    }
+   if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio) ||
+    emailLimpio.length > 150
+) {
+    return res.status(400).json({
+        ok: false,
+        mensaje: 'Introduce un correo electrónico válido.'
+    })
+}
 
     if (
         telefonoLimpio === null ||

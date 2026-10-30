@@ -84,9 +84,23 @@ const createSolicitud = async (datos) => {
             email,
             telefono,
             escuela_id,
+            turno_preferido,
             alumno_anterior,
-            solicita_test,
+            solicita_test
         } = datos
+
+        // Validar el turno preferido.
+
+        if (
+            turno_preferido != null &&
+            !['Mañana', 'Tarde'].includes(turno_preferido)
+        ) {
+            const error = new Error(
+                'El turno preferido debe ser Mañana o Tarde.'
+            )
+            error.statusCode = 400
+            throw error
+        }
 
         // Comprobar que la escuela existe y está activa.
 
@@ -157,27 +171,12 @@ const createSolicitud = async (datos) => {
         let alumnoId
 
         if (alumnos.length > 0) {
-            // Actualizar el alumno existente.
+            // El alumno ya existe.
+            // No modificar sus datos personales antes de aprobar
+            // la nueva solicitud.
 
             alumnoId = alumnos[0].id
 
-            await connection.query(
-                `UPDATE alumnos
-                 SET nombre = ?,
-                     apellidos = ?,
-                     pais_origen = ?,
-                     telefono = ?,
-                     alumno_anterior = ?
-                 WHERE id = ?`,
-                [
-                    nombre,
-                    apellidos,
-                    pais_origen || null,
-                    telefono || null,
-                    alumno_anterior ? 1 : 0,
-                    alumnoId
-                ]
-            )
         } else {
             // Crear un alumno nuevo.
 
@@ -204,21 +203,23 @@ const createSolicitud = async (datos) => {
             alumnoId = resultadoAlumno.insertId
         }
 
-        // Crear la solicitud pendiente.
+        // Crear la solicitud pendiente con escuela y turno preferidos.
 
         const [resultadoSolicitud] = await connection.query(
             `INSERT INTO solicitudes_matricula (
                 alumno_id,
                 escuela_id,
+                turno_preferido,
                 nivel_solicitado,
                 idioma_solicitado,
                 solicita_test_nivel,
                 estado
             )
-            VALUES (?, ?, ?, ?, ?, 'PENDIENTE')`,
+            VALUES (?, ?, ?, ?, ?, ?, 'PENDIENTE')`,
             [
                 alumnoId,
                 escuela_id,
+                turno_preferido || null,
                 nivelSolicitado,
                 idiomaSolicitado,
                 solicita_test ? 1 : 0
@@ -233,12 +234,15 @@ const createSolicitud = async (datos) => {
             alumno_id: alumnoId,
             solicitud_id: resultadoSolicitud.insertId,
             escuela: escuela.nombre,
+            turno_preferido: turno_preferido || null,
             nivel_solicitado: nivelSolicitado,
             idioma_solicitado: idiomaSolicitado
         }
+
     } catch (error) {
         await connection.rollback()
         throw error
+
     } finally {
         connection.release()
     }

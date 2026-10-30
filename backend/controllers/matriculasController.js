@@ -122,6 +122,7 @@ const createSolicitud = async (req, res) => {
         : ''
 
     const escuelaId = Number(datos.escuela_id)
+    const turnoPreferido = datos.turno_preferido
 
     if (!nombre) {
         return res.status(400).json({
@@ -137,7 +138,7 @@ const createSolicitud = async (req, res) => {
         })
     }
 
-const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
     if (!emailValido) {
         return res.status(400).json({
@@ -153,13 +154,24 @@ const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
         })
     }
 
+    if (
+        turnoPreferido != null &&
+        !['Mañana', 'Tarde'].includes(turnoPreferido)
+    ) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El turno preferido debe ser Mañana o Tarde.'
+        })
+    }
+
     try {
         const resultado = await Matricula.createSolicitud({
             ...datos,
             nombre,
             apellidos,
             email,
-            escuela_id: escuelaId
+            escuela_id: escuelaId,
+            turno_preferido: turnoPreferido || null
         })
 
         res.status(201).json({

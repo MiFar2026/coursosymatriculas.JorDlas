@@ -2049,6 +2049,42 @@
         />
       </label>
 
+<!-- GRUPO, ESCUELA, HORARIO Y PROFESOR -->
+<label class="block sm:col-span-2">
+  <span class="mb-1 block text-sm font-semibold">
+    Grupo, escuela, horario y profesor
+  </span>
+
+  <select
+    v-model="formAlumnoAdmin.grupo_id"
+    required
+    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+  >
+    <option value="">Selecciona un grupo</option>
+
+    <option
+      v-for="grupo in gruposAdmin.filter(g => Number(g.grupo_activo) === 1)"
+      :key="grupo.grupo_id"
+      :value="String(grupo.grupo_id)"
+    >
+      {{ grupo.escuela }}
+      — {{ grupo.curso }}
+      — {{ grupo.grupo }}
+      — {{ grupo.turno || 'Horario sin definir' }}
+      — {{
+        grupo.profesor_nombre
+          ? grupo.profesor_nombre + ' ' + (grupo.profesor_apellidos || '')
+          : 'Profesor sin asignar'
+      }}
+    </option>
+  </select>
+
+  <p class="mt-1 text-xs text-gray-500">
+    Al seleccionar el grupo, la escuela, el curso, el horario y el profesor
+    quedarán asociados automáticamente.
+  </p>
+</label>
+
       <div class="flex flex-wrap items-end gap-3 sm:col-span-2">
         <button
           type="submit"
@@ -2879,7 +2915,8 @@ const formAlumnoAdmin = ref({
   apellidos: '',
   email: '',
   telefono: '',
-  fecha_nacimiento: ''
+  fecha_nacimiento: '',
+  grupo_id: ''
 })
 
 const alumnosAdminFiltrados = computed(() => {
@@ -3146,8 +3183,16 @@ async function cargarAlumnosAdmin() {
 // ABRIR EDICIÓN DE UN ALUMNO
 // =====================================================
 
-function editarAlumnoAdmin(alumno) {
+
+// =====================================================
+// ABRIR EDICIÓN DE UN ALUMNO
+// =====================================================
+
+async function editarAlumnoAdmin(alumno) {
   if (procesandoId.value !== null || cargandoDatos.value) return
+
+  // Cargar los grupos de ambas escuelas antes de editar.
+  await cargarGruposAdminInterno(true)
 
   alumnoEditando.value = alumno.id
 
@@ -3160,15 +3205,20 @@ function editarAlumnoAdmin(alumno) {
     telefono: alumno.telefono || '',
     fecha_nacimiento: alumno.fecha_nacimiento
       ? String(alumno.fecha_nacimiento).slice(0, 10)
+      : '',
+    grupo_id: alumno.grupo_id
+      ? String(alumno.grupo_id)
       : ''
   }
 
   mensaje.value = ''
 }
 
+
 // =====================================================
 // GUARDAR CAMBIOS DE UN ALUMNO
 // =====================================================
+
 
 async function guardarAlumnoAdmin() {
   const id = Number(alumnoEditando.value)
@@ -3189,11 +3239,17 @@ async function guardarAlumnoAdmin() {
     apellidos: formAlumnoAdmin.value.apellidos.trim(),
     email: formAlumnoAdmin.value.email.trim(),
     telefono: formAlumnoAdmin.value.telefono.trim() || null,
-    fecha_nacimiento: formAlumnoAdmin.value.fecha_nacimiento || null
+    fecha_nacimiento: formAlumnoAdmin.value.fecha_nacimiento || null,
+    grupo_id: Number(formAlumnoAdmin.value.grupo_id)
   }
 
   if (!datos.nombre || !datos.apellidos || !datos.email) {
     mensaje.value = 'Nombre, apellidos y correo son obligatorios.'
+    return
+  }
+
+  if (!Number.isSafeInteger(datos.grupo_id) || datos.grupo_id <= 0) {
+    mensaje.value = 'Debes seleccionar un grupo.'
     return
   }
 
@@ -3214,7 +3270,7 @@ async function guardarAlumnoAdmin() {
     await cargarAlumnosAdmin()
 
     mensaje.value =
-      resultado?.mensaje || 'Alumno actualizado correctamente.'
+      resultado?.mensaje || 'Alumno y grupo actualizados correctamente.'
   } catch (error) {
     mensaje.value =
       error.message || 'No se pudieron guardar los datos del alumno.'
@@ -3222,6 +3278,7 @@ async function guardarAlumnoAdmin() {
     procesandoId.value = null
   }
 }
+
 
 // Abrir y cancelar el alta de alumnos
 async function abrirAltaAlumno() {
@@ -3780,8 +3837,8 @@ async function cargarGestionProfesores() {
   }
 }
 
-async function cargarGruposAdminInterno() {
-  const parametros = filtroEscuelaGrupos.value
+async function cargarGruposAdminInterno(todasLasEscuelas = false) {
+  const parametros = !todasLasEscuelas && filtroEscuelaGrupos.value
     ? `?escuelaId=${encodeURIComponent(filtroEscuelaGrupos.value)}`
     : ''
 

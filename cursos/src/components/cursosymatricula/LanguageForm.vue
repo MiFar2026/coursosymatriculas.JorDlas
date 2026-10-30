@@ -74,7 +74,11 @@ const textos = {
             a2: 'A2',
             b1: 'B1',
             b2: 'B2'
-        }
+        },
+    turno: 'Turno preferido',
+seleccionarTurno: 'Selecciona tu turno preferido',
+manana: 'Mañana',
+tarde: 'Tarde'
     },
 
 
@@ -129,7 +133,11 @@ const textos = {
             a2: 'A2',
             b1: 'B1',
             b2: 'B2'
-        }
+        },
+        turno: 'Preferred shift',
+seleccionarTurno: 'Select your preferred shift',
+manana: 'Morning',
+tarde: 'Afternoon'
     },
 
 
@@ -184,7 +192,11 @@ const textos = {
             a2: 'A2',
             b1: 'B1',
             b2: 'B2'
-        }
+        },
+        turno: 'Horaire préféré',
+seleccionarTurno: 'Sélectionnez votre horaire préféré',
+manana: 'Matin',
+tarde: 'Après-midi'
     },
 
 
@@ -242,7 +254,11 @@ const textos = {
             a2: 'A2',
             b1: 'B1',
             b2: 'B2'
-        }
+        },
+        turno: 'شیفت ترجیحی',
+seleccionarTurno: 'شیفت مورد نظر خود را انتخاب کنید',
+manana: 'صبح',
+tarde: 'بعدازظهر'
     },
 
 
@@ -297,7 +313,11 @@ const textos = {
             a2: 'A2',
             b1: 'B1',
             b2: 'B2'
-        }
+        },
+        turno: 'Torn preferit',
+seleccionarTurno: 'Selecciona el teu torn preferit',
+manana: 'Matí',
+tarde: 'Tarda'
     }
 
 }
@@ -365,7 +385,7 @@ const email = ref('')
 const telefono = ref('')
 
 const escuela = ref('')
-
+const turnoPreferido = ref('')
 const alumnoAnterior = ref('')
 
 const niveles = ref([])
@@ -535,6 +555,9 @@ const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
             escuela_id:
                 Number(escuela.value),
 
+            turno_preferido:
+    turnoPreferido.value,
+
             alumno_anterior:
                 alumnoAnterior.value === 'si',
 
@@ -543,7 +566,6 @@ const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
 
             niveles:
                 niveles.value
-
         }
 
 
@@ -551,7 +573,6 @@ const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
             'Enviando matrícula:',
             datos
         )
-
 
         
 /*
@@ -634,7 +655,7 @@ const respuesta = await fetch(
         telefono.value = ''
 
         escuela.value = ''
-
+turnoPreferido.value = ''
         alumnoAnterior.value = ''
 
         niveles.value = []
@@ -709,6 +730,7 @@ function limpiarFormulario() {
     telefono.value = ''
 
     escuela.value = ''
+turnoPreferido.value = ''
 
     alumnoAnterior.value = ''
 
@@ -1161,10 +1183,40 @@ function limpiarFormulario() {
 </div>
 
 
-                 
+<!-- =================================================
+     TURNO PREFERIDO
+================================================== -->
 
-        
+<div class="mb-7">
 
+    <label
+        for="turnoPreferido"
+        class="block font-semibold text-gray-800 mb-2"
+    >
+        {{ textos[idioma].turno }}
+        <span class="text-red-500">*</span>
+    </label>
+
+    <select
+        id="turnoPreferido"
+        v-model="turnoPreferido"
+        required
+        class="w-full border border-gray-300/80 rounded-xl px-4 py-3 bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+    >
+        <option value="" disabled>
+            {{ textos[idioma].seleccionarTurno }}
+        </option>
+
+        <option value="Mañana">
+            {{ textos[idioma].manana }}
+        </option>
+
+        <option value="Tarde">
+            {{ textos[idioma].tarde }}
+        </option>
+    </select>
+
+</div>
 
 
                 <!-- =================================================
