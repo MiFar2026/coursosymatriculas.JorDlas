@@ -21,6 +21,7 @@ const idioma = ref('es')
    TEXTOS
 ========================================================= */
 
+
 const textos = {
 
     es: {
@@ -51,23 +52,15 @@ const textos = {
 
         titulo: 'Formulario de inscripción',
 
-        obligatorio:
-            'Por favor, completa todos los campos obligatorios.',
+        obligatorio: 'Por favor, completa todos los campos obligatorios.',
+        emailError: 'Introduce un correo electrónico válido.',
 
-        emailError:
-            'Introduce un correo electrónico válido.',
+        exito: '¡Hemos recibido tu solicitud de matrícula!',
+        exitoDetalle: 'Nuestro equipo revisará tu solicitud y se pondrá en contacto contigo por correo electrónico o teléfono para informarte sobre la disponibilidad de plazas y los siguientes pasos. Recuerda que la escuela y el turno indicados son preferencias y no constituyen una asignación confirmada. ¡Gracias por confiar en ExAequo!',
 
-        exito:
-            'Ya estás registrada. ¡Gracias!',
-
-        error:
-            'Lo sentimos. No se ha podido completar la matrícula. Inténtalo de nuevo.',
-
-        campos:
-            'Campos obligatorios',
-
-        cargando:
-            'Enviando matrícula...',
+        error: 'Lo sentimos. No se ha podido completar la matrícula. Inténtalo de nuevo.',
+        campos: 'Campos obligatorios',
+        cargando: 'Enviando matrícula...',
 
         niveles: {
             a1: 'A1',
@@ -75,10 +68,11 @@ const textos = {
             b1: 'B1',
             b2: 'B2'
         },
-    turno: 'Turno preferido',
-seleccionarTurno: 'Selecciona tu turno preferido',
-manana: 'Mañana',
-tarde: 'Tarde'
+
+        turno: 'Turno preferido',
+        seleccionarTurno: 'Selecciona tu turno preferido',
+        manana: 'Mañana',
+        tarde: 'Tarde'
     },
 
 
@@ -110,23 +104,15 @@ tarde: 'Tarde'
 
         titulo: 'Registration form',
 
-        obligatorio:
-            'Please complete all required fields.',
+        obligatorio: 'Please complete all required fields.',
+        emailError: 'Please enter a valid email address.',
 
-        emailError:
-            'Please enter a valid email address.',
+        exito: 'We have received your enrolment application!',
+        exitoDetalle: 'Our team will review your application and contact you by email or phone to inform you about place availability and the next steps. Please remember that your selected school and preferred shift are preferences only and do not constitute a confirmed placement. Thank you for choosing ExAequo!',
 
-        exito:
-            'You are now registered. Thank you!',
-
-        error:
-            'We are sorry. The enrollment could not be completed. Please try again.',
-
-        campos:
-            'Required fields',
-
-        cargando:
-            'Sending enrollment...',
+        error: 'We are sorry. The enrollment could not be completed. Please try again.',
+        campos: 'Required fields',
+        cargando: 'Sending enrollment...',
 
         niveles: {
             a1: 'A1',
@@ -134,10 +120,11 @@ tarde: 'Tarde'
             b1: 'B1',
             b2: 'B2'
         },
+
         turno: 'Preferred shift',
-seleccionarTurno: 'Select your preferred shift',
-manana: 'Morning',
-tarde: 'Afternoon'
+        seleccionarTurno: 'Select your preferred shift',
+        manana: 'Morning',
+        tarde: 'Afternoon'
     },
 
 
@@ -169,23 +156,15 @@ tarde: 'Afternoon'
 
         titulo: 'Formulaire d’inscription',
 
-        obligatorio:
-            'Veuillez compléter tous les champs obligatoires.',
+        obligatorio: 'Veuillez compléter tous les champs obligatoires.',
+        emailError: 'Veuillez saisir une adresse e-mail valide.',
 
-        emailError:
-            'Veuillez saisir une adresse e-mail valide.',
+        exito: 'Nous avons bien reçu votre demande d’inscription !',
+        exitoDetalle: 'Notre équipe examinera votre demande et vous contactera par e-mail ou par téléphone pour vous informer des places disponibles et des prochaines étapes. Veuillez noter que l’école et le créneau horaire indiqués sont des préférences et ne constituent pas une affectation confirmée. Merci de faire confiance à ExAequo !',
 
-        exito:
-            'Vous êtes maintenant inscrit(e). Merci !',
-
-        error:
-            'Nous sommes désolés. L’inscription n’a pas pu être effectuée. Veuillez réessayer.',
-
-        campos:
-            'Champs obligatoires',
-
-        cargando:
-            'Envoi de l’inscription...',
+        error: 'Nous sommes désolés. L’inscription n’a pas pu être effectuée. Veuillez réessayer.',
+        campos: 'Champs obligatoires',
+        cargando: 'Envoi de l’inscription...',
 
         niveles: {
             a1: 'A1',
@@ -193,16 +172,16 @@ tarde: 'Afternoon'
             b1: 'B1',
             b2: 'B2'
         },
+
         turno: 'Horaire préféré',
-seleccionarTurno: 'Sélectionnez votre horaire préféré',
-manana: 'Matin',
-tarde: 'Après-midi'
+        seleccionarTurno: 'Sélectionnez votre horaire préféré',
+        manana: 'Matin',
+        tarde: 'Après-midi'
     },
 
 
     fa: {
-        aviso:
-            'لطفا خانه ها را با شماره ها و حروف لاتین پر کنید. لطفاً از حروف فارسی استفاده نکنید.',
+        aviso: 'لطفاً خانه‌ها را با شماره‌ها و حروف لاتین پر کنید. لطفاً از حروف فارسی استفاده نکنید.',
 
         nombre: 'نام',
         apellido: 'نام خانوادگی',
@@ -231,23 +210,15 @@ tarde: 'Après-midi'
 
         titulo: 'فرم ثبت‌نام',
 
-        obligatorio:
-            'لطفاً تمام قسمت‌های الزامی را تکمیل کنید.',
+        obligatorio: 'لطفاً تمام قسمت‌های الزامی را تکمیل کنید.',
+        emailError: 'لطفاً یک ایمیل معتبر وارد کنید.',
 
-        emailError:
-            'لطفاً یک ایمیل معتبر وارد کنید.',
+        exito: 'درخواست ثبت‌نام شما با موفقیت دریافت شد!',
+        exitoDetalle: 'تیم ما درخواست شما را بررسی خواهد کرد و از طریق ایمیل یا تلفن با شما تماس خواهد گرفت تا درباره ظرفیت موجود و مراحل بعدی به شما اطلاع دهد. لطفاً توجه داشته باشید که مدرسه و نوبت انتخاب‌شده صرفاً ترجیح شما هستند و به معنای تخصیص قطعی کلاس نیستند. از اعتماد شما به ExAequo سپاسگزاریم!',
 
-        exito:
-            'ثبت‌نام شما انجام شد. متشکریم!',
-
-        error:
-            'متأسفیم. ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.',
-
-        campos:
-            'قسمت‌های الزامی',
-
-        cargando:
-            'در حال ارسال ثبت‌نام...',
+        error: 'متأسفیم. ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.',
+        campos: 'قسمت‌های الزامی',
+        cargando: 'در حال ارسال ثبت‌نام...',
 
         niveles: {
             a1: 'A1',
@@ -255,10 +226,11 @@ tarde: 'Après-midi'
             b1: 'B1',
             b2: 'B2'
         },
+
         turno: 'شیفت ترجیحی',
-seleccionarTurno: 'شیفت مورد نظر خود را انتخاب کنید',
-manana: 'صبح',
-tarde: 'بعدازظهر'
+        seleccionarTurno: 'شیفت مورد نظر خود را انتخاب کنید',
+        manana: 'صبح',
+        tarde: 'بعدازظهر'
     },
 
 
@@ -290,23 +262,15 @@ tarde: 'بعدازظهر'
 
         titulo: 'Formulari d’inscripció',
 
-        obligatorio:
-            'Completa tots els camps obligatoris.',
+        obligatorio: 'Completa tots els camps obligatoris.',
+        emailError: 'Introdueix un correu electrònic vàlid.',
 
-        emailError:
-            'Introdueix un correu electrònic vàlid.',
+        exito: 'Hem rebut la teva sol·licitud de matrícula!',
+        exitoDetalle: 'El nostre equip revisarà la teva sol·licitud i es posarà en contacte amb tu per correu electrònic o telèfon per informar-te sobre la disponibilitat de places i els passos següents. Recorda que l’escola i el torn indicats són preferències i no constitueixen una assignació confirmada. Gràcies per confiar en ExAequo!',
 
-        exito:
-            'Ja estàs registrada. Gràcies!',
-
-        error:
-            'Ho sentim. No s’ha pogut completar la matrícula. Torna-ho a provar.',
-
-        campos:
-            'Camps obligatoris',
-
-        cargando:
-            'Enviant matrícula...',
+        error: 'Ho sentim. No s’ha pogut completar la matrícula. Torna-ho a provar.',
+        campos: 'Camps obligatoris',
+        cargando: 'Enviant matrícula...',
 
         niveles: {
             a1: 'A1',
@@ -314,10 +278,11 @@ tarde: 'بعدازظهر'
             b1: 'B1',
             b2: 'B2'
         },
+
         turno: 'Torn preferit',
-seleccionarTurno: 'Selecciona el teu torn preferit',
-manana: 'Matí',
-tarde: 'Tarda'
+        seleccionarTurno: 'Selecciona el teu torn preferit',
+        manana: 'Matí',
+        tarde: 'Tarda'
     }
 
 }
@@ -927,38 +892,37 @@ turnoPreferido.value = ''
 
             </div>
 
+<!-- =================================================
+     MENSAJE DE ÉXITO
+     SOLO DESPUÉS DE UNA MATRÍCULA CORRECTA
+================================================== -->
 
-            <!-- =================================================
-                 MENSAJE DE ÉXITO
-                 SOLO DESPUÉS DE UNA MATRÍCULA CORRECTA
-            ================================================== -->
+<div
+    v-if="mensajeExito"
+    class="mb-6 rounded-2xl border border-green-300 bg-green-50/95 p-5 shadow-xl"
+>
+    <div class="flex items-center gap-4 text-green-800">
 
-            <div
-                v-if="mensajeExito"
-                class="mb-6 rounded-2xl border border-green-300 bg-green-50/95 p-5 shadow-xl"
-            >
+        <div
+            class="w-12 h-12 flex-shrink-0 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl font-bold"
+        >
+            ✓
+        </div>
 
-                <div
-                    class="flex items-center gap-4 text-green-800"
-                >
+        <div class="text-center flex-1">
 
-                    <div
-                        class="w-12 h-12 flex-shrink-0 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl font-bold"
-                    >
-                        ✓
-                    </div>
+            <p class="font-bold text-lg mb-3">
+                {{ mensajeExito }}
+            </p>
 
+            <p class="text-sm leading-relaxed">
+                {{ textos[idioma].exitoDetalle }}
+            </p>
 
-                    <p
-                        class="font-bold text-lg"
-                    >
-                        {{ mensajeExito }}
-                    </p>
+        </div>
 
-                </div>
-
-            </div>
-
+    </div>
+</div>
 
             <!-- =================================================
                  MENSAJE DE ERROR

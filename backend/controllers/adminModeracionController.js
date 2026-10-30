@@ -1,6 +1,8 @@
 
 const db = require('../config/database')
 const bcrypt = require('bcryptjs')
+const fs = require('fs/promises')
+const path = require('path')
 require('dotenv').config()
 
 // =====================================================
@@ -15,6 +17,43 @@ function obtenerIdValido(valor) {
     }
 
     return id
+}
+
+// =====================================================
+// LOCALIZAR ARCHIVOS DE RECURSOS DE FORMA SEGURA
+// =====================================================
+
+function obtenerRutaArchivoRecurso(rutaArchivo) {
+    if (
+        typeof rutaArchivo !== 'string' ||
+        !rutaArchivo.startsWith('/uploads/recursos/')
+    ) {
+        return null
+    }
+
+    const carpetaRecursos = path.resolve(
+        __dirname,
+        '..',
+        'uploads',
+        'recursos'
+    )
+
+    const rutaRelativa = rutaArchivo.slice(
+        '/uploads/recursos/'.length
+    )
+
+    const rutaCompleta = path.resolve(
+        carpetaRecursos,
+        rutaRelativa
+    )
+
+    if (
+        !rutaCompleta.startsWith(carpetaRecursos + path.sep)
+    ) {
+        return null
+    }
+
+    return rutaCompleta
 }
 
 // =====================================================
@@ -355,6 +394,7 @@ function eliminarMensajeProfesor(req, res) {
 // MATERIALES PUBLICADOS
 // =====================================================
 
+
 async function getRecursosAdmin(req, res) {
     try {
         const [recursos] = await db.query(`
@@ -367,16 +407,22 @@ async function getRecursosAdmin(req, res) {
                 r.descripcion,
                 r.nombre_archivo,
                 r.ruta_archivo,
+                r.url,
                 r.tipo,
                 r.publicado,
+                r.eliminado_profesor,
                 r.fecha_publicacion,
                 e.nombre AS escuela,
                 g.nombre AS grupo,
+                c.nombre AS curso,
+                c.idioma,
+                c.nivel,
                 CONCAT(p.nombre, ' ', p.apellidos) AS profesor
             FROM recursos r
             INNER JOIN escuelas e ON e.id = r.escuela_id
             INNER JOIN profesores p ON p.id = r.profesor_id
             LEFT JOIN grupos g ON g.id = r.grupo_id
+            LEFT JOIN cursos c ON c.id = g.curso_id
             ORDER BY r.fecha_publicacion DESC, r.id DESC
         `)
 
@@ -394,6 +440,7 @@ async function getRecursosAdmin(req, res) {
         })
     }
 }
+
 
 async function retirarRecurso(req, res) {
     const id = obtenerIdValido(req.params.id)
@@ -434,6 +481,183 @@ async function retirarRecurso(req, res) {
     }
 }
 
+// =====================================================
+// DESCARGAR MATERIAL COMO ADMINISTRADOR
+// =====================================================
+
+async function descargarRecursoAdmin(req, res) {
+    const id = obtenerIdValido(req.params.id)
+
+    if (!id) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El identificador del material no es válido.'
+        })
+    }
+
+    try {
+        const [recursos] = await db.query(
+            `SELECT nombre_archivo, ruta_archivo
+             FROM recursos
+             WHERE id = ?
+             LIMIT 1`,
+            [id]
+        )
+
+        if (!recursos.length) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'No se encontró el material.'
+            })
+        }
+
+        const recurso = recursos[0]
+
+        if (!recurso.ruta_archivo) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'Este material no tiene un archivo adjunto. Puede contener un enlace externo.'
+            })
+        }
+
+        const rutaCompleta = obtenerRutaArchivoRecurso(
+            recurso.ruta_archivo
+        )
+
+        if (!rutaCompleta) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'La ruta del archivo no es válida.'
+            })
+        }
+
+        return res.download(
+            rutaCompleta,
+            recurso.nombre_archivo || path.basename(rutaCompleta),
+            error => {
+                if (error) {
+                    console.error(
+                        'Error al descargar material:',
+                        error.message
+                    )
+
+                    if (!res.headersSent) {
+                        res.status(
+                            error.code === 'ENOENT' ? 404 : 500
+                        ).json({
+                            ok: false,
+                            mensaje: 'No se pudo descargar el archivo.'
+                        })
+                    }
+                }
+            }
+        )
+
+    } catch (error) {
+        console.error('Error en la descarga administrativa:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se pudo descargar el material.'
+        })
+    }
+}
+
+// =====================================================
+// ELIMINAR DEFINITIVAMENTE UN MATERIAL COMO ADMIN
+// =====================================================
+
+async function eliminarRecursoAdmin(req, res) {
+    const id = obtenerIdValido(req.params.id)
+
+    if (!id) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El identificador del material no es válido.'
+        })
+    }
+
+    try {
+        const [recursos] = await db.query(
+            `SELECT id, ruta_archivo
+             FROM recursos
+             WHERE id = ?
+             LIMIT 1`,
+            [id]
+        )
+
+        if (!recursos.length) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'El material no existe o ya fue eliminado.'
+            })
+        }
+
+        const recurso = recursos[0]
+
+        let rutaCompleta = null
+
+        if (recurso.ruta_archivo) {
+            rutaCompleta = obtenerRutaArchivoRecurso(
+                recurso.ruta_archivo
+            )
+
+            if (!rutaCompleta) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'La ruta del archivo no es válida. No se ha eliminado el registro.'
+                })
+            }
+        }
+
+        // Primero eliminamos el registro de la base de datos.
+        const [resultado] = await db.query(
+            `DELETE FROM recursos
+             WHERE id = ?`,
+            [id]
+        )
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'El material ya no existe.'
+            })
+        }
+
+        // Después intentamos eliminar el archivo físico.
+        if (rutaCompleta) {
+            try {
+                await fs.unlink(rutaCompleta)
+            } catch (errorArchivo) {
+                if (errorArchivo.code !== 'ENOENT') {
+                    console.error(
+                        'El registro fue eliminado, pero no se pudo borrar el archivo:',
+                        errorArchivo.message
+                    )
+
+                    return res.status(200).json({
+                        ok: true,
+                        mensaje: 'El registro se eliminó, pero no se pudo borrar el archivo físico. Será necesario revisar el almacenamiento.'
+                    })
+                }
+            }
+        }
+
+        return res.status(200).json({
+            ok: true,
+            mensaje: 'Material y archivo eliminados definitivamente.'
+        })
+
+    } catch (error) {
+        console.error('Error al eliminar definitivamente el material:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se pudo eliminar definitivamente el material.'
+        })
+    }
+}
+
 module.exports = {
     getForoEstudiantes,
     ocultarMensajeEstudiante,
@@ -444,5 +668,7 @@ module.exports = {
     mostrarMensajeProfesor,
     eliminarMensajeProfesor,
     getRecursosAdmin,
-    retirarRecurso
+    retirarRecurso,
+    descargarRecursoAdmin,
+    eliminarRecursoAdmin
 }

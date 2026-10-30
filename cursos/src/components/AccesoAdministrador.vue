@@ -2398,79 +2398,250 @@
         </section>
 
         <!-- MATERIALES -->
-        <section
-          v-if="moduloSeleccionado === 'archivos'"
-          class="mt-8"
+        
+<!-- MATERIALES -->
+<section
+  v-if="moduloSeleccionado === 'archivos'"
+  class="mt-8 space-y-6"
+>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-900">
+        Archivos y materiales
+      </h3>
+
+      <p class="mt-1 text-sm text-gray-600">
+        Consulta y administra los materiales publicados por los profesores.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="cargarRecursos"
+      :disabled="cargandoDatos || procesandoId !== null"
+      class="rounded-lg border px-4 py-2 disabled:opacity-50"
+    >
+      {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
+    </button>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="grid grid-cols-1 gap-4 rounded-xl border bg-gray-50 p-5 md:grid-cols-3">
+
+    <label>
+      <span class="mb-2 block text-sm font-semibold">
+        Escuela
+      </span>
+
+      <select
+        v-model="filtroEscuelaRecursos"
+        class="w-full rounded-lg border bg-white px-3 py-2"
+      >
+        <option value="">Todas las escuelas</option>
+        <option value="1">Biblioteca Joan Miró</option>
+        <option value="2">Ateneu Aula 502</option>
+      </select>
+    </label>
+
+    <label>
+      <span class="mb-2 block text-sm font-semibold">
+        Idioma
+      </span>
+
+      <select
+        v-model="filtroIdiomaRecursos"
+        class="w-full rounded-lg border bg-white px-3 py-2"
+      >
+        <option value="">Todos los idiomas</option>
+
+        <option
+          v-for="idioma in idiomasRecursos"
+          :key="idioma"
+          :value="idioma"
         >
-          <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-2xl font-bold">Archivos y materiales</h3>
+          {{ idioma }}
+        </option>
+      </select>
+    </label>
 
-            <button
-              type="button"
-              @click="cargarRecursos"
-              :disabled="cargandoDatos || procesandoId !== null"
-              class="rounded-lg border px-4 py-2 disabled:opacity-50"
-            >
-              {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
-            </button>
-          </div>
+    <label>
+      <span class="mb-2 block text-sm font-semibold">
+        Grupo
+      </span>
 
-          <p
-            v-if="!cargandoDatos && recursos.length === 0"
-            class="rounded-xl border border-dashed p-6 text-center text-gray-500"
+      <select
+        v-model="filtroGrupoRecursos"
+        class="w-full rounded-lg border bg-white px-3 py-2"
+      >
+        <option value="">Todos los grupos</option>
+
+        <option
+          v-for="grupo in gruposRecursos"
+          :key="grupo.grupo_id"
+          :value="String(grupo.grupo_id)"
+        >
+          {{ grupo.grupo }}
+        </option>
+      </select>
+    </label>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <p class="text-sm text-gray-600">
+      Materiales encontrados:
+      <strong>{{ recursosFiltrados.length }}</strong>
+    </p>
+
+    <button
+      type="button"
+      @click="
+        filtroEscuelaRecursos = '';
+        filtroIdiomaRecursos = '';
+        filtroGrupoRecursos = ''
+      "
+      class="text-sm font-semibold text-blue-800 hover:underline"
+    >
+      Limpiar filtros
+    </button>
+  </div>
+
+  <p
+    v-if="!cargandoDatos && recursos.length === 0"
+    class="rounded-xl border border-dashed p-6 text-center text-gray-500"
+  >
+    Todavía no hay materiales registrados.
+  </p>
+
+  <p
+    v-else-if="!cargandoDatos && recursosFiltrados.length === 0"
+    class="rounded-xl border border-dashed p-6 text-center text-gray-500"
+  >
+    No hay materiales que coincidan con los filtros seleccionados.
+  </p>
+
+  <!-- LISTADO -->
+  <article
+    v-for="item in recursosFiltrados"
+    :key="item.id"
+    class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+  >
+    <div class="flex flex-col justify-between gap-4 lg:flex-row">
+
+      <div class="min-w-0 flex-1">
+
+        <h4 class="break-words text-lg font-bold text-gray-900">
+          {{ item.titulo || item.nombre_archivo || 'Material sin título' }}
+        </h4>
+
+        <p class="mt-2 text-sm text-gray-600">
+          Escuela: {{ item.escuela || 'No indicada' }}
+        </p>
+
+        <p class="text-sm text-gray-600">
+          Profesor/a: {{ item.profesor || 'No indicado' }}
+        </p>
+
+        <p class="text-sm text-gray-600">
+          Curso: {{ item.curso || 'Sin curso' }}
+          <span v-if="item.idioma">
+            · {{ item.idioma }}
+          </span>
+          <span v-if="item.nivel">
+            · {{ item.nivel }}
+          </span>
+        </p>
+
+        <p class="text-sm text-gray-600">
+          Grupo: {{ item.grupo || 'Material general de escuela' }}
+        </p>
+
+        <p class="mt-3 whitespace-pre-wrap break-words text-gray-800">
+          {{ item.descripcion || 'Sin descripción' }}
+        </p>
+
+        <p class="mt-2 break-all text-xs text-gray-500">
+          {{ item.nombre_archivo || 'Material mediante enlace externo' }}
+        </p>
+
+        <p class="mt-2 text-xs text-gray-500">
+          Publicación: {{ formatearFecha(item.fecha_publicacion) }}
+        </p>
+
+        <!-- ESTADO -->
+        <div class="mt-4">
+
+          <span
+            v-if="estaActivo(item.eliminado_profesor)"
+            class="inline-block rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-900"
           >
-            Todavía no hay materiales registrados.
-          </p>
+            Eliminado por el profesor
+          </span>
 
-          <article
-            v-for="item in recursos"
-            :key="item.id"
-            class="mb-4 rounded-xl border p-5"
+          <span
+            v-else-if="estaPublicado(item.publicado)"
+            class="inline-block rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800"
           >
-            <div class="flex flex-col justify-between gap-3 sm:flex-row">
-              <div>
-                <h4 class="text-lg font-bold">
-                  {{ item.titulo || item.nombre_archivo || 'Material sin título' }}
-                </h4>
+            Publicado
+          </span>
 
-                <p class="mt-1 text-sm text-gray-600">
-                  Escuela: {{ item.escuela || 'No indicada' }}
-                </p>
+          <span
+            v-else
+            class="inline-block rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700"
+          >
+            Retirado por administración
+          </span>
 
-                <p class="text-sm text-gray-600">
-                  Profesor: {{ item.profesor || 'No indicado' }}
-                </p>
+        </div>
+      </div>
 
-                <p class="mt-3 whitespace-pre-wrap break-words">
-                  {{ item.descripcion || 'Sin descripción' }}
-                </p>
+      <!-- ACCIONES -->
+      <div class="flex shrink-0 flex-col gap-2 lg:w-52">
 
-                <p class="mt-2 text-xs text-gray-500">
-                  {{ item.nombre_archivo || 'Archivo no disponible' }}
-                </p>
-              </div>
+        <button
+          v-if="item.ruta_archivo"
+          type="button"
+          @click="descargarMaterial(item)"
+          :disabled="procesandoId !== null || cargandoDatos"
+          class="rounded-lg bg-blue-800 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-900 disabled:opacity-50"
+        >
+          Descargar archivo
+        </button>
 
-              <div class="shrink-0">
-                <span
-                  v-if="!estaPublicado(item.publicado)"
-                  class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-                >
-                  Retirado
-                </span>
+        <a
+          v-if="esUrlExterna(item.url)"
+          :href="item.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-lg border border-blue-300 px-4 py-2 text-center text-sm font-semibold text-blue-800 hover:bg-blue-50"
+        >
+          Abrir enlace externo
+        </a>
 
-                <button
-                  v-else
-                  type="button"
-                  @click="retirarMaterial(item)"
-                  :disabled="procesandoId !== null || cargandoDatos"
-                  class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                >
-                  Retirar material
-                </button>
-              </div>
-            </div>
-          </article>
-        </section>
+        <button
+          v-if="estaPublicado(item.publicado) &&
+            !estaActivo(item.eliminado_profesor)"
+          type="button"
+          @click="retirarMaterial(item)"
+          :disabled="procesandoId !== null || cargandoDatos"
+          class="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+        >
+          Retirar publicación
+        </button>
+
+        <button
+          type="button"
+          @click="eliminarMaterialDefinitivamente(item)"
+          :disabled="procesandoId !== null || cargandoDatos"
+          class="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+        >
+          Eliminar definitivamente
+        </button>
+
+      </div>
+    </div>
+  </article>
+</section>
+
 
         <!-- VOLUNTARIADO -->
         <section
@@ -2622,7 +2793,8 @@ import {
   guardarTokenAdmin,
   obtenerTokenAdmin,
   cerrarSesionAdmin,
-  peticionAdmin
+  peticionAdmin,
+  descargarArchivoAdmin
 } from '../services/adminApi'
 
 // =====================================================
@@ -2643,6 +2815,83 @@ const procesandoId = ref(null)
 const mensajesEstudiantes = ref([])
 const mensajesProfesores = ref([])
 const recursos = ref([])
+
+// Filtros de archivos y materiales
+const filtroEscuelaRecursos = ref('')
+const filtroIdiomaRecursos = ref('')
+const filtroGrupoRecursos = ref('')
+
+// Idiomas disponibles en los materiales
+const idiomasRecursos = computed(() => {
+  return [
+    ...new Set(
+      recursos.value
+        .map(item => item.idioma)
+        .filter(Boolean)
+    )
+  ].sort()
+})
+
+// Grupos disponibles
+const gruposRecursos = computed(() => {
+  return recursos.value
+    .filter(item => {
+      if (filtroEscuelaRecursos.value) {
+        if (
+          Number(item.escuela_id) !==
+          Number(filtroEscuelaRecursos.value)
+        ) return false
+      }
+
+      if (filtroIdiomaRecursos.value) {
+        if (item.idioma !== filtroIdiomaRecursos.value) {
+          return false
+        }
+      }
+
+      return item.grupo_id !== null &&
+        item.grupo_id !== undefined
+    })
+    .filter((item, index, lista) =>
+      lista.findIndex(
+        otro => Number(otro.grupo_id) === Number(item.grupo_id)
+      ) === index
+    )
+})
+
+// Lista filtrada de materiales
+const recursosFiltrados = computed(() => {
+  return recursos.value.filter(item => {
+
+    if (
+      filtroEscuelaRecursos.value &&
+      Number(item.escuela_id) !==
+      Number(filtroEscuelaRecursos.value)
+    ) {
+      return false
+    }
+
+    if (
+      filtroIdiomaRecursos.value &&
+      item.idioma !== filtroIdiomaRecursos.value &&
+      item.grupo_id != null
+    ) {
+      return false
+    }
+
+    if (
+      filtroGrupoRecursos.value &&
+      Number(item.grupo_id) !==
+      Number(filtroGrupoRecursos.value) &&
+      item.grupo_id != null
+    ) {
+      return false
+    }
+
+    return true
+  })
+})
+
 const resultadosFinales = ref([])
 const horasAsistencia = ref([])
 const mensajeHorasAsistencia = ref('')
@@ -3808,6 +4057,94 @@ async function retirarMaterial(item) {
       error.message || 'No se pudo retirar el material.'
   } finally {
     procesandoId.value = null
+  }
+}
+
+
+
+async function descargarMaterial(item) {
+  const id = Number(item?.id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    mensaje.value = 'El material no tiene un identificador válido.'
+    return
+  }
+
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  procesandoId.value = `descargar-${id}`
+  mensaje.value = ''
+
+  try {
+    await descargarArchivoAdmin(
+      `/admin/moderacion/recursos/${id}/descargar`,
+      item.nombre_archivo || `material-${id}`
+    )
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo descargar el archivo.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+async function eliminarMaterialDefinitivamente(item) {
+  const id = Number(item?.id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    mensaje.value = 'El material no tiene un identificador válido.'
+    return
+  }
+
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  const confirmado = window.confirm(
+    'ATENCIÓN: esta operación eliminará definitivamente el registro del material y su archivo asociado. No se podrá recuperar. ¿Quieres continuar?'
+  )
+
+  if (!confirmado) return
+
+  procesandoId.value = `eliminar-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/moderacion/recursos/${id}`,
+      {
+        method: 'DELETE'
+      }
+    )
+
+    const lista = await peticionAdmin(
+      '/admin/moderacion/recursos'
+    )
+
+    recursos.value = Array.isArray(lista?.datos)
+      ? lista.datos
+      : []
+
+    mensaje.value =
+      resultado?.mensaje || 'Material eliminado definitivamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo eliminar el material.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+function esUrlExterna(valor) {
+  if (!valor) return false
+
+  try {
+    const url = new URL(valor)
+
+    return (
+      url.protocol === 'http:' ||
+      url.protocol === 'https:'
+    )
+  } catch {
+    return false
   }
 }
 

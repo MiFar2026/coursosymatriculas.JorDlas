@@ -112,3 +112,72 @@ export async function peticionAdmin(ruta, opciones = {}) {
 
     return datos
 }
+
+
+/**
+ * Descarga un archivo mediante una petición autenticada.
+ */
+export async function descargarArchivoAdmin(
+    ruta,
+    nombreArchivo = 'material'
+) {
+    const token = obtenerTokenAdmin()
+
+    if (!token) {
+        throw new Error(
+            'No hay una sesión de administrador. Inicia sesión.'
+        )
+    }
+
+    if (
+        typeof ruta !== 'string' ||
+        !ruta.startsWith('/') ||
+        ruta.startsWith('//')
+    ) {
+        throw new Error('La ruta de descarga no es válida.')
+    }
+
+    const respuesta = await fetch(`${API_BASE}${ruta}`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    if (respuesta.status === 401 || respuesta.status === 403) {
+        cerrarSesionAdmin()
+
+        throw new Error(
+            respuesta.status === 401
+                ? 'La sesión ha caducado. Inicia sesión de nuevo.'
+                : 'No tienes autorización para descargar este archivo.'
+        )
+    }
+
+    if (!respuesta.ok) {
+        let mensajeError = 'No se pudo descargar el archivo.'
+
+        try {
+            const datos = await respuesta.json()
+            mensajeError = datos?.mensaje || mensajeError
+        } catch {
+            // Se conserva el mensaje predeterminado.
+        }
+
+        throw new Error(mensajeError)
+    }
+
+    const archivo = await respuesta.blob()
+    const urlTemporal = URL.createObjectURL(archivo)
+
+    const enlace = document.createElement('a')
+    enlace.href = urlTemporal
+    enlace.download = nombreArchivo
+    document.body.appendChild(enlace)
+    enlace.click()
+    enlace.remove()
+
+    setTimeout(() => {
+        URL.revokeObjectURL(urlTemporal)
+    }, 1000)
+}

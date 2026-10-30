@@ -149,6 +149,9 @@ CREATE TABLE cursos (
     UNIQUE (nombre)
 ) ENGINE=InnoDB;
 
+ALTER TABLE recursos
+ADD COLUMN eliminado_profesor TINYINT(1) NOT NULL DEFAULT 0
+AFTER publicado;
 
 -- ============================================================
 -- 5. GRUPOS

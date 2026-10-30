@@ -15,7 +15,9 @@ const {
     mostrarMensajeProfesor,
     eliminarMensajeProfesor,
     getRecursosAdmin,
-    retirarRecurso
+    retirarRecurso,
+    descargarRecursoAdmin,
+    eliminarRecursoAdmin
 } = require('../controllers/adminModeracionController')
 
 // Controlador de moderación de mensajes privados.
@@ -86,15 +88,18 @@ router.get(
     '/asistencia/horas',
     getResumenHorasAsistencia
 )
+
 // =====================================================
 // GESTIÓN DE ALUMNOS
 // Todas estas rutas requieren autenticación administrativa.
 // =====================================================
+
 router.post('/alumnos', crearAlumno)
 router.get('/alumnos', listarAlumnos)
 router.get('/alumnos/:id', obtenerAlumno)
 router.put('/alumnos/:id', actualizarAlumno)
 router.patch('/alumnos/:id/estado', cambiarEstadoAlumno)
+
 // =====================================================
 // RESULTADOS FINALES PARA CERTIFICADOS
 // =====================================================
@@ -218,6 +223,16 @@ router.get(
 router.patch(
     '/moderacion/recursos/:id/retirar',
     retirarRecurso
+)
+
+router.get(
+    '/moderacion/recursos/:id/descargar',
+    descargarRecursoAdmin
+)
+
+router.delete(
+    '/moderacion/recursos/:id',
+    eliminarRecursoAdmin
 )
 
 // =====================================================

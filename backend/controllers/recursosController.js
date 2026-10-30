@@ -455,6 +455,7 @@ async function actualizarRecurso(req, res) {
 }
 
 
+
 async function eliminarRecurso(req, res) {
   const recursoId = Number(req.params.id)
   const profesorId = Number(req.profesor.id)
@@ -474,7 +475,7 @@ async function eliminarRecurso(req, res) {
 
   try {
     const [recursos] = await db.query(
-      `SELECT id, ruta_archivo
+      `SELECT id
        FROM recursos
        WHERE id = ?
          AND profesor_id = ?
@@ -490,57 +491,33 @@ async function eliminarRecurso(req, res) {
       })
     }
 
-    const recurso = recursos[0]
-
+    // El profesor lo retira de la publicación,
+    // pero el registro y el archivo se conservan.
     await db.query(
-      `DELETE FROM recursos
+      `UPDATE recursos
+       SET publicado = 0,
+           eliminado_profesor = 1
        WHERE id = ?
          AND profesor_id = ?
          AND escuela_id = ?`,
       [recursoId, profesorId, escuelaId]
     )
 
-    if (recurso.ruta_archivo) {
-      const carpetaRecursos = path.resolve(
-        __dirname,
-        '..',
-        'uploads',
-        'recursos'
-      )
-
-      const rutaArchivo = path.resolve(
-        __dirname,
-        '..',
-        recurso.ruta_archivo.replace(/^\/+/, '')
-      )
-
-      if (rutaArchivo.startsWith(carpetaRecursos + path.sep)) {
-        try {
-          await fs.unlink(rutaArchivo)
-        } catch (errorArchivo) {
-          if (errorArchivo.code !== 'ENOENT') {
-            console.error(
-              'El recurso se eliminó de la base de datos, pero no se pudo borrar el archivo:',
-              errorArchivo.message
-            )
-          }
-        }
-      }
-    }
-
     return res.json({
       ok: true,
-      mensaje: 'Recurso eliminado correctamente.'
+      mensaje: 'Material retirado correctamente. El administrador todavía puede consultarlo.'
     })
+
   } catch (error) {
-    console.error('Error al eliminar el recurso:', error)
+    console.error('Error al retirar el recurso:', error)
 
     return res.status(500).json({
       ok: false,
-      mensaje: 'No se pudo eliminar el recurso.'
+      mensaje: 'No se pudo retirar el recurso.'
     })
   }
 }
+
 
 // Consultar los recursos publicados que corresponden al alumno
 // según su matrícula activa, escuela y grupo.
