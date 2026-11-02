@@ -1,7 +1,10 @@
 
 const Aviso = require('../model/collections/avisosModel')
 
-// Consulta de avisos generales de una escuela.
+// =====================================================
+// AVISOS GENERALES DE UNA ESCUELA
+// =====================================================
+
 const getAvisosByEscuela = async (req, res) => {
     try {
         const escuelaId = Number(req.query.escuelaId)
@@ -30,10 +33,56 @@ const getAvisosByEscuela = async (req, res) => {
     }
 }
 
-// El alumno solo recibe los avisos correspondientes a su sesión.
+// =====================================================
+// AVISOS DE ADMINISTRACIÓN PARA EL PROFESOR AUTENTICADO
+// =====================================================
+
+const getAvisosAdminParaProfesor = async (req, res) => {
+    try {
+        const profesorId = req.profesor?.id
+        const escuelaId = Number(req.profesor?.escuelaId)
+
+        if (!profesorId || ![1, 2].includes(escuelaId)) {
+            return res.status(403).json({
+                ok: false,
+                mensaje: 'No se ha podido verificar tu escuela.'
+            })
+        }
+
+        const avisos = await Aviso.getAvisosAdminByEscuela(escuelaId)
+
+        return res.json({
+            ok: true,
+            escuelaId,
+            avisos
+        })
+    } catch (error) {
+        console.error(
+            'Error al obtener los avisos administrativos del profesor:',
+            error
+        )
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se han podido obtener los avisos de administración.'
+        })
+    }
+}
+// =====================================================
+// AVISOS QUE PUEDE VER EL ALUMNO
+// =====================================================
+
 const getMisAvisos = async (req, res) => {
     try {
         const alumnoId = req.alumnoId
+
+        if (!alumnoId) {
+            return res.status(401).json({
+                ok: false,
+                mensaje: 'No se ha podido identificar al alumno.'
+            })
+        }
+
         const avisos = await Aviso.getAvisosByAlumno(alumnoId)
 
         return res.json({
@@ -50,39 +99,29 @@ const getMisAvisos = async (req, res) => {
     }
 }
 
-// Publicación para un grupo completo o para un alumno concreto.
+// =====================================================
+// PUBLICAR AVISO DE PROFESOR
+// Solo puede publicar en sus propios grupos.
+// Todos los avisos caducan automáticamente en 72 horas.
+// No existen avisos individuales.
+// =====================================================
+
 const publicarAviso = async (req, res) => {
     try {
         const profesorId = req.profesor.id
-        const escuelaId = req.profesor.escuelaId
+        const escuelaId = Number(req.profesor.escuelaId)
 
         const grupoId = Number(req.body.grupoId)
+
         const titulo = typeof req.body.titulo === 'string'
             ? req.body.titulo.trim()
             : ''
+
         const mensaje = typeof req.body.mensaje === 'string'
             ? req.body.mensaje.trim()
             : ''
-        const tipo = req.body.tipo
 
-        const alumnoIdRecibido = req.body.alumnoId
-        let alumnoId = null
-
-        if (
-            alumnoIdRecibido !== undefined &&
-            alumnoIdRecibido !== null &&
-            alumnoIdRecibido !== ''
-        ) {
-            alumnoId = Number(alumnoIdRecibido)
-
-            if (!Number.isInteger(alumnoId) || alumnoId < 1) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: 'El alumno seleccionado no es válido.'
-                })
-            }
-        }
-
+        // Comprobamos los datos obligatorios.
         if (!Number.isInteger(grupoId) || grupoId < 1) {
             return res.status(400).json({
                 ok: false,
@@ -104,15 +143,8 @@ const publicarAviso = async (req, res) => {
             })
         }
 
-        if (!['PERMANENTE', 'DIARIO'].includes(tipo)) {
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'El tipo debe ser PERMANENTE o DIARIO.'
-            })
-        }
-
-        // No confiamos en el grupo enviado por el navegador:
-        // comprobamos la asignación en la base de datos.
+        // Comprobamos que el profesor pertenece al grupo
+        // y que el grupo corresponde a su escuela.
         const autorizado = await Aviso.profesorPuedePublicarEnGrupo(
             profesorId,
             escuelaId,
@@ -126,43 +158,29 @@ const publicarAviso = async (req, res) => {
             })
         }
 
-        // Si se ha seleccionado un alumno, debe pertenecer
-        // al grupo elegido y tener matrícula activa.
-        if (alumnoId !== null) {
-            const pertenece = await Aviso.alumnoPerteneceAlGrupo(
-                alumnoId,
-                grupoId
-            )
-
-            if (!pertenece) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: 'El alumno no tiene una matrícula activa en ese grupo.'
-                })
-            }
-        }
-
+        // El modelo establece automáticamente:
+        // - origen: PROFESOR
+        // - escuela_id
+        // - fecha de caducidad: 72 horas
         const avisoId = await Aviso.crearAviso({
             grupoId,
             profesorId,
-            alumnoId,
+            escuelaId,
             titulo,
-            mensaje,
-            tipo
+            mensaje
         })
 
         return res.status(201).json({
             ok: true,
-            mensaje: alumnoId === null
-                ? 'Aviso publicado para el grupo.'
-                : 'Aviso publicado para el alumno seleccionado.',
+            mensaje: 'Aviso publicado para el grupo. Caducará automáticamente en 72 horas.',
             aviso: {
                 id: avisoId,
                 grupoId,
-                alumnoId,
+                escuelaId,
+                profesorId,
                 titulo,
                 mensaje,
-                tipo
+                origen: 'PROFESOR'
             }
         })
     } catch (error) {
@@ -175,11 +193,14 @@ const publicarAviso = async (req, res) => {
     }
 }
 
-// Grupos disponibles para el profesor que ha iniciado sesión.
+// =====================================================
+// GRUPOS DISPONIBLES PARA EL PROFESOR
+// =====================================================
+
 const getMisGrupos = async (req, res) => {
     try {
         const profesorId = req.profesor.id
-        const escuelaId = req.profesor.escuelaId
+        const escuelaId = Number(req.profesor.escuelaId)
 
         const grupos = await Aviso.getGruposByProfesor(
             profesorId,
@@ -200,59 +221,14 @@ const getMisGrupos = async (req, res) => {
     }
 }
 
-// Alumnos matriculados en un grupo del profesor autenticado.
-const getAlumnosDelGrupo = async (req, res) => {
-    try {
-        const profesorId = req.profesor.id
-        const escuelaId = req.profesor.escuelaId
-        const grupoId = Number(req.params.grupoId)
-
-        if (!Number.isInteger(grupoId) || grupoId < 1) {
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'El grupo seleccionado no es válido.'
-            })
-        }
-
-        // Primero comprobamos que el profesor puede publicar
-        // en ese grupo, antes de consultar sus alumnos.
-        const autorizado = await Aviso.profesorPuedePublicarEnGrupo(
-            profesorId,
-            escuelaId,
-            grupoId
-        )
-
-        if (!autorizado) {
-            return res.status(403).json({
-                ok: false,
-                mensaje: 'No tienes acceso a ese grupo.'
-            })
-        }
-
-        const alumnos = await Aviso.getAlumnosByGrupo(
-            profesorId,
-            escuelaId,
-            grupoId
-        )
-
-        return res.json({
-            ok: true,
-            alumnos
-        })
-    } catch (error) {
-        console.error('Error al obtener los alumnos del grupo:', error)
-
-        return res.status(500).json({
-            ok: false,
-            mensaje: 'No se han podido obtener los alumnos del grupo.'
-        })
-    }
-}
+// =====================================================
+// EXPORTACIONES
+// =====================================================
 
 module.exports = {
     getAvisosByEscuela,
+    getAvisosAdminParaProfesor,
     getMisAvisos,
     publicarAviso,
-    getMisGrupos,
-    getAlumnosDelGrupo
+    getMisGrupos
 }

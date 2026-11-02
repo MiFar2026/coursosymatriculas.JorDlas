@@ -119,8 +119,11 @@ const getMensajes = async (req, res) => {
 }
 
 // Crear una consulta nueva o una respuesta.
+
 const publicarMensaje = async (req, res) => {
   try {
+    console.log('ENTRADA: publicarMensaje del foro de alumnos')
+
     const usuario = obtenerUsuario(req)
 
     if (!usuario) {
@@ -163,8 +166,7 @@ const publicarMensaje = async (req, res) => {
       })
     }
 
-    // Permitir mensajes cortos, incluso de dos caracteres.
-    // Solo se rechazan los mensajes vacíos o de más de 5000 caracteres.
+    // Validar el mensaje.
     if (!mensaje || mensaje.length > 5000) {
       return res.status(400).json({
         ok: false,
@@ -174,7 +176,6 @@ const publicarMensaje = async (req, res) => {
     }
 
     // Las publicaciones nuevas necesitan título y categoría.
-    // Las respuestas no necesitan título ni categoría propia.
     if (!esRespuesta) {
       if (!titulo || titulo.length > 200) {
         return res.status(400).json({
@@ -251,15 +252,15 @@ const publicarMensaje = async (req, res) => {
         : 'Consulta publicada correctamente.',
       id
     })
-  
-    } catch (error) {
+
+  } catch (error) {
     console.error(
-      'Error al publicar en el foro del alumnado:',
-      error
+      'ERROR REAL AL PUBLICAR EN FORO DE ALUMNOS:'
     )
-    console.error('Detalle:', error.message)
-    console.error('Código SQL:', error.code)
-    console.error('Mensaje SQL:', error.sqlMessage)
+    console.error(error)
+    console.error('Mensaje:', error.message)
+    console.error('Código:', error.code)
+    console.error('Error SQL:', error.sqlMessage)
 
     return res.status(500).json({
       ok: false,
@@ -267,6 +268,7 @@ const publicarMensaje = async (req, res) => {
     })
   }
 }
+
 
 
 module.exports = {

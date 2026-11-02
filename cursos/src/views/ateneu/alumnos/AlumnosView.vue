@@ -1,3 +1,4 @@
+
 <template>
     <div class="min-h-screen bg-gray-50 text-gray-800">
 
@@ -24,7 +25,7 @@
 
             </header>
 
-            <!-- NORMAS Y AVISOS -->
+            <!-- NORMAS Y RED DE APOYO -->
 
             <section class="flex justify-center gap-10 mb-12">
 
@@ -49,26 +50,200 @@
 
                 </button>
 
-                <button
-                    type="button"
-                    @click="panel = panel === 'avisos' ? null : 'avisos'"
-                    :aria-expanded="panel === 'avisos'"
-                    class="flex flex-col items-center gap-2"
-                >
+                <div class="relative inline-block text-left">
 
-                    <span
-                        class="w-24 h-24 rounded-full bg-amber-500
-                               hover:bg-amber-600 text-white text-3xl
-                               flex items-center justify-center shadow-lg"
+                    <!-- BOTÓN RED DE APOYO -->
+
+                    <button
+                        type="button"
+                        @click="panel = panel === 'avisos' ? null : 'avisos'"
+                        :aria-expanded="panel === 'avisos'"
+                        class="flex flex-col items-center gap-2 focus:outline-none"
                     >
-                        📢
-                    </span>
 
-                    <span class="font-bold text-amber-800">
-                        Avisos
-                    </span>
+                        <span
+                            class="w-24 h-24 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-3xl flex items-center justify-center shadow-lg transition-colors duration-200"
+                        >
+                            🤝
+                        </span>
 
-                </button>
+                        <span class="font-bold text-amber-800">
+                            Red de apoyo
+                        </span>
+
+                    </button>
+
+                    <!-- PANEL DESPLEGABLE RED DE APOYO -->
+
+                    <div
+                        v-if="panel === 'avisos'"
+                        class="absolute left-0 mt-3 w-96 rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 z-50 overflow-hidden border border-amber-100"
+                    >
+
+                        <!-- CABECERA -->
+
+                        <div class="bg-amber-500 p-4 text-white">
+
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                🏠 Red de Apoyo en Barcelona
+                            </h3>
+
+                            <p class="text-xs text-amber-100 mt-1">
+                                Recursos de emergencia, alojamiento y alimentación para estudiantes.
+                            </p>
+
+                        </div>
+
+                        <!-- CONTENIDO -->
+
+                        <div class="max-h-[400px] overflow-y-auto p-4 space-y-4 text-sm text-slate-700">
+
+                            <!-- SECCIÓN 1: EMERGENCIAS -->
+
+                            <div>
+
+                                <h4 class="font-bold text-amber-800 border-b border-amber-100 pb-1 mb-2 uppercase text-xs tracking-wider">
+                                    🚨 Emergencia Social (24h)
+                                </h4>
+
+                                <ul class="space-y-2">
+
+                                    <li>
+
+                                        <strong class="block text-slate-900">
+                                            CUESB (Urgencias Sociales)
+                                        </strong>
+
+                                        <span class="text-xs text-slate-500 block">
+                                            C/ Llacuna, 25
+                                        </span>
+
+                                        <a
+                                            href="tel:900703030"
+                                            class="text-amber-600 hover:underline text-xs font-semibold"
+                                        >
+                                            📞 900 70 30 30 (Gratuito)
+                                        </a>
+
+                                    </li>
+
+                                    <li>
+
+                                        <strong class="block text-slate-900">
+                                            Servicio de Inserción Social (SIS)
+                                        </strong>
+
+                                        <span class="text-xs text-slate-500 block">
+                                            Passeig Pujades, 29 (Sin cita previa)
+                                        </span>
+
+                                        <a
+                                            href="tel:932566650"
+                                            class="text-amber-600 hover:underline text-xs font-semibold"
+                                        >
+                                            📞 93 256 66 50
+                                        </a>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                            <!-- SECCIÓN 2: ENTIDADES SOCIALES -->
+
+                            <div>
+
+                                <h4 class="font-bold text-amber-800 border-b border-amber-100 pb-1 mb-2 uppercase text-xs tracking-wider">
+                                    🤝 Entidades y Albergues
+                                </h4>
+
+                                <ul class="space-y-3">
+
+                                    <li>
+
+                                        <a
+                                            href="https://arrelsfundacio.org"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="font-semibold text-slate-900 hover:text-amber-600 block"
+                                        >
+                                            Arrels Fundació ↗
+                                        </a>
+
+                                        <p class="text-xs text-slate-500">
+                                            Orientación, duchas y consigna. C/ Riereta, 24.
+                                        </p>
+
+                                    </li>
+
+                                    <li>
+
+                                        <a
+                                            href="https://sjdserveissocials-bcn.org"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="font-semibold text-slate-900 hover:text-amber-600 block"
+                                        >
+                                            Sant Joan de Déu ↗
+                                        </a>
+
+                                        <p class="text-xs text-slate-500">
+                                            Centros residenciales específicos para jóvenes.
+                                        </p>
+
+                                    </li>
+
+                                    <li>
+
+                                        <a
+                                            href="https://fcmb.org"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="font-semibold text-slate-900 hover:text-amber-600 block"
+                                        >
+                                            Casa de Misericordia ↗
+                                        </a>
+
+                                        <p class="text-xs text-slate-500">
+                                            Pisos de estudiantes y acompañamiento para jóvenes vulnerables.
+                                        </p>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                            <!-- SECCIÓN 3: ALIMENTACIÓN E HIGIENE -->
+
+                            <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-100">
+
+                                <h4 class="font-bold text-amber-900 text-xs uppercase tracking-wider mb-1">
+                                    🍲 Comedores y Servicios Básicos
+                                </h4>
+
+                                <p class="text-xs text-amber-800 leading-relaxed">
+                                    Puedes acceder a los comedores públicos gratis durante 3 días de forma directa. Para estancias largas o duchas, solicita derivación en el SIS o en Cáritas (Via Laietana, 5).
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <!-- PIE DEL PANEL -->
+
+                        <div class="bg-slate-50 p-3 text-center border-t border-slate-100">
+
+                            <p class="text-[11px] text-slate-400">
+                                Si eres universitario, consulta también con el Servicio de Atención al Estudiante de tu centro.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </section>
 
@@ -118,39 +293,12 @@
 
             </section>
 
-            <!-- AVISOS -->
-
-            <section
-                v-if="panel === 'avisos'"
-                class="bg-white border-l-4 border-amber-500
-                       rounded-xl p-6 shadow mb-8"
-            >
-
-                <h2 class="text-xl font-bold mb-3">
-                    Avisos de Ateneu Aula 502
-                </h2>
-
-                <p class="text-gray-600">
-                    Aquí aparecerán los avisos permanentes y temporales
-                    publicados por los profesores de esta escuela.
-                </p>
-
-                <p class="text-sm text-amber-800 bg-amber-50
-                          rounded-lg p-4 mt-4">
-                    Los avisos temporales desaparecerán de la consulta
-                    después de 72 horas. La API comprobará su expiración.
-                </p>
-
-            </section>
-
             <!-- BOTONES PRINCIPALES -->
 
             <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
                 <RouterLink
-                    
-to="/ateneu/alumnos/acceso?destino=/ateneu/alumnos/perfil"
-
+                    to="/ateneu/alumnos/acceso?destino=/ateneu/alumnos/perfil"
                     class="bg-teal-700 hover:bg-teal-800 text-white
                            rounded-2xl p-8 shadow-lg transition"
                 >
@@ -198,40 +346,43 @@ to="/ateneu/alumnos/acceso?destino=/ateneu/alumnos/perfil"
 
             </section>
 
-            <!-- Guía -->
+            <!-- GUÍA -->
 
-<section
-    class="bg-purple-50 border border-purple-200
-           rounded-2xl p-6 sm:p-8"
->
-    <h2 class="text-2xl font-bold mb-3">
-        Guía para estudiantes
-    </h2>
+            <section
+                class="bg-purple-50 border border-purple-200
+                       rounded-2xl p-6 sm:p-8"
+            >
 
-    <p class="text-gray-700 mb-5">
-        Consulta la guía para estudiantes de la Escuela Ateneu
-        Aula 502. Encontrarás información y orientaciones útiles
-        para conocer el funcionamiento de la escuela, participar
-        en las actividades y aprovechar mejor tu experiencia
-        como alumno o alumna.
-    </p>
+                <h2 class="text-2xl font-bold mb-3">
+                    Guía para estudiantes
+                </h2>
 
-    <RouterLink
-        to="/ateneu/alumnos/guiaalumno"
-        class="inline-flex bg-purple-700 hover:bg-purple-800
-               text-white font-bold rounded-lg px-5 py-3"
-    >
-        Consultar la guía
-    </RouterLink>
-</section>
+                <p class="text-gray-700 mb-5">
+                    Consulta la guía para estudiantes de la Escuela Ateneu
+                    Aula 502. Encontrarás información y orientaciones útiles
+                    para conocer el funcionamiento de la escuela, participar
+                    en las actividades y aprovechar mejor tu experiencia
+                    como alumno o alumna.
+                </p>
 
+                <RouterLink
+                    to="/ateneu/alumnos/guiaalumno"
+                    class="inline-flex bg-purple-700 hover:bg-purple-800
+                           text-white font-bold rounded-lg px-5 py-3"
+                >
+                    Consultar la guía
+                </RouterLink>
+
+            </section>
 
         </main>
 
         <footer class="border-t bg-white mt-12 py-6">
+
             <p class="text-center text-sm text-gray-500">
                 ExAequo · Ateneu Aula 502 · Espacio del alumnado
             </p>
+
         </footer>
 
     </div>
@@ -244,3 +395,27 @@ import NavbarAteneu from '../../../components/Ateneu/NavbarAteneu.vue'
 
 const panel = ref(null)
 </script>
+
+<style scoped>
+
+/* Estilos opcionales para personalizar la barra de scroll del panel */
+
+.max-h-\[400px\]::-webkit-scrollbar {
+    width: 6px;
+}
+
+.max-h-\[400px\]::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.max-h-\[400px\]::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.max-h-\[400px\]::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+</style>

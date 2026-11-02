@@ -1766,3 +1766,276 @@ ALTER TABLE solicitudes_matricula
 ADD COLUMN turno_preferido ENUM('Mañana', 'Tarde') NULL
 AFTER escuela_id;
 
+
+
+-- ============================================================
+-- foro_moderacion_auditoria 
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS foro_moderacion_auditoria (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    tabla_origen VARCHAR(50) NOT NULL,
+    mensaje_id INT NOT NULL,
+    accion ENUM('OCULTAR', 'MOSTRAR', 'ELIMINAR') NOT NULL,
+    administrador VARCHAR(255) NULL,
+    motivo VARCHAR(500) NOT NULL,
+    contenido_original LONGTEXT NOT NULL,
+    fecha_accion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX idx_foro_mensaje (tabla_origen, mensaje_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE foro_mensajes
+    ADD COLUMN respuesta_a_id INT NULL AFTER profesor_id,
+    ADD COLUMN titulo VARCHAR(180) NULL AFTER respuesta_a_id,
+    ADD COLUMN categoria VARCHAR(80) NULL AFTER titulo,
+    ADD INDEX idx_foro_respuesta (respuesta_a_id),
+    ADD CONSTRAINT fk_foro_respuesta
+        FOREIGN KEY (respuesta_a_id)
+        REFERENCES foro_mensajes(id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL;
+        
+        
+
+CREATE TABLE IF NOT EXISTS foro_profesores_respuestas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    mensaje_id INT NOT NULL,
+
+    profesor_id INT NOT NULL,
+
+    escuela_id INT NOT NULL,
+
+    respuesta TEXT NOT NULL,
+
+    fecha_creacion TIMESTAMP
+        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    activo TINYINT(1) NOT NULL DEFAULT 1,
+
+    INDEX idx_respuestas_mensaje (mensaje_id),
+
+    INDEX idx_respuestas_profesor (profesor_id),
+
+    INDEX idx_respuestas_escuela (escuela_id),
+
+    CONSTRAINT fk_respuestas_mensaje
+        FOREIGN KEY (mensaje_id)
+        REFERENCES foro_profesores(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_respuestas_profesor
+        FOREIGN KEY (profesor_id)
+        REFERENCES profesores(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_respuestas_escuela
+        FOREIGN KEY (escuela_id)
+        REFERENCES escuelas(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+  
+  
+  
+  ALTER TABLE avisos
+ADD COLUMN escuela_id INT NULL AFTER id,
+ADD COLUMN origen ENUM('PROFESOR', 'ADMIN')
+    NOT NULL DEFAULT 'PROFESOR' AFTER profesor_id;
+    
+    
+    UPDATE avisos a
+INNER JOIN grupos g ON g.id = a.grupo_id
+SET a.escuela_id = g.escuela_id;
+
+ALTER TABLE avisos
+MODIFY COLUMN grupo_id INT NULL;
+
+ALTER TABLE avisos
+ADD INDEX idx_avisos_escuela (escuela_id),
+ADD CONSTRAINT fk_avisos_escuela
+FOREIGN KEY (escuela_id)
+REFERENCES escuelas(id)
+ON DELETE RESTRICT
+ON UPDATE CASCADE;
+
+
+
+-- =====================================================
+-- 1. CREAR TABLA DE CONVERSACIONES
+-- =====================================================
+
+CREATE TABLE conversaciones_privadas (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    escuela_id INT NOT NULL,
+    grupo_id INT NOT NULL,
+
+    tipo_conversacion ENUM(
+        'ALUMNO_PROFESOR',
+        'ALUMNO_ALUMNO'
+    ) NOT NULL,
+
+    participante1_tipo ENUM(
+        'ALUMNO',
+        'PROFESOR'
+    ) NOT NULL,
+
+    participante1_id INT NOT NULL,
+
+    participante2_tipo ENUM(
+        'ALUMNO',
+        'PROFESOR'
+    ) NOT NULL,
+
+    participante2_id INT NOT NULL,
+
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    UNIQUE KEY uq_conversacion_participantes (
+        escuela_id,
+        grupo_id,
+        participante1_tipo,
+        participante1_id,
+        participante2_tipo,
+        participante2_id
+    ),
+
+    KEY idx_conversaciones_grupo (
+        escuela_id,
+        grupo_id
+    )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+
+-- =====================================================
+-- 2. AÑADIR REFERENCIA A LA CONVERSACIÓN
+-- =====================================================
+
+ALTER TABLE mensajes_privados
+ADD COLUMN conversacion_id BIGINT UNSIGNED NULL
+AFTER id;
+
+CREATE INDEX idx_mensajes_conversacion_id
+ON mensajes_privados (conversacion_id, fecha_envio);
+
+
+-- =====================================================
+-- 3. CREAR CONVERSACIONES PARA LOS MENSAJES EXISTENTES
+-- =====================================================
+
+INSERT INTO conversaciones_privadas (
+    escuela_id,
+    grupo_id,
+    tipo_conversacion,
+    participante1_tipo,
+    participante1_id,
+    participante2_tipo,
+    participante2_id,
+    fecha_creacion
+)
+SELECT
+    escuela_id,
+    grupo_id,
+    'ALUMNO_PROFESOR',
+    'ALUMNO',
+    alumno_id,
+    'PROFESOR',
+    profesor_id,
+    MIN(fecha_envio)
+FROM mensajes_privados
+GROUP BY
+    escuela_id,
+    grupo_id,
+    alumno_id,
+    profesor_id;
+
+
+-- =====================================================
+-- 4. VINCULAR CADA MENSAJE CON SU CONVERSACIÓN
+-- =====================================================
+
+UPDATE mensajes_privados mp
+INNER JOIN conversaciones_privadas cp
+    ON cp.escuela_id = mp.escuela_id
+    AND cp.grupo_id = mp.grupo_id
+    AND cp.tipo_conversacion = 'ALUMNO_PROFESOR'
+    AND cp.participante1_tipo = 'ALUMNO'
+    AND cp.participante1_id = mp.alumno_id
+    AND cp.participante2_tipo = 'PROFESOR'
+    AND cp.participante2_id = mp.profesor_id
+SET mp.conversacion_id = cp.id;
+
+
+-- =====================================================
+-- 5. HACER OBLIGATORIA LA CONVERSACIÓN
+-- =====================================================
+
+ALTER TABLE mensajes_privados
+MODIFY COLUMN conversacion_id BIGINT UNSIGNED NOT NULL;
+
+
+
+CREATE TABLE conversaciones_privadas (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    escuela_id INT NOT NULL,
+    grupo_id INT NOT NULL,
+    tipo_conversacion ENUM(
+        'ALUMNO_PROFESOR',
+        'ALUMNO_ALUMNO'
+    ) NOT NULL,
+    participante1_tipo ENUM(
+        'ALUMNO',
+        'PROFESOR'
+    ) NOT NULL,
+    participante1_id INT NOT NULL,
+    participante2_tipo ENUM(
+        'ALUMNO',
+        'PROFESOR'
+    ) NOT NULL,
+    participante2_id INT NOT NULL,
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_conversacion_participantes (
+        escuela_id,
+        grupo_id,
+        participante1_tipo,
+        participante1_id,
+        participante2_tipo,
+        participante2_id
+    ),
+    KEY idx_conversaciones_grupo (escuela_id, grupo_id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+  
+  
+  CREATE INDEX idx_mensajes_conversacion_id
+ON mensajes_privados (conversacion_id, fecha_envio);
+
+
+ALTER TABLE mensajes_privados
+MODIFY COLUMN conversacion_id BIGINT UNSIGNED NOT NULL;
+
+
+SELECT
+    COLUMN_NAME,
+    CONSTRAINT_NAME,
+    REFERENCED_TABLE_NAME,
+    REFERENCED_COLUMN_NAME
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'mensajes_privados'
+  AND COLUMN_NAME IN ('alumno_id', 'profesor_id');
+  
+  ALTER TABLE mensajes_privados
+MODIFY COLUMN profesor_id INT NULL;

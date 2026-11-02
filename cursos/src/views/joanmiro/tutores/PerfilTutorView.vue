@@ -34,6 +34,7 @@
       <NavbarJoanmiro />
 
       <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+
         <!-- ENCABEZADO -->
         <header class="mb-10">
           <p class="text-sm uppercase tracking-widest font-bold text-teal-700 mb-2">
@@ -64,10 +65,17 @@
           </div>
         </header>
 
+        <!-- AVISOS -->
+        <AvisosTutor
+          nombreEscuela="Biblioteca Joan Miró"
+          rutaAcceso="/joanmiro/tutores/acceso"
+        />
+
         <!-- PERFIL DEL PROFESOR -->
         <section class="bg-white border rounded-2xl shadow-sm p-6 sm:p-8 mb-10">
 
           <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+
             <div class="flex-shrink-0">
               <img
                 v-if="profesor.foto && !errorFoto"
@@ -131,6 +139,7 @@
                 Formatos permitidos: JPG, PNG y WEBP. Tamaño máximo: 5 MB.
               </p>
             </div>
+
           </div>
 
           <p
@@ -303,19 +312,23 @@
               </h3>
 
               <p class="mt-1 text-sm text-gray-600">
-                <strong>Grupo:</strong> {{ asignacion.grupo || 'No especificado' }}
+                <strong>Grupo:</strong>
+                {{ asignacion.grupo || 'No especificado' }}
               </p>
 
               <p class="text-sm text-gray-600">
-                <strong>Turno:</strong> {{ asignacion.turno || 'No especificado' }}
+                <strong>Turno:</strong>
+                {{ asignacion.turno || 'No especificado' }}
               </p>
 
               <p class="text-sm text-gray-600">
-                <strong>Aula:</strong> {{ asignacion.aula || 'No especificada' }}
+                <strong>Aula:</strong>
+                {{ asignacion.aula || 'No especificada' }}
               </p>
 
               <p class="text-sm text-gray-600">
-                <strong>Escuela:</strong> {{ asignacion.escuela || 'No especificada' }}
+                <strong>Escuela:</strong>
+                {{ asignacion.escuela || 'No especificada' }}
               </p>
 
               <div class="mt-3 border-t border-gray-100 pt-3">
@@ -340,208 +353,6 @@
           </div>
         </section>
 
-        <!-- AVISOS -->
-        <section class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-10">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h2 class="text-xl font-bold mb-2">
-                📢 Avisos de Biblioteca Joan Miró
-              </h2>
-
-              <p class="text-gray-700">
-                Los avisos pueden ser permanentes o temporales.
-                Los temporales expirarán a las 72 horas.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              @click="mostrarFormularioAviso = !mostrarFormularioAviso"
-              class="bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg px-5 py-3"
-            >
-              {{ mostrarFormularioAviso ? 'Cerrar formulario' : 'Crear aviso' }}
-            </button>
-          </div>
-
-          <form
-            v-if="mostrarFormularioAviso"
-            @submit.prevent="publicarAviso"
-            class="mt-6 bg-white rounded-xl border border-amber-200 p-5 space-y-5"
-          >
-            <div>
-              <label for="grupo-aviso" class="block font-semibold mb-2">
-                Grupo destinatario
-              </label>
-
-              <select
-                id="grupo-aviso"
-                v-model="aviso.grupoId"
-                @change="cambiarGrupo"
-                required
-                :disabled="cargandoGrupos || publicandoAviso || grupos.length === 0"
-                class="w-full border rounded-lg p-3 bg-white disabled:bg-gray-100"
-              >
-                <option value="" disabled>
-                  Selecciona un grupo
-                </option>
-
-                <option
-                  v-for="grupo in grupos"
-                  :key="grupo.id"
-                  :value="String(grupo.id)"
-                >
-                  {{ grupo.nombre }}
-                </option>
-              </select>
-
-              <p v-if="cargandoGrupos" class="mt-2 text-sm text-gray-500">
-                Cargando tus grupos...
-              </p>
-
-              <p
-                v-else-if="grupos.length === 0"
-                class="mt-2 text-sm text-amber-800"
-              >
-                No se han encontrado grupos asignados a tu cuenta.
-              </p>
-            </div>
-
-            <div>
-              <label for="destinatario-aviso" class="block font-semibold mb-2">
-                ¿A quién va dirigido el aviso?
-              </label>
-
-              <select
-                id="destinatario-aviso"
-                v-model="aviso.destinatario"
-                @change="cambiarDestinatario"
-                :disabled="publicandoAviso"
-                class="w-full border rounded-lg p-3 bg-white"
-              >
-                <option value="GRUPO">A todo el grupo</option>
-                <option value="INDIVIDUAL">A un alumno concreto</option>
-              </select>
-            </div>
-
-            <div v-if="aviso.destinatario === 'INDIVIDUAL'">
-              <label for="alumno-aviso" class="block font-semibold mb-2">
-                Alumno destinatario
-              </label>
-
-              <select
-                id="alumno-aviso"
-                v-model="aviso.alumnoId"
-                required
-                :disabled="cargandoAlumnos || alumnosGrupo.length === 0 || publicandoAviso"
-                class="w-full border rounded-lg p-3 bg-white disabled:bg-gray-100"
-              >
-                <option value="" disabled>
-                  Selecciona un alumno
-                </option>
-
-                <option
-                  v-for="alumno in alumnosGrupo"
-                  :key="alumno.id"
-                  :value="String(alumno.id)"
-                >
-                  {{ alumno.nombre }} {{ alumno.apellidos }}
-                </option>
-              </select>
-
-              <p v-if="cargandoAlumnos" class="mt-2 text-sm text-gray-500">
-                Cargando alumnos del grupo...
-              </p>
-
-              <p
-                v-else-if="alumnosGrupo.length === 0"
-                class="mt-2 text-sm text-amber-800"
-              >
-                No hay alumnos con matrícula activa en este grupo.
-              </p>
-            </div>
-
-            <div>
-              <label for="titulo-aviso" class="block font-semibold mb-2">
-                Título del aviso
-              </label>
-
-              <input
-                id="titulo-aviso"
-                v-model.trim="aviso.titulo"
-                required
-                maxlength="200"
-                class="w-full border rounded-lg p-3"
-                placeholder="Ej.: Cambio de horario"
-                :disabled="publicandoAviso"
-              />
-            </div>
-
-            <div>
-              <label for="mensaje-aviso" class="block font-semibold mb-2">
-                Contenido
-              </label>
-
-              <textarea
-                id="mensaje-aviso"
-                v-model.trim="aviso.mensaje"
-                required
-                rows="4"
-                class="w-full border rounded-lg p-3"
-                placeholder="Escribe el aviso..."
-                :disabled="publicandoAviso"
-              ></textarea>
-            </div>
-
-            <div>
-              <label for="tipo-aviso" class="block font-semibold mb-2">
-                Duración
-              </label>
-
-              <select
-                id="tipo-aviso"
-                v-model="aviso.tipo"
-                class="w-full border rounded-lg p-3 bg-white"
-                :disabled="publicandoAviso"
-              >
-                <option value="PERMANENTE">Permanente</option>
-                <option value="DIARIO">Temporal: máximo 72 horas</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              :disabled="
-                publicandoAviso ||
-                cargandoGrupos ||
-                !aviso.grupoId ||
-                grupos.length === 0 ||
-                (aviso.destinatario === 'INDIVIDUAL' &&
-                  (!aviso.alumnoId || alumnosGrupo.length === 0))
-              "
-              class="bg-teal-700 hover:bg-teal-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg px-5 py-3"
-            >
-              {{ publicandoAviso ? 'Publicando...' : 'Publicar aviso' }}
-            </button>
-
-            <p class="text-sm text-gray-500">
-              Los avisos permanentes no tienen fecha de expiración.
-              Los temporales se configuran en el servidor para expirar a las 72 horas.
-            </p>
-          </form>
-
-          <p
-            v-if="mensajeAviso"
-            role="status"
-            aria-live="polite"
-            class="mt-4 rounded-lg p-3 text-sm font-semibold"
-            :class="errorAviso
-              ? 'bg-red-100 text-red-800'
-              : 'bg-green-100 text-green-800'"
-          >
-            {{ mensajeAviso }}
-          </p>
-        </section>
-
         <!-- GESTIÓN EDUCATIVA -->
         <section>
           <h2 class="text-2xl font-bold mb-6">
@@ -549,41 +360,50 @@
           </h2>
 
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
             <RouterLink
-  to="/joanmiro/tutores/asistencia"
-  class="tarjeta border-t-4 border-teal-600"
->
-  <span class="text-3xl">👩‍🎓</span>
-  <h3 class="titulo-tarjeta">Asistencia del alumnado</h3>
-  <p class="texto-tarjeta">
-    Registrar, consultar y corregir la asistencia de los alumnos de Ateneu Aula 502.
-  </p>
-</RouterLink>
+              to="/joanmiro/tutores/asistencia"
+              class="tarjeta border-t-4 border-teal-600"
+            >
+              <span class="text-3xl">👩‍🎓</span>
 
+              <h3 class="titulo-tarjeta">
+                Asistencia del alumnado
+              </h3>
 
-<RouterLink
-  to="/joanmiro/recursos"
-  class="tarjeta border-t-4 border-green-600"
->
-  <span class="text-3xl">📚</span>
+              <p class="texto-tarjeta">
+                Registrar, consultar y corregir la asistencia de los alumnos
+                de la biblioteca Joan Miró.
+              </p>
+            </RouterLink>
 
-  <h3 class="titulo-tarjeta">
-    Recursos, tareas y resultados
-  </h3>
+            <RouterLink
+              to="/joanmiro/recursos"
+              class="tarjeta border-t-4 border-green-600"
+            >
+              <span class="text-3xl">📚</span>
 
-  <p class="texto-tarjeta">
-    Publicar materiales y actividades, consultar las tareas
-    enviadas por los alumnos, registrar notas y comentarios
-    y devolver documentos corregidos.
-  </p>
-</RouterLink>
+              <h3 class="titulo-tarjeta">
+                Recursos, tareas y resultados
+              </h3>
+
+              <p class="texto-tarjeta">
+                Publicar materiales y actividades, consultar las tareas
+                enviadas por los alumnos, registrar notas y comentarios
+                y devolver documentos corregidos.
+              </p>
+            </RouterLink>
 
             <RouterLink
               to="/joanmiro/tutores/mensaje-profesor"
               class="tarjeta border-t-4 border-red-500"
             >
               <span class="text-3xl">💬</span>
-              <h3 class="titulo-tarjeta">Mensajes</h3>
+
+              <h3 class="titulo-tarjeta">
+                Mensajes
+              </h3>
+
               <p class="texto-tarjeta">
                 Enviar y recibir mensajes de los alumnos de esta escuela.
               </p>
@@ -594,9 +414,13 @@
               class="tarjeta border-t-4 border-purple-600"
             >
               <span class="text-3xl">🌍</span>
-              <h3 class="titulo-tarjeta">Foro de estudiantes</h3>
+
+              <h3 class="titulo-tarjeta">
+                Foro de estudiantes
+              </h3>
+
               <p class="texto-tarjeta">
-                Participar en los foros de los cursos y el foro general de Biblioteca Joan Miró.
+                Participar en los foros de los cursos y el foro general de la Biblioteca Joan Miró.
               </p>
             </RouterLink>
 
@@ -605,15 +429,20 @@
               class="tarjeta border-t-4 border-gray-700"
             >
               <span class="text-3xl">🔒</span>
-              <h3 class="titulo-tarjeta">Foro del profesorado</h3>
+
+              <h3 class="titulo-tarjeta">
+                Foro del profesorado
+              </h3>
+
               <p class="texto-tarjeta">
-                Acceder al foro común del equipo docente de Biblioteca Joan Miró y Ateneu Barcelonès.
+                Acceder al foro común del equipo docente de la Biblioteca Joan Miró y Ateneu Aula 502.
               </p>
 
               <span class="inline-block mt-4 font-bold text-teal-700">
                 Entrar al foro →
               </span>
             </RouterLink>
+
           </div>
         </section>
       </main>
@@ -621,58 +450,56 @@
       <!-- PIE DE PÁGINA -->
       <footer class="border-t bg-white py-6 mt-12">
         <p class="text-center text-sm text-gray-500">
-          ExAequo · Biblioteca Joan Miró · Espacio del profesorado
+          ExAequo · Escuela Biblioteca Joan Miró · Espacio del profesorado
         </p>
       </footer>
     </div>
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+
+import AvisosTutor from '../../../components/avisos/AvisosTutor.vue'
 import NavbarJoanmiro from '../../../components/joanmiro/NavbarJoanmiro.vue'
 
 const router = useRouter()
 
+// Dirección del backend
 const baseAPI = (
   import.meta.env.VITE_API_URL || 'http://localhost:5555'
 ).replace(/\/+$/, '')
 
+// Estado de sesión
 const comprobandoSesion = ref(true)
-const profesor = ref({
-  nombre: '',
-  apellidos: '',
-  asignaciones: []
-})
+
+const profesor = ref(null)
+
+// Cursos y horarios
 const mostrarCursosAsignados = ref(false)
+
+// Foto del profesor
 const selectorFoto = ref(null)
 const subiendoFoto = ref(false)
 const errorFoto = ref(false)
+
+// Mensajes del perfil
 const mensajePerfil = ref('')
 const errorPerfil = ref(false)
 
-const mostrarFormularioAviso = ref(false)
-const mensajeAviso = ref('')
-const errorAviso = ref(false)
+// Guardar datos personales
+const guardandoPerfil = ref(false)
 
-const grupos = ref([])
-const alumnosGrupo = ref([])
-
-const cargandoGrupos = ref(false)
-const cargandoAlumnos = ref(false)
-const publicandoAviso = ref(false)
-
-const aviso = ref({
-  grupoId: '',
-  destinatario: 'GRUPO',
-  alumnoId: '',
-  titulo: '',
-  mensaje: '',
-  tipo: 'DIARIO'
+const formPerfil = ref({
+  nombre: '',
+  apellidos: '',
+  email: '',
+  telefono: '',
+  especialidad: ''
 })
 
+// URL de la foto
 const urlFoto = computed(() => {
   if (!profesor.value?.foto) return ''
 
@@ -685,6 +512,7 @@ const urlFoto = computed(() => {
   return `${baseAPI}/${foto.replace(/^\/+/, '')}`
 })
 
+// Iniciales del profesor
 const inicialesProfesor = computed(() => {
   const nombre = profesor.value?.nombre?.trim()?.charAt(0) || ''
   const apellidos = profesor.value?.apellidos?.trim()?.charAt(0) || ''
@@ -692,16 +520,7 @@ const inicialesProfesor = computed(() => {
   return `${nombre}${apellidos}`.toUpperCase() || 'P'
 })
 
-function mostrarError(mensaje) {
-  errorAviso.value = true
-  mensajeAviso.value = mensaje
-}
-
-function mostrarExito(mensaje) {
-  errorAviso.value = false
-  mensajeAviso.value = mensaje
-}
-
+// Leer respuestas del servidor
 async function leerRespuesta(respuesta) {
   const resultado = await respuesta.json().catch(() => ({}))
 
@@ -714,11 +533,24 @@ async function leerRespuesta(respuesta) {
   return resultado
 }
 
+// Mostrar mensajes del perfil
 function mostrarMensajePerfil(mensaje, esError = false) {
   errorPerfil.value = esError
   mensajePerfil.value = mensaje
 }
 
+// Sincronizar los datos del formulario
+function sincronizarFormularioPerfil(datos) {
+  formPerfil.value = {
+    nombre: datos.nombre || '',
+    apellidos: datos.apellidos || '',
+    email: datos.email || '',
+    telefono: datos.telefono || '',
+    especialidad: datos.especialidad || ''
+  }
+}
+
+// Cargar perfil del profesor
 async function cargarPerfil() {
   const respuesta = await fetch(`${baseAPI}/api/perfil-profesor/me`, {
     method: 'GET',
@@ -740,32 +572,45 @@ async function cargarPerfil() {
   }
 
   errorFoto.value = false
-sincronizarFormularioPerfil(profesor.value)
+
+  sincronizarFormularioPerfil(profesor.value)
 }
 
+// Abrir selector de foto
 function abrirSelectorFoto() {
   selectorFoto.value?.click()
 }
 
+// Subir foto
 async function subirFoto(evento) {
   const archivo = evento.target.files?.[0]
 
-  // Permite seleccionar el mismo archivo de nuevo si fuera necesario.
+  // Permite seleccionar el mismo archivo de nuevo
   evento.target.value = ''
 
   if (!archivo) return
 
   mostrarMensajePerfil('')
 
-  const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp']
+  const tiposPermitidos = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+  ]
 
   if (!tiposPermitidos.includes(archivo.type)) {
-    mostrarMensajePerfil('La foto debe ser JPG, PNG o WEBP.', true)
+    mostrarMensajePerfil(
+      'La foto debe ser JPG, PNG o WEBP.',
+      true
+    )
     return
   }
 
   if (archivo.size > 5 * 1024 * 1024) {
-    mostrarMensajePerfil('La imagen no puede superar los 5 MB.', true)
+    mostrarMensajePerfil(
+      'La imagen no puede superar los 5 MB.',
+      true
+    )
     return
   }
 
@@ -775,14 +620,17 @@ async function subirFoto(evento) {
   subiendoFoto.value = true
 
   try {
-    const respuesta = await fetch(`${baseAPI}/api/perfil-profesor/foto`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json'
-      },
-      body: formulario
-    })
+    const respuesta = await fetch(
+      `${baseAPI}/api/perfil-profesor/foto`,
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        },
+        body: formulario
+      }
+    )
 
     const resultado = await leerRespuesta(respuesta)
 
@@ -798,7 +646,8 @@ async function subirFoto(evento) {
     }
 
     mostrarMensajePerfil(
-      resultado.mensaje || 'La foto de perfil se ha actualizado correctamente.'
+      resultado.mensaje ||
+      'La foto de perfil se ha actualizado correctamente.'
     )
   } catch (error) {
     mostrarMensajePerfil(
@@ -810,248 +659,10 @@ async function subirFoto(evento) {
   }
 }
 
-// Cargar los grupos asignados al profesor de la sesión.
-async function cargarGrupos() {
-  cargandoGrupos.value = true
-  grupos.value = []
-  alumnosGrupo.value = []
-
-  try {
-    const respuesta = await fetch(`${baseAPI}/api/avisos/mis-grupos`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json'
-      }
-    })
-
-    const resultado = await leerRespuesta(respuesta)
-
-    grupos.value = Array.isArray(resultado.grupos)
-      ? resultado.grupos
-      : []
-
-    if (grupos.value.length > 0) {
-      aviso.value.grupoId = String(grupos.value[0].id)
-      await cargarAlumnosDelGrupo()
-    } else {
-      aviso.value.grupoId = ''
-      aviso.value.alumnoId = ''
-      alumnosGrupo.value = []
-    }
-  } catch (error) {
-    mostrarError(
-      error.message || 'No se han podido cargar los grupos del profesor.'
-    )
-  } finally {
-    cargandoGrupos.value = false
-  }
-}
-
-// Cargar los alumnos del grupo seleccionado.
-async function cargarAlumnosDelGrupo() {
-  alumnosGrupo.value = []
-  aviso.value.alumnoId = ''
-
-  const grupoId = aviso.value.grupoId
-
-  if (!grupoId) return
-
-  cargandoAlumnos.value = true
-
-  try {
-    const respuesta = await fetch(
-      `${baseAPI}/api/avisos/mis-grupos/${encodeURIComponent(grupoId)}/alumnos`,
-      {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          Accept: 'application/json'
-        }
-      }
-    )
-
-    const resultado = await leerRespuesta(respuesta)
-
-    alumnosGrupo.value = Array.isArray(resultado.alumnos)
-      ? resultado.alumnos
-      : []
-
-    if (
-      aviso.value.destinatario === 'INDIVIDUAL' &&
-      alumnosGrupo.value.length > 0
-    ) {
-      aviso.value.alumnoId = String(alumnosGrupo.value[0].id)
-    }
-  } catch (error) {
-    mostrarError(
-      error.message || 'No se han podido cargar los alumnos del grupo.'
-    )
-  } finally {
-    cargandoAlumnos.value = false
-  }
-}
-
-async function cambiarGrupo() {
-  mensajeAviso.value = ''
-  errorAviso.value = false
-
-  await cargarAlumnosDelGrupo()
-}
-
-function cambiarDestinatario() {
-  mensajeAviso.value = ''
-  errorAviso.value = false
-  aviso.value.alumnoId = ''
-
-  if (
-    aviso.value.destinatario === 'INDIVIDUAL' &&
-    alumnosGrupo.value.length > 0
-  ) {
-    aviso.value.alumnoId = String(alumnosGrupo.value[0].id)
-  }
-}
-
-// Publicar avisos.
-async function publicarAviso() {
-  mensajeAviso.value = ''
-  errorAviso.value = false
-
-  if (!aviso.value.grupoId) {
-    mostrarError('Selecciona un grupo antes de publicar el aviso.')
-    return
-  }
-
-  if (
-    aviso.value.destinatario === 'INDIVIDUAL' &&
-    !aviso.value.alumnoId
-  ) {
-    mostrarError('Selecciona el alumno que recibirá el aviso.')
-    return
-  }
-
-  publicandoAviso.value = true
-
-  try {
-    const datosAviso = {
-      grupoId: Number(aviso.value.grupoId),
-      alumnoId: aviso.value.destinatario === 'INDIVIDUAL'
-        ? Number(aviso.value.alumnoId)
-        : null,
-      titulo: aviso.value.titulo,
-      mensaje: aviso.value.mensaje,
-      tipo: aviso.value.tipo
-    }
-
-    const respuesta = await fetch(`${baseAPI}/api/avisos`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(datosAviso)
-    })
-
-    const resultado = await leerRespuesta(respuesta)
-
-    mostrarExito(
-      resultado.mensaje || 'El aviso se ha publicado correctamente.'
-    )
-
-    aviso.value.titulo = ''
-    aviso.value.mensaje = ''
-  } catch (error) {
-    mostrarError(
-      error.message || 'No se ha podido publicar el aviso.'
-    )
-  } finally {
-    publicandoAviso.value = false
-  }
-}
-
-onMounted(async () => {
-  try {
-    const respuesta = await fetch(
-      `${baseAPI}/api/acceso-profesor/session`,
-      {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          Accept: 'application/json'
-        }
-      }
-    )
-
-    const resultado = await leerRespuesta(respuesta)
-
-    if (!resultado.profesor) {
-      throw new Error('No se ha encontrado el profesor de la sesión.')
-    }
-
-    // Joan Miró corresponde a la escuela ID 1.
-    if (Number(resultado.profesor.escuelaId) !== 1) {
-      await router.replace('/joanmiro/tutores/acceso')
-      return
-    }
-
-    profesor.value = resultado.profesor
-
-    // Si falla la carga del perfil, no ocultamos el resto de la página.
-    try {
-      await cargarPerfil()
-    } catch (error) {
-      console.error('Error al cargar los datos del perfil:', error)
-      mostrarMensajePerfil(
-        error.message || 'No se han podido cargar los datos del perfil.',
-        true
-      )
-    }
-
-    await cargarGrupos()
-  } catch (error) {
-    console.error('Error al comprobar la sesión:', error.message)
-    await router.replace('/joanmiro/tutores/acceso')
-  } finally {
-    comprobandoSesion.value = false
-  }
-})
-
-async function cerrarSesion() {
-  try {
-    await fetch(`${baseAPI}/api/acceso-profesor/logout`, {
-      method: 'POST',
-      credentials: 'include'
-    })
-  } catch (error) {
-    console.error('No se pudo contactar con el servidor para cerrar sesión.')
-  }
-
-  profesor.value = null
-  await router.replace('/joanmiro/tutores/acceso')
-}
-const guardandoPerfil = ref(false)
-
-const formPerfil = ref({
-  nombre: '',
-  apellidos: '',
-  email: '',
-  telefono: '',
-  especialidad: ''
-})
-
-function sincronizarFormularioPerfil(datos) {
-  formPerfil.value = {
-    nombre: datos.nombre || '',
-    apellidos: datos.apellidos || '',
-    email: datos.email || '',
-    telefono: datos.telefono || '',
-    especialidad: datos.especialidad || ''
-  }
-}
-
+// Guardar datos personales
 async function guardarPerfil() {
   mensajePerfil.value = ''
+  errorPerfil.value = false
 
   const datos = {
     nombre: formPerfil.value.nombre.trim(),
@@ -1072,32 +683,37 @@ async function guardarPerfil() {
   guardandoPerfil.value = true
 
   try {
-    const respuesta = await fetch(`${baseAPI}/api/perfil-profesor/me`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(datos)
-    })
+    const respuesta = await fetch(
+      `${baseAPI}/api/perfil-profesor/me`,
+      {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify(datos)
+      }
+    )
 
     const resultado = await leerRespuesta(respuesta)
 
-    // El controlador puede devolver los datos actualizados.
+    // El controlador puede devolver los datos actualizados
     if (resultado.datos) {
       profesor.value = {
         ...profesor.value,
         ...resultado.datos
       }
+
       sincronizarFormularioPerfil(resultado.datos)
     } else {
-      // Si no los devuelve, vuelve a leerlos desde el servidor.
+      // Si no los devuelve, volver a leerlos
       await cargarPerfil()
     }
 
     mostrarMensajePerfil(
-      resultado.mensaje || 'Tus datos se han actualizado correctamente.'
+      resultado.mensaje ||
+      'Tus datos se han actualizado correctamente.'
     )
   } catch (error) {
     mostrarMensajePerfil(
@@ -1108,6 +724,81 @@ async function guardarPerfil() {
     guardandoPerfil.value = false
   }
 }
+
+// Cerrar sesión
+async function cerrarSesion() {
+  try {
+    await fetch(`${baseAPI}/api/acceso-profesor/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+  } catch (error) {
+    console.error(
+      'No se pudo contactar con el servidor para cerrar sesión.',
+      error
+    )
+  }
+
+  profesor.value = null
+
+  await router.replace('/joanmiro/tutores/acceso')
+}
+
+// Comprobar sesión y cargar datos
+onMounted(async () => {
+  try {
+    const respuesta = await fetch(
+      `${baseAPI}/api/acceso-profesor/session`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        }
+      }
+    )
+
+    const resultado = await leerRespuesta(respuesta)
+
+    if (!resultado.profesor) {
+      await router.replace('/joanmiro/tutores/acceso')
+      return
+    }
+
+    // Escuela biblioteca Joan Miró corresponde a la escuela ID 1
+    if (Number(resultado.profesor.escuelaId) !== 1) {
+      await router.replace('/joanmiro/tutores/acceso')
+      return
+    }
+
+    profesor.value = resultado.profesor
+
+    // Si falla la carga del perfil, mantenemos la página
+    // y mostramos el error en el apartado del perfil.
+    try {
+      await cargarPerfil()
+    } catch (error) {
+      console.error(
+        'Error al cargar los datos del perfil:',
+        error
+      )
+
+      mostrarMensajePerfil(
+        error.message || 'No se han podido cargar los datos del perfil.',
+        true
+      )
+    }
+  } catch (error) {
+    console.error(
+      'Error al comprobar la sesión del profesor:',
+      error
+    )
+
+    await router.replace('/joanmiro/tutores/acceso')
+  } finally {
+    comprobandoSesion.value = false
+  }
+})
 </script>
 
 <style scoped>

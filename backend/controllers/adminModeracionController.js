@@ -65,9 +65,9 @@ async function moderarMensaje(req, res, tabla, accion) {
     const { motivo, contrasena } = req.body || {}
 
     const tablasPermitidas = {
-        estudiantes: 'foro_mensajes_alumnos',
-        profesores: 'foro_profesores'
-    }
+    estudiantes: 'foro_mensajes',
+    profesores: 'foro_profesores'
+}
 
     const tablaReal = tablasPermitidas[tabla]
 
@@ -276,9 +276,6 @@ async function getForoEstudiantes(req, res) {
                 fm.grupo_id,
                 fm.alumno_id,
                 fm.profesor_id,
-                fm.respuesta_a_id,
-                fm.titulo,
-                fm.categoria,
                 fm.mensaje,
                 fm.fecha_creacion,
                 fm.activo,
@@ -292,12 +289,12 @@ async function getForoEstudiantes(req, res) {
                 (
                     SELECT ma.accion
                     FROM foro_moderacion_auditoria ma
-                    WHERE ma.tabla_origen = 'foro_mensajes_alumnos'
+                    WHERE ma.tabla_origen = 'foro_mensajes'
                       AND ma.mensaje_id = fm.id
                     ORDER BY ma.id DESC
                     LIMIT 1
                 ) AS ultima_accion
-            FROM foro_mensajes_alumnos fm
+            FROM foro_mensajes fm
             INNER JOIN grupos g ON g.id = fm.grupo_id
             INNER JOIN escuelas e ON e.id = g.escuela_id
             LEFT JOIN alumnos a ON a.id = fm.alumno_id
@@ -373,7 +370,7 @@ async function getForoProfesores(req, res) {
 
         return res.status(500).json({
             ok: false,
-            mensaje: 'No se pudo consultar el foro de profesores.'
+            mensaje: 'No se pudieron consultar los mensajes del foro de profesores.'
         })
     }
 }

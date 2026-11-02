@@ -235,20 +235,20 @@
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
             <!-- MODERACIÓN: SE CONSERVA -->
-            <button
-              type="button"
-              @click="seleccionarModulo('foros')"
-              class="rounded-xl border border-red-200 bg-red-50 p-6 text-left transition hover:bg-red-100"
-            >
-              <span class="mb-3 block text-3xl">🛡️</span>
-              <h3 class="text-xl font-bold">Moderación y convivencia</h3>
-              <p class="mt-2 text-sm text-gray-700">
-                Consultar, ocultar, restaurar y retirar publicaciones.
-              </p>
-              <span class="mt-4 block font-semibold text-red-800">
-                Gestionar →
-              </span>
-            </button>
+           <button
+  type="button"
+  @click="seleccionarModulo('mediacion'); subModuloMediacion = ''"
+  class="rounded-xl border border-red-200 bg-red-50 p-6 text-left transition hover:bg-red-100"
+>
+  <span class="mb-3 block text-3xl">🛡️</span>
+  <h3 class="text-xl font-bold">Mediación y convivencia</h3>
+  <p class="mt-2 text-sm text-gray-700">
+    Gestión de foros, mensajes y avisos de las escuelas.
+  </p>
+  <span class="mt-4 block font-semibold text-red-800">
+    Gestionar →
+  </span>
+</button>
 
             <!-- ARCHIVOS: SE CONSERVA -->
             <button
@@ -2146,12 +2146,111 @@
 </div>
 </section>
 
+<!-- =====================================================
+     MEDIACIÓN Y CONVIVENCIA
+     SUBMÓDULOS: FORO, MENSAJE Y AVISO
+===================================================== -->
+
+
+<section
+  v-if="moduloSeleccionado === 'mediacion' && subModuloMediacion === ''"
+  class="mt-8 rounded-xl border border-red-200 bg-red-50 p-5"
+>
+  <!-- CABECERA -->
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-bold text-red-900">
+        Mediación y convivencia
+      </h2>
+
+      <p class="mt-1 text-sm text-gray-700">
+        Gestión de foros, mensajes y avisos de las escuelas.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="moduloSeleccionado = ''"
+      class="rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100"
+    >
+      ← Volver
+    </button>
+  </div>
+
+  <!-- TARJETAS DE MODERACIÓN -->
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+    <!-- FOROS -->
+    <button
+      type="button"
+      @click="subModuloMediacion = 'foros'; cargarForos()"
+      class="rounded-xl border border-blue-200 bg-white p-5 text-left shadow-sm transition hover:bg-blue-50 hover:shadow-md"
+    >
+      <span class="mb-3 block text-3xl">💬</span>
+
+      <h3 class="text-xl font-bold text-blue-900">
+        Foros
+      </h3>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Moderación de los foros de profesores y estudiantes.
+      </p>
+
+      <span class="mt-4 block font-semibold text-blue-800">
+        Gestionar foros →
+      </span>
+    </button>
+
+    <!-- MENSAJES -->
+    <button
+      type="button"
+      @click="subModuloMediacion = 'mensajes'"
+      class="rounded-xl border border-purple-200 bg-white p-5 text-left shadow-sm transition hover:bg-purple-50 hover:shadow-md"
+    >
+      <span class="mb-3 block text-3xl">✉️</span>
+
+      <h3 class="text-xl font-bold text-purple-900">
+        Mensajes
+      </h3>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Gestión de mensajes y comunicaciones.
+      </p>
+
+      <span class="mt-4 block font-semibold text-purple-800">
+        Gestionar mensajes →
+      </span>
+    </button>
+
+    <!-- AVISOS -->
+    <button
+      type="button"
+@click="subModuloMediacion = 'avisos'; cargarAvisosAdmin()"      class="rounded-xl border border-amber-200 bg-white p-5 text-left shadow-sm transition hover:bg-amber-50 hover:shadow-md"
+    >
+      <span class="mb-3 block text-3xl">📢</span>
+
+      <h3 class="text-xl font-bold text-amber-900">
+        Avisos
+      </h3>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Publicación, ocultación y gestión de avisos escolares.
+      </p>
+
+      <span class="mt-4 block font-semibold text-amber-800">
+        Gestionar avisos →
+      </span>
+    </button>
+
+  </div>
+</section>
+
 
         <!-- MODERACIÓN DE FOROS -->
         <section
-          v-if="moduloSeleccionado === 'foros'"
-          class="mt-8 space-y-6"
-        >
+  v-if="moduloSeleccionado === 'mediacion' && subModuloMediacion === 'foros'"
+  class="mt-8 space-y-6"
+>
           <div class="flex flex-wrap items-center justify-between gap-3">
             <h3 class="text-2xl font-bold text-gray-900">
               Moderación de foros
@@ -2396,9 +2495,410 @@
             </article>
           </div>
         </section>
-
-        <!-- MATERIALES -->
         
+        
+<!-- =====================================================
+     AVISO - PANEL DE ADMINISTRACIÓN
+===================================================== -->
+
+<section
+  v-if="moduloSeleccionado === 'mediacion' && subModuloMediacion === 'avisos'"
+  class="mt-8 rounded-xl border border-amber-200 bg-white p-5 shadow-sm"
+>
+<p class="rounded-lg bg-yellow-100 p-4 text-black">
+  PRUEBA: SE HA ABIERTO LA SECCIÓN DE AVISOS
+</p>
+  <!-- CABECERA -->
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-bold text-amber-900">
+        Gestión de avisos
+      </h2>
+      <p class="mt-1 text-sm text-gray-600">
+        Publica y administra los avisos de Ateneu Aula 502 y Biblioteca Joan Miró.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      @click="subModuloMediacion = ''"
+      class="rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100"
+    >
+      ← Volver
+    </button>
+  </div>
+
+  <!-- MENSAJE -->
+  <div
+    v-if="mensajeAvisosAdmin"
+    class="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+  >
+    {{ mensajeAvisosAdmin }}
+  </div>
+
+  <!-- FORMULARIO DE PUBLICACIÓN -->
+  <div class="mb-8 rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <h3 class="mb-4 text-xl font-bold text-gray-900">
+      Publicar un aviso
+    </h3>
+
+    <form
+      class="space-y-4"
+      @submit.prevent="publicarAvisoAdmin"
+    >
+
+    <!-- ESCUELA -->
+<div>
+  <label class="mb-1 block font-semibold text-gray-700">
+    Escuela
+  </label>
+
+  <select
+    v-model="formularioAvisoAdmin.escuela_id"
+    @change="cargarGruposAvisosAdmin"
+    required
+    class="w-full rounded-lg border border-gray-300 bg-white p-3"
+  >
+    <option value="">Selecciona una escuela</option>
+    <option value="TODAS">Todas las escuelas</option>
+    <option value="1">Biblioteca Joan Miró</option>
+    <option value="2">Ateneu Aula 502</option>
+  </select>
+</div>
+
+      
+     <!-- DESTINATARIO -->
+<div>
+  <label class="mb-1 block font-semibold text-gray-700">
+    Destinatario
+  </label>
+
+  <select
+    v-model="formularioAvisoAdmin.grupo_id"
+    :disabled="formularioAvisoAdmin.escuela_id === 'TODAS' ||
+               !formularioAvisoAdmin.escuela_id"
+    class="w-full rounded-lg border border-gray-300 bg-white p-3 disabled:bg-gray-100"
+  >
+    <option value="">Toda la escuela</option>
+
+    <option
+      v-for="grupo in gruposAvisosAdmin"
+      :key="grupo.grupo_id"
+      :value="grupo.grupo_id"
+    >
+      {{ grupo.grupo }}
+    </option>
+  </select>
+
+  <p class="mt-1 text-xs text-gray-500">
+    Puedes enviar el aviso a toda la escuela o seleccionar un grupo concreto.
+    Los avisos de grupo estarán destinados a sus alumnos y tutor.
+  </p>
+</div>
+
+      <!-- TÍTULO -->
+      <div>
+        <label class="mb-1 block font-semibold text-gray-700">
+          Título
+        </label>
+
+        <input
+          v-model="formularioAvisoAdmin.titulo"
+          type="text"
+          maxlength="200"
+          required
+          placeholder="Título del aviso"
+          class="w-full rounded-lg border border-gray-300 bg-white p-3"
+        />
+      </div>
+
+      <!-- MENSAJE -->
+      <div>
+        <label class="mb-1 block font-semibold text-gray-700">
+          Contenido del aviso
+        </label>
+
+        <textarea
+          v-model="formularioAvisoAdmin.mensaje"
+          rows="5"
+          required
+          placeholder="Escribe el contenido del aviso..."
+          class="w-full rounded-lg border border-gray-300 bg-white p-3"
+        ></textarea>
+      </div>
+
+      <!-- EXPIRACIÓN -->
+      <div>
+        <label class="mb-1 block font-semibold text-gray-700">
+          Fecha de expiración
+        </label>
+
+        <input
+          v-model="formularioAvisoAdmin.fecha_expiracion"
+          type="datetime-local"
+          class="w-full rounded-lg border border-gray-300 bg-white p-3"
+        />
+
+        <p class="mt-1 text-xs text-gray-500">
+          Déjalo vacío si quieres que el aviso no caduque.
+        </p>
+      </div>
+
+      <!-- PUBLICAR -->
+      <button
+        type="submit"
+        :disabled="procesandoAvisoAdmin || cargandoAvisosAdmin"
+        class="rounded-lg bg-amber-700 px-5 py-3 font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {{ procesandoAvisoAdmin ? 'Publicando...' : 'Publicar aviso' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- LISTADO DE AVISOS -->
+  <div>
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h3 class="text-xl font-bold text-gray-900">
+        Avisos publicados
+      </h3>
+
+      <button
+        type="button"
+        @click="cargarAvisosAdmin"
+        :disabled="cargandoAvisosAdmin || procesandoAvisoAdmin"
+        class="rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold hover:bg-gray-100 disabled:opacity-50"
+      >
+        {{ cargandoAvisosAdmin ? 'Cargando...' : 'Actualizar' }}
+      </button>
+    </div>
+
+    <div
+      v-if="cargandoAvisosAdmin"
+      class="rounded-lg bg-gray-50 p-5 text-center text-gray-600"
+    >
+      Cargando avisos...
+    </div>
+
+    <div
+      v-else-if="avisosAdmin.length === 0"
+      class="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500"
+    >
+      Todavía no hay avisos registrados.
+    </div>
+
+    <div v-else class="space-y-4">
+      <article
+        v-for="aviso in avisosAdmin"
+        :key="aviso.id"
+        class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+      >
+        <div class="mb-3 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h4 class="text-lg font-bold text-gray-900">
+              {{ aviso.titulo }}
+            </h4>
+
+            <p class="mt-1 text-sm text-gray-600">
+{{ aviso.escuela }}
+              ·
+{{
+  aviso.escuela_id == null
+    ? 'Todas las escuelas'
+    : aviso.grupo_id == null
+      ? 'Toda la escuela'
+      : (aviso.grupo || `Grupo ${aviso.grupo_id}`)
+}}
+            </p>
+          </div>
+
+          <span
+            class="rounded-full px-3 py-1 text-xs font-semibold"
+            :class="Number(aviso.activo) === 1
+              ? 'bg-green-100 text-green-800'
+              : 'bg-gray-200 text-gray-700'"
+          >
+            {{ Number(aviso.activo) === 1 ? 'Visible' : 'Oculto' }}
+          </span>
+        </div>
+
+        <p class="whitespace-pre-line text-gray-700">
+          {{ aviso.mensaje }}
+        </p>
+
+        <div class="mt-4 space-y-1 text-xs text-gray-500">
+          <p>
+            Origen: {{ aviso.origen === 'PROFESOR' ? 'Profesor' : 'Administración' }}
+          </p>
+
+          <p>
+            Publicación: {{ formatearFecha(aviso.fecha_publicacion) }}
+          </p>
+
+          <p>
+            Expiración:
+            {{ aviso.fecha_expiracion
+              ? formatearFecha(aviso.fecha_expiracion)
+              : 'Sin fecha de expiración' }}
+          </p>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="mt-5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            @click="cambiarEstadoAvisoAdmin(aviso)"
+            :disabled="procesandoAvisoAdmin || cargandoAvisosAdmin"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold hover:bg-gray-100 disabled:opacity-50"
+          >
+            {{ Number(aviso.activo) === 1 ? 'Ocultar' : 'Restaurar' }}
+          </button>
+
+          <button
+            type="button"
+            @click="ampliarAvisoAdmin(aviso)"
+            :disabled="procesandoAvisoAdmin || cargandoAvisosAdmin"
+            class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-50"
+          >
+            Ampliar un mes
+          </button>
+<button
+  type="button"
+  @click="abrirEdicionAvisoAdmin(aviso)"
+  :disabled="procesandoAvisoAdmin || cargandoAvisosAdmin"
+  class="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-50"
+>
+  Editar aviso
+</button>
+          <button
+            type="button"
+            @click="eliminarAvisoAdmin(aviso)"
+            :disabled="procesandoAvisoAdmin || cargandoAvisosAdmin"
+            class="rounded-lg bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+          >
+            Eliminar definitivamente
+          </button>
+        </div>
+        <!-- FORMULARIO DE EDICIÓN -->
+<div
+  v-if="avisoEditandoId === Number(aviso.id)"
+  class="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-5"
+>
+  <h4 class="mb-4 text-lg font-bold text-blue-900">
+    Modificar aviso
+  </h4>
+
+  <form
+    class="space-y-4"
+    @submit.prevent="guardarEdicionAvisoAdmin"
+  >
+    <div>
+      <label class="mb-1 block font-semibold">
+        Escuela destinataria
+      </label>
+
+      <select
+        v-model="formularioEdicionAvisoAdmin.escuela_id"
+        @change="cargarGruposEdicionAvisoAdmin"
+        required
+        class="w-full rounded-lg border bg-white p-3"
+      >
+        <option value="TODAS">Todas las escuelas</option>
+        <option value="1">Biblioteca Joan Miró</option>
+        <option value="2">Ateneu Aula 502</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="mb-1 block font-semibold">
+        Destinatario
+      </label>
+
+      <select
+        v-model="formularioEdicionAvisoAdmin.grupo_id"
+        :disabled="formularioEdicionAvisoAdmin.escuela_id === 'TODAS'"
+        class="w-full rounded-lg border bg-white p-3 disabled:bg-gray-100"
+      >
+        <option value="">Toda la escuela</option>
+
+        <option
+          v-for="grupo in gruposEdicionAvisoAdmin"
+          :key="grupo.grupo_id"
+          :value="String(grupo.grupo_id)"
+        >
+          {{ grupo.grupo }}
+        </option>
+      </select>
+    </div>
+
+    <div>
+      <label class="mb-1 block font-semibold">
+        Título
+      </label>
+
+      <input
+        v-model="formularioEdicionAvisoAdmin.titulo"
+        type="text"
+        maxlength="200"
+        required
+        class="w-full rounded-lg border bg-white p-3"
+      />
+    </div>
+
+    <div>
+      <label class="mb-1 block font-semibold">
+        Contenido
+      </label>
+
+      <textarea
+        v-model="formularioEdicionAvisoAdmin.mensaje"
+        rows="5"
+        maxlength="5000"
+        required
+        class="w-full rounded-lg border bg-white p-3"
+      ></textarea>
+    </div>
+
+    <div>
+      <label class="mb-1 block font-semibold">
+        Fecha de expiración
+      </label>
+
+      <input
+        v-model="formularioEdicionAvisoAdmin.fecha_expiracion"
+        type="datetime-local"
+        class="w-full rounded-lg border bg-white p-3"
+      />
+
+      <p class="mt-1 text-xs text-gray-600">
+        Déjalo vacío si quieres que el aviso no caduque.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <button
+        type="submit"
+        :disabled="procesandoAvisoAdmin"
+        class="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800 disabled:opacity-50"
+      >
+        Guardar modificaciones
+      </button>
+
+      <button
+        type="button"
+        @click="avisoEditandoId = null"
+        :disabled="procesandoAvisoAdmin"
+        class="rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold"
+      >
+        Cancelar
+      </button>
+    </div>
+  </form>
+</div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- MATERIALES -->
 <section
   v-if="moduloSeleccionado === 'archivos'"
@@ -2820,6 +3320,29 @@ const recursos = ref([])
 const filtroEscuelaRecursos = ref('')
 const filtroIdiomaRecursos = ref('')
 const filtroGrupoRecursos = ref('')
+// =====================================================
+// AVISOS - ADMINISTRACIÓN
+// =====================================================
+
+const avisosAdmin = ref([])
+const gruposAvisosAdmin = ref([])
+
+const cargandoAvisosAdmin = ref(false)
+const procesandoAvisoAdmin = ref(false)
+
+const mensajeAvisosAdmin = ref('')
+
+const avisoEditandoId = ref(null)
+
+const gruposEdicionAvisoAdmin = ref([])
+
+const formularioEdicionAvisoAdmin = ref({
+  escuela_id: '',
+  grupo_id: '',
+  titulo: '',
+  mensaje: '',
+  fecha_expiracion: ''
+})
 
 // Idiomas disponibles en los materiales
 const idiomasRecursos = computed(() => {
@@ -2931,8 +3454,15 @@ const errorEscuelasAdmin = ref('')
 const mostrarFormularioGrupoAdmin = ref(false)
 const guardandoGrupoAdmin = ref(false)
 const mensajeGrupoAdmin = ref('')
-
+const subModuloMediacion = ref('')
 const cursosFormularioAdmin = ref([])
+const formularioAvisoAdmin = ref({
+  escuela_id: '',
+  grupo_id: '',
+  titulo: '',
+  mensaje: '',
+  fecha_expiracion: ''
+})
 
 const diasSemanaGrupoAdmin = [
   'Lunes',
@@ -4671,6 +5201,513 @@ async function cargarResultadosFinalesInterno() {
       : []
 }
 
+
+// =====================================================
+// AVISOS - CARGAR AVISOS Y GRUPOS
+// =====================================================
+
+async function cargarAvisosAdmin() {
+  if (cargandoAvisosAdmin.value) return
+
+  cargandoAvisosAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin('/admin/avisos')
+
+    avisosAdmin.value = Array.isArray(resultado?.avisos)
+      ? resultado.avisos
+      : []
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudieron cargar los avisos.'
+  } finally {
+    cargandoAvisosAdmin.value = false
+  }
+}
+
+// =====================================================
+// AVISOS - CARGAR GRUPOS DE UNA ESCUELA
+// =====================================================
+
+async function cargarGruposAvisosAdmin() {
+  const escuelaSeleccionada =
+    formularioAvisoAdmin.value.escuela_id
+
+  formularioAvisoAdmin.value.grupo_id = ''
+  gruposAvisosAdmin.value = []
+
+  // TODAS las escuelas: no hay grupos que seleccionar.
+  if (
+    !escuelaSeleccionada ||
+    escuelaSeleccionada === 'TODAS'
+  ) {
+    return
+  }
+
+  const escuelaId = Number(escuelaSeleccionada)
+
+  if (![1, 2].includes(escuelaId)) return
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/grupos?escuelaId=${escuelaId}`
+    )
+
+    gruposAvisosAdmin.value = Array.isArray(resultado?.grupos)
+      ? resultado.grupos
+      : []
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudieron cargar los grupos.'
+  }
+}
+
+// =====================================================
+// AVISOS - PUBLICAR
+// =====================================================
+
+async function publicarAvisoAdmin() {
+  if (procesandoAvisoAdmin.value || cargandoAvisosAdmin.value) return
+
+  const escuelaSeleccionada =
+    formularioAvisoAdmin.value.escuela_id
+
+  const todasEscuelas = escuelaSeleccionada === 'TODAS'
+
+  const escuelaId = todasEscuelas
+    ? null
+    : Number(escuelaSeleccionada)
+
+  const grupoId = formularioAvisoAdmin.value.grupo_id === ''
+    ? null
+    : Number(formularioAvisoAdmin.value.grupo_id)
+
+  const titulo = formularioAvisoAdmin.value.titulo.trim()
+  const mensajeTexto = formularioAvisoAdmin.value.mensaje.trim()
+
+  const fechaExpiracion =
+    formularioAvisoAdmin.value.fecha_expiracion || null
+
+  if (!todasEscuelas && ![1, 2].includes(escuelaId)) {
+    mensajeAvisosAdmin.value = 'Debes seleccionar una escuela.'
+    return
+  }
+
+  if (todasEscuelas && grupoId !== null) {
+    mensajeAvisosAdmin.value =
+      'Para todas las escuelas no puedes seleccionar un grupo.'
+    return
+  }
+
+  if (
+    grupoId !== null &&
+    !gruposAvisosAdmin.value.some(
+      grupo => Number(grupo.grupo_id) === grupoId
+    )
+  ) {
+    mensajeAvisosAdmin.value = 'El grupo seleccionado no es válido.'
+    return
+  }
+
+  if (!titulo || titulo.length > 200) {
+    mensajeAvisosAdmin.value =
+      'El título es obligatorio y no puede superar los 200 caracteres.'
+    return
+  }
+
+  if (!mensajeTexto) {
+    mensajeAvisosAdmin.value = 'Debes escribir el contenido del aviso.'
+    return
+  }
+
+  if (
+    fechaExpiracion &&
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(fechaExpiracion)
+  ) {
+    mensajeAvisosAdmin.value = 'La fecha de expiración no es válida.'
+    return
+  }
+
+  procesandoAvisoAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      '/admin/avisos',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          escuela_id: escuelaId,
+          grupo_id: grupoId,
+          titulo,
+          mensaje: mensajeTexto,
+          fecha_expiracion: fechaExpiracion
+        })
+      }
+    )
+
+    formularioAvisoAdmin.value = {
+      escuela_id: '',
+      grupo_id: '',
+      titulo: '',
+      mensaje: '',
+      fecha_expiracion: ''
+    }
+
+    gruposAvisosAdmin.value = []
+
+    await cargarAvisosAdmin()
+
+    mensajeAvisosAdmin.value =
+      resultado?.mensaje || 'Aviso publicado correctamente.'
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudo publicar el aviso.'
+  } finally {
+    procesandoAvisoAdmin.value = false
+  }
+}
+
+// =====================================================
+// AVISOS - ABRIR EDICIÓN
+// =====================================================
+
+async function abrirEdicionAvisoAdmin(aviso) {
+  if (procesandoAvisoAdmin.value || cargandoAvisosAdmin.value) return
+
+  const escuelaId = aviso.escuela_id == null
+    ? 'TODAS'
+    : String(aviso.escuela_id)
+
+  avisoEditandoId.value = Number(aviso.id)
+
+  formularioEdicionAvisoAdmin.value = {
+    escuela_id: escuelaId,
+    grupo_id: aviso.grupo_id == null
+      ? ''
+      : String(aviso.grupo_id),
+    titulo: aviso.titulo || '',
+    mensaje: aviso.mensaje || '',
+    fecha_expiracion: aviso.fecha_expiracion
+      ? String(aviso.fecha_expiracion).replace(' ', 'T').slice(0, 16)
+      : ''
+  }
+
+  gruposEdicionAvisoAdmin.value = []
+
+  if (escuelaId === '1' || escuelaId === '2') {
+    try {
+      const resultado = await peticionAdmin(
+        `/admin/grupos?escuelaId=${escuelaId}`
+      )
+
+      gruposEdicionAvisoAdmin.value =
+        Array.isArray(resultado?.grupos)
+          ? resultado.grupos
+          : []
+
+    } catch (error) {
+      mensajeAvisosAdmin.value =
+        error.message || 'No se pudieron cargar los grupos.'
+    }
+  }
+
+  mensajeAvisosAdmin.value = ''
+}
+
+
+// =====================================================
+// AVISOS - CAMBIAR ESCUELA EN EDICIÓN
+// =====================================================
+
+async function cargarGruposEdicionAvisoAdmin() {
+  const escuelaId =
+    formularioEdicionAvisoAdmin.value.escuela_id
+
+  formularioEdicionAvisoAdmin.value.grupo_id = ''
+  gruposEdicionAvisoAdmin.value = []
+
+  if (!['1', '2'].includes(escuelaId)) return
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/grupos?escuelaId=${escuelaId}`
+    )
+
+    gruposEdicionAvisoAdmin.value =
+      Array.isArray(resultado?.grupos)
+        ? resultado.grupos
+        : []
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudieron cargar los grupos.'
+  }
+}
+
+
+// =====================================================
+// AVISOS - GUARDAR EDICIÓN
+// =====================================================
+
+async function guardarEdicionAvisoAdmin() {
+  const id = Number(avisoEditandoId.value)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoAvisoAdmin.value ||
+    cargandoAvisosAdmin.value
+  ) {
+    return
+  }
+
+  const formulario = formularioEdicionAvisoAdmin.value
+  const todasEscuelas = formulario.escuela_id === 'TODAS'
+
+  const escuelaId = todasEscuelas
+    ? null
+    : Number(formulario.escuela_id)
+
+  const grupoId = formulario.grupo_id
+    ? Number(formulario.grupo_id)
+    : null
+
+  const titulo = formulario.titulo.trim()
+  const mensajeTexto = formulario.mensaje.trim()
+
+  const fechaExpiracion =
+    formulario.fecha_expiracion || null
+
+  if (!todasEscuelas && ![1, 2].includes(escuelaId)) {
+    mensajeAvisosAdmin.value = 'Selecciona una escuela válida.'
+    return
+  }
+
+  if (todasEscuelas && grupoId !== null) {
+    mensajeAvisosAdmin.value =
+      'Para todas las escuelas debes dejar el grupo vacío.'
+    return
+  }
+
+  if (
+    grupoId !== null &&
+    !gruposEdicionAvisoAdmin.value.some(
+      grupo => Number(grupo.grupo_id) === grupoId
+    )
+  ) {
+    mensajeAvisosAdmin.value = 'El grupo seleccionado no es válido.'
+    return
+  }
+
+  if (!titulo || titulo.length > 200) {
+    mensajeAvisosAdmin.value = 'El título es obligatorio y no puede superar los 200 caracteres.'
+    return
+  }
+
+  if (!mensajeTexto || mensajeTexto.length > 5000) {
+    mensajeAvisosAdmin.value = 'El mensaje es obligatorio y no puede superar los 5000 caracteres.'
+    return
+  }
+
+  if (
+    fechaExpiracion &&
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(fechaExpiracion)
+  ) {
+    mensajeAvisosAdmin.value = 'La fecha de expiración no es válida.'
+    return
+  }
+
+  procesandoAvisoAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/avisos/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          escuela_id: escuelaId,
+          grupo_id: grupoId,
+          titulo,
+          mensaje: mensajeTexto,
+          fecha_expiracion: fechaExpiracion
+        })
+      }
+    )
+
+    avisoEditandoId.value = null
+    gruposEdicionAvisoAdmin.value = []
+
+    await cargarAvisosAdmin()
+
+    mensajeAvisosAdmin.value =
+      resultado?.mensaje || 'Aviso actualizado correctamente.'
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudo modificar el aviso.'
+  } finally {
+    procesandoAvisoAdmin.value = false
+  }
+}
+
+// =====================================================
+// AVISOS - OCULTAR Y RESTAURAR
+// =====================================================
+
+async function cambiarEstadoAvisoAdmin(aviso) {
+  const id = Number(aviso?.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoAvisoAdmin.value ||
+    cargandoAvisosAdmin.value
+  ) {
+    return
+  }
+
+  const nuevoEstado = estaActivo(aviso.activo) ? 0 : 1
+
+  procesandoAvisoAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/avisos/${id}/estado`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+    activo: nuevoEstado === 1
+})
+      }
+    )
+
+    await cargarAvisosAdmin()
+
+    mensajeAvisosAdmin.value =
+      resultado?.mensaje ||
+      (nuevoEstado === 1
+        ? 'Aviso restaurado correctamente.'
+        : 'Aviso ocultado correctamente.')
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudo cambiar el estado del aviso.'
+  } finally {
+    procesandoAvisoAdmin.value = false
+  }
+}
+
+// =====================================================
+// AVISOS - AMPLIAR UN MES
+// =====================================================
+
+async function ampliarAvisoAdmin(aviso) {
+  const id = Number(aviso?.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    aviso.origen !== 'PROFESOR' ||
+    procesandoAvisoAdmin.value ||
+    cargandoAvisosAdmin.value
+  ) {
+    return
+  }
+
+  if (!window.confirm(
+    '¿Quieres ampliar un mes la fecha de expiración de este aviso del profesor?'
+  )) {
+    return
+  }
+
+  procesandoAvisoAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/avisos/${id}/ampliar`,
+      {
+        method: 'PATCH'
+      }
+    )
+
+    await cargarAvisosAdmin()
+
+    mensajeAvisosAdmin.value =
+      resultado?.mensaje || 'Aviso ampliado un mes correctamente.'
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudo ampliar el aviso.'
+  } finally {
+    procesandoAvisoAdmin.value = false
+  }
+}
+
+// =====================================================
+// AVISOS - ELIMINAR AVISO DE PROFESOR
+// =====================================================
+
+async function eliminarAvisoAdmin(aviso) {
+  const id = Number(aviso?.id)
+
+  if (
+  !Number.isSafeInteger(id) ||
+  id <= 0 ||
+  procesandoAvisoAdmin.value ||
+  cargandoAvisosAdmin.value
+) {
+  return
+}
+
+  if (!window.confirm(
+    '¿Quieres eliminar definitivamente este aviso del profesor? Esta operación no se puede deshacer.'
+  )) {
+    return
+  }
+
+  procesandoAvisoAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/avisos/${id}`,
+      {
+        method: 'DELETE'
+      }
+    )
+
+    await cargarAvisosAdmin()
+
+    mensajeAvisosAdmin.value =
+      resultado?.mensaje || 'Aviso eliminado definitivamente.'
+
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudo eliminar el aviso.'
+  } finally {
+    procesandoAvisoAdmin.value = false
+  }
+}
+
+function probarAbrirAvisos() {
+  console.log('1. SE HA PULSADO AVISOS')
+
+  subModuloMediacion.value = 'avisos'
+
+  console.log('2. VALOR DEL SUBMÓDULO:', subModuloMediacion.value)
+
+  console.log('3. MÓDULO ACTUAL:', moduloSeleccionado.value)
+
+  cargarAvisosAdmin()
+}
 // =====================================================
 // CERRAR SESIÓN
 // =====================================================

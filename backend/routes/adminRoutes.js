@@ -29,42 +29,56 @@ const {
 
 // Controladores de profesores y grupos.
 const {
-  listarProfesores,
-  crearProfesor,
-  obtenerHistorialProfesor,
-  actualizarProfesor,
-  listarGruposAdmin,
-  asignarProfesorGrupo
+    listarProfesores,
+    crearProfesor,
+    obtenerHistorialProfesor,
+    actualizarProfesor,
+    listarGruposAdmin,
+    asignarProfesorGrupo
 } = require('../controllers/adminProfesoresController')
 
+// Controladores de alumnos.
 const {
-  listarAlumnos,
-  obtenerAlumno,
-  actualizarAlumno,
-  cambiarEstadoAlumno,
-  crearAlumno
+    listarAlumnos,
+    obtenerAlumno,
+    actualizarAlumno,
+    cambiarEstadoAlumno,
+    crearAlumno
 } = require('../controllers/adminAlumnosController')
 
 // Controladores de voluntariado.
-
 const {
     listarVoluntarios,
     cambiarEstadoVoluntario
 } = require('../controllers/voluntariosAdminController')
 
+// Controladores de resultados.
 const {
     obtenerNotasFinales,
-  actualizarEstadoCertificado
+    actualizarEstadoCertificado
 } = require('../controllers/resultadosController')
 
+// Controlador de asistencia.
 const {
     getResumenHorasAsistencia
 } = require('../controllers/asistenciaAdminController')
 
+// Controladores de escuelas, cursos y grupos.
 const {
-  crearCursoAdmin,
-  crearGrupoAdmin
+    crearCursoAdmin,
+    crearGrupoAdmin
 } = require('../controllers/adminEscuelasController')
+
+// Controladores de avisos.
+const {
+    listarAvisosAdmin,
+    publicarAvisoAdmin,
+    cambiarEstadoAvisoAdmin,
+    editarAvisoAdmin,
+    cambiarFechaExpiracionAdmin,
+    ampliarAvisoAdmin,
+    eliminarAvisoAdmin
+} = require('../controllers/avisosAdminController')
 
 const router = express.Router()
 
@@ -78,10 +92,41 @@ router.post('/login', loginAdmin)
 // Todas las rutas siguientes requieren autenticación.
 router.use(authAdmin)
 
+// =====================================================
+// GESTIÓN DE AVISOS
+// =====================================================
+
+router.get('/avisos', listarAvisosAdmin)
+
+router.post('/avisos', publicarAvisoAdmin)
+
+router.put(
+    '/avisos/:id',
+    editarAvisoAdmin
+)
+
+router.patch(
+    '/avisos/:id/fecha-expiracion',
+    cambiarFechaExpiracionAdmin
+)
+
+router.patch(
+    '/avisos/:id/estado',
+    cambiarEstadoAvisoAdmin
+)
+
+router.patch(
+    '/avisos/:id/ampliar',
+    ampliarAvisoAdmin
+)
+
+router.delete(
+    '/avisos/:id',
+    eliminarAvisoAdmin
+)
 
 // =====================================================
-// ASISTENCIA: RESUMEN GLOBAL DE HORAS
-// Solo administración autenticada.
+// ASISTENCIA
 // =====================================================
 
 router.get(
@@ -91,7 +136,6 @@ router.get(
 
 // =====================================================
 // GESTIÓN DE ALUMNOS
-// Todas estas rutas requieren autenticación administrativa.
 // =====================================================
 
 router.post('/alumnos', crearAlumno)
@@ -108,9 +152,10 @@ router.get(
     '/resultados-finales',
     obtenerNotasFinales
 )
+
 router.patch(
-  '/resultados-finales/:id/certificado',
-  actualizarEstadoCertificado
+    '/resultados-finales/:id/certificado',
+    actualizarEstadoCertificado
 )
 
 // =====================================================
@@ -150,18 +195,12 @@ router.patch(
     asignarProfesorGrupo
 )
 
- // =====================================================
- // ESCUELAS, CURSOS Y GRUPOS
- // =====================================================
+// =====================================================
+// ESCUELAS, CURSOS Y GRUPOS
+// =====================================================
 
 router.post('/cursos', crearCursoAdmin)
 router.post('/grupos', crearGrupoAdmin)
-router.get('/grupos', listarGruposAdmin)
-
-router.patch(
-  '/grupos/:id/profesor',
-  asignarProfesorGrupo
-)
 
 // =====================================================
 // MODERACIÓN DEL FORO DE ESTUDIANTES
@@ -237,8 +276,6 @@ router.delete(
 
 // =====================================================
 // MODERACIÓN DE MENSAJES PRIVADOS REPORTADOS
-// Solo administración autenticada.
-// No permite consultar conversaciones sin reportes.
 // =====================================================
 
 router.get(

@@ -765,8 +765,6 @@
           </ul>
         </div>
       </section>
-
-      <!-- Resultados -->
       
 <!-- Resultados -->
 <section
@@ -1238,7 +1236,6 @@ const extensionesPermitidas = [
   'mp4'
 ]
 
-// Avisos y mensajes
 // Avisos y mensajes
 const avisos = ref([])
 const cargandoAvisos = ref(false)

@@ -119,7 +119,7 @@ const getMensajes = async (grupoId) => {
         WHEN fm.profesor_id IS NOT NULL THEN 'profesor'
         ELSE 'desconocido'
       END AS tipoAutor
-    FROM foro_mensajes_alumnos fm
+    FROM foro_mensajes fm
     LEFT JOIN alumnos a ON a.id = fm.alumno_id
     LEFT JOIN profesores p ON p.id = fm.profesor_id
     WHERE fm.grupo_id = ?
@@ -157,7 +157,7 @@ const crearMensaje = async ({
 })
 
   const [resultado] = await db.query(
-    `INSERT INTO foro_mensajes_alumnos (
+    `INSERT INTO foro_mensajes (
       grupo_id,
       alumno_id,
       profesor_id,

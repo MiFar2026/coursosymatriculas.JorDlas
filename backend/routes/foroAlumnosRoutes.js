@@ -12,12 +12,23 @@ const {
 // Permite una sesión válida de alumno o de profesor.
 // No envía una respuesta de error hasta haber comprobado ambas sesiones.
 function autenticarUsuarioForo(req, res, next) {
+  
+  console.log('COMPROBACIÓN SESIÓN FORO:', {
+    tieneCookieAlumno: !!req.cookies?.sesion_alumno,
+    tieneCookieProfesor: !!req.cookies?.sesionProfesor
+  })
+  
   const tokenAlumno = req.cookies?.sesion_alumno
   const secretAlumno = process.env.JWT_SECRET
 
   if (tokenAlumno && secretAlumno) {
     try {
       const sesion = jwt.verify(tokenAlumno, secretAlumno)
+
+      console.log('SESIÓN ALUMNO EN FORO:', {
+  tipo: sesion.tipo,
+  alumnoId: sesion.alumnoId
+})
 
       if (
         sesion.tipo === 'alumno' &&
