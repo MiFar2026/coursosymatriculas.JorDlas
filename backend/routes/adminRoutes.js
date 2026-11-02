@@ -24,7 +24,8 @@ const {
 const {
     listarMensajesReportados,
     revisarReporteMensaje,
-    retirarMensajeReportado
+    retirarMensajeReportado,
+    descargarExpedienteMensaje
 } = require('../controllers/mensajesModeracionController')
 
 // Controladores de profesores y grupos.
@@ -93,8 +94,12 @@ router.post('/login', loginAdmin)
 router.use(authAdmin)
 
 // =====================================================
-// GESTIÓN DE AVISOS
+// MEDIACIóN Y GESTIÓN DE AVISOS
 // =====================================================
+router.get(
+    '/moderacion/mensajes-reportados/:reporteId/expediente.pdf',
+    descargarExpedienteMensaje
+)
 
 router.get('/avisos', listarAvisosAdmin)
 

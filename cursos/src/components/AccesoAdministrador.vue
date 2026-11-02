@@ -2204,7 +2204,7 @@
     <!-- MENSAJES -->
     <button
       type="button"
-      @click="subModuloMediacion = 'mensajes'"
+@click="subModuloMediacion = 'mensajes'; cargarMensajesReportados()"
       class="rounded-xl border border-purple-200 bg-white p-5 text-left shadow-sm transition hover:bg-purple-50 hover:shadow-md"
     >
       <span class="mb-3 block text-3xl">✉️</span>
@@ -2224,9 +2224,10 @@
 
     <!-- AVISOS -->
     <button
-      type="button"
-@click="subModuloMediacion = 'avisos'; cargarAvisosAdmin()"      class="rounded-xl border border-amber-200 bg-white p-5 text-left shadow-sm transition hover:bg-amber-50 hover:shadow-md"
-    >
+  type="button"
+  @click="subModuloMediacion = 'avisos'; cargarAvisosAdmin()"
+  class="rounded-xl border border-amber-200 bg-white p-5 text-left shadow-sm transition hover:bg-amber-50 hover:shadow-md"
+>
       <span class="mb-3 block text-3xl">📢</span>
 
       <h3 class="text-xl font-bold text-amber-900">
@@ -2496,7 +2497,227 @@
           </div>
         </section>
         
-        
+   <!-- =====================================================
+     MODERACIÓN DE MENSAJES PRIVADOS DENUNCIADOS
+===================================================== -->
+
+<section
+  v-if="moduloSeleccionado === 'mediacion' && subModuloMediacion === 'mensajes'"
+  class="mt-8 space-y-6"
+>
+  <!-- CABECERA -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-2xl font-bold text-gray-900">
+        Mensajes privados denunciados
+      </h3>
+
+      <p class="mt-1 text-sm text-gray-600">
+        Aquí solo aparecen conversaciones en las que se ha denunciado
+        algún mensaje. Se conserva el historial para su revisión.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        @click="subModuloMediacion = ''"
+        class="rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100"
+      >
+        ← Volver
+      </button>
+
+      <button
+        type="button"
+        @click="cargarMensajesReportados"
+        :disabled="cargandoMensajesReportados || procesandoReporteId !== null"
+        class="rounded-lg border border-purple-300 bg-white px-4 py-2 font-semibold text-purple-800 hover:bg-purple-50 disabled:opacity-50"
+      >
+        {{ cargandoMensajesReportados ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- CARGANDO -->
+  <p
+    v-if="cargandoMensajesReportados"
+    class="rounded-xl border bg-white p-5 text-gray-600"
+  >
+    Cargando denuncias...
+  </p>
+
+  <!-- SIN DENUNCIAS -->
+  <p
+    v-else-if="mensajesReportados.length === 0"
+    class="rounded-xl border border-gray-200 bg-white p-6 text-gray-600"
+  >
+    No hay mensajes privados denunciados.
+  </p>
+
+  <!-- LISTADO DE DENUNCIAS -->
+  <article
+    v-for="reporte in mensajesReportados"
+    :key="reporte.reporte_id"
+    class="rounded-xl border border-purple-200 bg-white p-5 shadow-sm"
+  >
+    <!-- DATOS DE LA CONVERSACIÓN -->
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <h4 class="text-lg font-bold text-gray-900">
+          {{ reporte.escuela_nombre || 'Escuela no indicada' }}
+        </h4>
+
+        <p class="text-sm text-gray-600">
+          {{ reporte.grupo_nombre || 'Grupo no indicado' }}
+          ·
+          {{ reporte.tipo_conversacion === 'ALUMNO_ALUMNO'
+            ? 'Alumno - alumno'
+            : 'Alumno - profesor' }}
+        </p>
+      </div>
+
+      <span
+        class="rounded-full px-3 py-1 text-sm font-semibold"
+        :class="reporte.estado_reporte === 'PENDIENTE'
+          ? 'bg-amber-100 text-amber-800'
+          : reporte.estado_reporte === 'RETIRADO'
+            ? 'bg-red-100 text-red-800'
+            : 'bg-green-100 text-green-800'"
+      >
+        {{ reporte.estado_reporte || 'Sin estado' }}
+      </span>
+    </div>
+
+    <!-- PARTICIPANTES -->
+    <div class="mb-4 rounded-lg bg-gray-50 p-4">
+      <p class="mb-2 text-sm font-semibold text-gray-700">
+        Participantes de la conversación
+      </p>
+
+      <p class="text-sm text-gray-700">
+        <strong>Participante 1:</strong>
+        {{ nombreParticipanteReporte(reporte, 1) }}
+      </p>
+
+      <p class="text-sm text-gray-700">
+        <strong>Participante 2:</strong>
+        {{ nombreParticipanteReporte(reporte, 2) }}
+      </p>
+    </div>
+
+    <!-- DATOS DE LA DENUNCIA -->
+    <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <h5 class="font-bold text-amber-900">
+        Mensaje denunciado
+      </h5>
+
+      <p class="mt-2 whitespace-pre-wrap break-words text-gray-800">
+  {{ reporte.mensaje || 'Sin texto' }}
+</p>
+
+      <div class="mt-3 space-y-1 text-sm text-gray-700">
+        <p>
+          <strong>Motivo:</strong>
+          {{ reporte.motivo || 'No indicado' }}
+        </p>
+
+        <p v-if="reporte.comentario_reporte">
+  <strong>Comentario:</strong>
+  {{ reporte.comentario_reporte }}
+</p>
+
+        <p>
+          <strong>Fecha de denuncia:</strong>
+          {{ formatearFecha(reporte.fecha_reporte) }}
+        </p>
+      </div>
+    </div>
+
+    <!-- HISTORIAL DE ESE DÍA -->
+    <details class="mb-4 rounded-lg border border-gray-200">
+      <summary class="cursor-pointer p-4 font-semibold text-gray-800 hover:bg-gray-50">
+        Ver todos los mensajes de esta conversación durante ese día
+        ({{ reporte.mensajes_contexto?.length || 0 }})
+      </summary>
+
+      <div class="space-y-3 border-t p-4">
+        <p
+          v-if="!reporte.mensajes_contexto?.length"
+          class="text-sm text-gray-500"
+        >
+          No hay mensajes de contexto disponibles.
+        </p>
+
+        <div
+          v-for="item in reporte.mensajes_contexto || []"
+          :key="item.id"
+          class="rounded-lg border p-3"
+          :class="Number(item.id) === Number(reporte.mensaje_id)
+            ? 'border-amber-300 bg-amber-50'
+            : 'border-gray-200 bg-gray-50'"
+        >
+          <div class="flex flex-wrap justify-between gap-2">
+            <p class="text-sm font-semibold text-gray-800">
+              {{ nombreRemitenteReporte(reporte, item) }}
+            </p>
+
+            <span class="text-xs text-gray-500">
+              {{ formatearFecha(item.fecha_envio) }}
+            </span>
+          </div>
+
+          <p class="mt-2 whitespace-pre-wrap break-words text-sm text-gray-800">
+            {{ item.mensaje }}
+          </p>
+
+          <span
+            v-if="Number(item.id) === Number(reporte.mensaje_id)"
+            class="mt-2 inline-block rounded-full bg-amber-200 px-2 py-1 text-xs font-semibold text-amber-900"
+          >
+            Mensaje denunciado
+          </span>
+
+          <span
+            v-if="item.estado === 'RETIRADO'"
+            class="mt-2 inline-block rounded-full bg-red-100 px-2 py-1 text-xs text-red-800"
+          >
+            Mensaje retirado
+          </span>
+        </div>
+      </div>
+    </details>
+
+    <!-- ACCIONES ADMINISTRATIVAS -->
+    <div class="flex flex-wrap gap-2 border-t pt-4">
+      <button
+        type="button"
+        @click="revisarMensajeReportado(reporte)"
+        :disabled="reporte.estado_reporte !== 'PENDIENTE' || procesandoReporteId !== null"
+        class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Revisar
+      </button>
+
+      <button
+        type="button"
+        @click="retirarMensajePrivadoReportado(reporte)"
+        :disabled="reporte.estado_reporte === 'RETIRADO' || reporte.estado_mensaje === 'RETIRADO' || procesandoReporteId !== null"
+        class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Retirar mensaje
+      </button>
+
+      <button
+        type="button"
+        @click="descargarExpedienteMensaje(reporte)"
+        :disabled="procesandoReporteId !== null"
+        class="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Descargar expediente PDF
+      </button>
+    </div>
+  </article>
+</section>     
 <!-- =====================================================
      AVISO - PANEL DE ADMINISTRACIÓN
 ===================================================== -->
@@ -2505,9 +2726,6 @@
   v-if="moduloSeleccionado === 'mediacion' && subModuloMediacion === 'avisos'"
   class="mt-8 rounded-xl border border-amber-200 bg-white p-5 shadow-sm"
 >
-<p class="rounded-lg bg-yellow-100 p-4 text-black">
-  PRUEBA: SE HA ABIERTO LA SECCIÓN DE AVISOS
-</p>
   <!-- CABECERA -->
   <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <div>
@@ -3316,6 +3534,14 @@ const mensajesEstudiantes = ref([])
 const mensajesProfesores = ref([])
 const recursos = ref([])
 
+// =====================================================
+// MODERACIÓN DE MENSAJES PRIVADOS DENUNCIADOS
+// =====================================================
+
+const mensajesReportados = ref([])
+const cargandoMensajesReportados = ref(false)
+const procesandoReporteId = ref(null)
+
 // Filtros de archivos y materiales
 const filtroEscuelaRecursos = ref('')
 const filtroIdiomaRecursos = ref('')
@@ -3959,9 +4185,47 @@ async function cargarAlumnosAdmin() {
 }
 
 // =====================================================
-// ABRIR EDICIÓN DE UN ALUMNO
+// Mensajes
 // =====================================================
+function nombreParticipanteReporte(reporte, numero) {
+  const tipo = reporte[`participante${numero}_tipo`]
 
+  if (tipo === 'ALUMNO') {
+    const nombre = reporte[`participante${numero}_alumno_nombre`] || ''
+    const apellidos = reporte[`participante${numero}_alumno_apellidos`] || ''
+
+    return `${nombre} ${apellidos}`.trim() || 'Alumno no identificado'
+  }
+
+  if (tipo === 'PROFESOR') {
+    return reporte[`participante${numero}_profesor_nombre`]
+      || 'Profesor no identificado'
+  }
+
+  return 'Participante no identificado'
+}
+
+function nombreRemitenteReporte(reporte, mensaje) {
+  const esParticipante1 =
+    mensaje.remitente_tipo === reporte.participante1_tipo &&
+    Number(mensaje.remitente_id) === Number(reporte.participante1_id)
+
+  const esParticipante2 =
+    mensaje.remitente_tipo === reporte.participante2_tipo &&
+    Number(mensaje.remitente_id) === Number(reporte.participante2_id)
+
+  if (esParticipante1) {
+    return nombreParticipanteReporte(reporte, 1)
+  }
+
+  if (esParticipante2) {
+    return nombreParticipanteReporte(reporte, 2)
+  }
+
+  return mensaje.remitente_tipo === 'PROFESOR'
+    ? 'Profesor'
+    : 'Alumno'
+}
 
 // =====================================================
 // ABRIR EDICIÓN DE UN ALUMNO
@@ -4346,6 +4610,169 @@ async function cargarForos() {
   }
 }
 
+
+/* =====================================================
+   MODERACIÓN DE MENSAJES PRIVADOS DENUNCIADOS
+   ===================================================== */
+
+// Cargar denuncias y contexto de las conversaciones.
+async function cargarMensajesReportados() {
+  if (cargandoMensajesReportados.value) return
+
+  cargandoMensajesReportados.value = true
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      '/admin/moderacion/mensajes-reportados'
+    )
+
+    mensajesReportados.value = Array.isArray(resultado?.reportes)
+      ? resultado.reportes
+      : []
+
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron cargar las denuncias.'
+  } finally {
+    cargandoMensajesReportados.value = false
+  }
+}
+
+
+// Marcar una denuncia como revisada.
+async function revisarMensajeReportado(reporte) {
+  const id = Number(reporte?.reporte_id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    mensaje.value = 'El identificador de la denuncia no es válido.'
+    return
+  }
+
+  if (procesandoReporteId.value !== null) return
+
+  const detalle = window.prompt(
+    'Observaciones de la revisión (opcional):'
+  )
+
+  if (detalle === null) return
+
+  if (detalle.length > 1000) {
+    mensaje.value = 'Las observaciones admiten 1000 caracteres como máximo.'
+    return
+  }
+
+  if (!window.confirm('¿Marcar esta denuncia como revisada?')) return
+
+  procesandoReporteId.value = id
+  mensaje.value = ''
+
+  try {
+    await peticionAdmin(
+      `/admin/moderacion/mensajes-reportados/${id}/revisar`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ detalle: detalle.trim() })
+      }
+    )
+
+    await cargarMensajesReportados()
+mensaje.value = 'La denuncia se ha revisado correctamente.'
+
+  } catch (error) {
+    mensaje.value = error.message || 'No se pudo revisar la denuncia.'
+  } finally {
+    procesandoReporteId.value = null
+  }
+}
+
+
+// Retirar el mensaje denunciado.
+async function retirarMensajePrivadoReportado(reporte) {
+  const id = Number(reporte?.reporte_id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    mensaje.value = 'El identificador de la denuncia no es válido.'
+    return
+  }
+
+  if (procesandoReporteId.value !== null) return
+
+  const detalle = window.prompt(
+    'Indica el motivo de la decisión administrativa:'
+  )
+
+  if (detalle === null) return
+
+  if (!detalle.trim()) {
+    mensaje.value = 'Debes indicar el motivo de la retirada.'
+    return
+  }
+
+  if (detalle.trim().length > 1000) {
+    mensaje.value = 'El motivo admite 1000 caracteres como máximo.'
+    return
+  }
+
+  if (
+    !window.confirm(
+      '¿Confirmas la retirada del mensaje denunciado? Se conservará el registro original.'
+    )
+  ) return
+
+  procesandoReporteId.value = id
+  mensaje.value = ''
+
+  try {
+    await peticionAdmin(
+      `/admin/moderacion/mensajes-reportados/${id}/retirar`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ detalle: detalle.trim() })
+      }
+    )
+
+    await cargarMensajesReportados()
+mensaje.value = 'El mensaje se ha retirado correctamente.'
+
+  } catch (error) {
+    mensaje.value = error.message || 'No se pudo retirar el mensaje.'
+  } finally {
+    procesandoReporteId.value = null
+  }
+}
+
+
+// Descargar el expediente PDF sin modificar la denuncia.
+async function descargarExpedienteMensaje(reporte) {
+  const id = Number(reporte?.reporte_id)
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    mensaje.value = 'El identificador de la denuncia no es válido.'
+    return
+  }
+
+  if (procesandoReporteId.value !== null) return
+
+  procesandoReporteId.value = id
+  mensaje.value = ''
+
+  try {
+    await descargarArchivoAdmin(
+      `/admin/moderacion/mensajes-reportados/${id}/expediente.pdf`,
+      `expediente-mediacion-${id}.pdf`
+    )
+
+    mensaje.value = 'El expediente PDF se ha descargado correctamente.'
+
+  } catch (error) {
+    mensaje.value = error.message || 'No se pudo descargar el expediente.'
+  } finally {
+    procesandoReporteId.value = null
+  }
+}
+
+
 // =====================================================
 // FORMULARIO DE MODERACIÓN
 // =====================================================
@@ -4519,6 +4946,7 @@ async function cargarListaProfesores() {
     ? resultado.datos
     : []
 }
+
 
 // =====================================================
 // MATERIALES

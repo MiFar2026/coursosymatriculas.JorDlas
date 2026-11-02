@@ -1006,70 +1006,13 @@
 
 
       <!-- Mensajes -->
-      <section
-        v-else-if="seccion === 'mensajes'"
+   <!-- Mensajes privados -->
+<section
+  v-else-if="seccion === 'mensajes'"
         class="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-      >
-        <p class="text-sm font-bold uppercase tracking-wider text-indigo-700">
-          Comunicación
-        </p>
-        <h2 class="mt-1 text-2xl font-extrabold">
-          Mensajes de mi profesor
-        </h2>
-
-        <div class="mt-6 rounded-2xl bg-slate-50 p-5">
-          <div class="flex items-center gap-3">
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-xl"
-            >
-              👩‍🏫
-            </div>
-            <div>
-              <p class="font-bold">{{ alumno.profesor }}</p>
-              <p class="text-sm text-slate-500">Profesor asignado</p>
-            </div>
-          </div>
-
-          <p class="mt-5 text-sm leading-6 text-slate-600">
-            Aquí se mostrarán las conversaciones y los mensajes privados.
-            En esta primera versión el envío de mensajes aún no está conectado.
-          </p>
-        </div>
-
-        <form
-          class="mt-5 space-y-3"
-          @submit.prevent="prepararMensaje"
-        >
-          <label class="block">
-            <span class="mb-2 block text-sm font-bold">
-              Escribe tu mensaje
-            </span>
-            <textarea
-              v-model.trim="textoMensaje"
-              rows="4"
-              maxlength="3000"
-              placeholder="Escribe aquí tu consulta..."
-              class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
-            ></textarea>
-          </label>
-
-          <p
-            v-if="mensajeChat"
-            role="status"
-            class="rounded-xl bg-amber-50 p-4 text-sm text-amber-900"
-          >
-            {{ mensajeChat }}
-          </p>
-
-          <button
-            type="submit"
-            class="rounded-xl bg-indigo-700 px-6 py-3 font-bold text-white hover:bg-indigo-800"
-          >
-            Preparar mensaje
-          </button>
-        </form>
-      </section>
-
+>
+<MensajesAlumnosBase :alumno-id="alumno.id" />
+</section>
       
       <footer class="py-8 text-center text-xs text-slate-500">
         {{ escuela }} · Espacio del alumnado
@@ -1082,6 +1025,7 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { computed, reactive, ref, watch, onMounted } from 'vue'
+import MensajesAlumnosBase from '../views/compartidas/MensajesAlumnosBase.vue'
 
 const API_BASE = (
   import.meta.env.VITE_API_URL || 'http://localhost:5555'
@@ -1240,8 +1184,6 @@ const extensionesPermitidas = [
 const avisos = ref([])
 const cargandoAvisos = ref(false)
 const errorAvisos = ref('')
-const textoMensaje = ref('')
-const mensajeChat = ref('')
 
 
 // Cargar perfil del alumno
@@ -1745,15 +1687,6 @@ function etiquetaEstado(estado) {
 }
 
 // Preparar mensaje: todavía no se envía al servidor
-function prepararMensaje() {
-  if (!textoMensaje.value.trim()) {
-    mensajeChat.value = 'Escribe un mensaje antes de continuar.'
-    return
-  }
-
-  mensajeChat.value =
-    'Tu mensaje está preparado, pero todavía no se ha enviado. Conectaremos la mensajería al servidor en el siguiente paso.'
-}
 
 function cambiarSeccion(id) {
   if (id === 'foro') {
@@ -1782,7 +1715,6 @@ onMounted(() => {
 watch(seccion, (nuevaSeccion) => {
   mensajePerfil.value = ''
   mensajeEntrega.value = ''
-  mensajeChat.value = ''
 
   if (nuevaSeccion === 'clase') {
     cargarHorario()

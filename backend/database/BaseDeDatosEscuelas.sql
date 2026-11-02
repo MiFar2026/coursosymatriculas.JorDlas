@@ -2039,3 +2039,10 @@ WHERE TABLE_SCHEMA = DATABASE()
   
   ALTER TABLE mensajes_privados
 MODIFY COLUMN profesor_id INT NULL;
+
+
+SELECT
+    @@global.time_zone AS zona_global,
+    @@session.time_zone AS zona_sesion,
+    NOW() AS hora_mysql,
+    UTC_TIMESTAMP() AS hora_utc;

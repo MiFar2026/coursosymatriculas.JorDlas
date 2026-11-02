@@ -6,12 +6,15 @@ const authProfesor = require('../middlewares/authProfesor')
 
 const {
     listarGruposAlumno,
+    listarCompanerosAlumno,
     listarGruposProfesor,
     listarAlumnosGrupoProfesor,
     leerMensajesAlumno,
     leerMensajesProfesor,
+    leerMensajesCompaneroAlumno,
     enviarMensajeAlumno,
     enviarMensajeProfesor,
+    enviarMensajeCompaneroAlumno,
     reportarMensajeAlumno,
     reportarMensajeProfesor
 } = require('../controllers/mensajesController')
@@ -42,6 +45,24 @@ router.post(
     '/alumno/mensajes/:mensajeId/reportar',
     autenticarAlumno,
     reportarMensajeAlumno
+)
+
+router.get(
+    '/alumno/grupos/:grupoId/companeros',
+    autenticarAlumno,
+    listarCompanerosAlumno
+)
+
+router.get(
+    '/alumno/grupos/:grupoId/alumnos/:alumnoId/mensajes',
+    autenticarAlumno,
+    leerMensajesCompaneroAlumno
+)
+
+router.post(
+    '/alumno/grupos/:grupoId/alumnos/:alumnoId/mensajes',
+    autenticarAlumno,
+    enviarMensajeCompaneroAlumno
 )
 
 // =====================================================
