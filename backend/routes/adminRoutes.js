@@ -10,15 +10,36 @@ const {
     ocultarMensajeEstudiante,
     mostrarMensajeEstudiante,
     eliminarMensajeEstudiante,
+
     getForoProfesores,
     ocultarMensajeProfesor,
     mostrarMensajeProfesor,
     eliminarMensajeProfesor,
+
     getRecursosAdmin,
     retirarRecurso,
     descargarRecursoAdmin,
-    eliminarRecursoAdmin
+    eliminarRecursoAdmin,
+    recuperarRecursoAdmin,
+
+    retirarTodosLosRecursosAdmin
 } = require('../controllers/adminModeracionController')
+
+// Controlador de retirada y recuperación de datos al final del curso.
+const {
+    retirarTodosLosForos,
+    retirarTodosLosMensajes,
+    retirarEscuela,
+    retirarTodosLosCursos,
+    retirarTodosLosGrupos,
+    retirarTodosLosHorarios,
+    recuperarEscuela,
+    recuperarTodosLosCursos,
+    recuperarTodosLosGrupos,
+    recuperarTodosLosHorarios,
+    recuperarTodosLosForos,
+    recuperarTodosLosMensajes
+} = require('../controllers/adminRetiradaController')
 
 // Controlador de moderación de mensajes privados.
 const {
@@ -35,7 +56,9 @@ const {
     obtenerHistorialProfesor,
     actualizarProfesor,
     listarGruposAdmin,
-    asignarProfesorGrupo
+    asignarProfesorGrupo,
+    retirarProfesorAdmin,
+recuperarProfesorAdmin
 } = require('../controllers/adminProfesoresController')
 
 // Controladores de alumnos.
@@ -44,7 +67,9 @@ const {
     obtenerAlumno,
     actualizarAlumno,
     cambiarEstadoAlumno,
-    crearAlumno
+    crearAlumno,
+        retirarAlumnoAdmin,
+    recuperarAlumnoAdmin
 } = require('../controllers/adminAlumnosController')
 
 // Controladores de voluntariado.
@@ -78,7 +103,10 @@ const {
     editarAvisoAdmin,
     cambiarFechaExpiracionAdmin,
     ampliarAvisoAdmin,
-    eliminarAvisoAdmin
+    eliminarAvisoAdmin,
+    restaurarAvisoAdmin,
+    retirarTodosAvisosAdmin,
+    restaurarTodosAvisosAdmin
 } = require('../controllers/avisosAdminController')
 
 const router = express.Router()
@@ -94,16 +122,24 @@ router.post('/login', loginAdmin)
 router.use(authAdmin)
 
 // =====================================================
-// MEDIACIóN Y GESTIÓN DE AVISOS
+// MODERACIÓN Y GESTIÓN DE AVISOS
 // =====================================================
-router.get(
-    '/moderacion/mensajes-reportados/:reporteId/expediente.pdf',
-    descargarExpedienteMensaje
-)
 
 router.get('/avisos', listarAvisosAdmin)
 
 router.post('/avisos', publicarAvisoAdmin)
+
+// RETIRAR Y RECUPERAR TODOS LOS AVISOS.
+// Estas rutas se registran antes de las rutas con :id.
+router.patch(
+    '/avisos/retirar-todos',
+    retirarTodosAvisosAdmin
+)
+
+router.patch(
+    '/avisos/recuperar-todos',
+    restaurarTodosAvisosAdmin
+)
 
 router.put(
     '/avisos/:id',
@@ -130,6 +166,11 @@ router.delete(
     eliminarAvisoAdmin
 )
 
+router.patch(
+    '/avisos/:id/recuperar',
+    restaurarAvisoAdmin
+)
+
 // =====================================================
 // ASISTENCIA
 // =====================================================
@@ -148,6 +189,8 @@ router.get('/alumnos', listarAlumnos)
 router.get('/alumnos/:id', obtenerAlumno)
 router.put('/alumnos/:id', actualizarAlumno)
 router.patch('/alumnos/:id/estado', cambiarEstadoAlumno)
+router.patch('/alumnos/:id/retirar', retirarAlumnoAdmin)
+router.patch('/alumnos/:id/recuperar', recuperarAlumnoAdmin)
 
 // =====================================================
 // RESULTADOS FINALES PARA CERTIFICADOS
@@ -185,6 +228,8 @@ router.post('/profesores', crearProfesor)
 router.get('/profesores', listarProfesores)
 router.get('/profesores/:id/historial', obtenerHistorialProfesor)
 router.put('/profesores/:id', actualizarProfesor)
+router.patch('/profesores/:id/retirar', retirarProfesorAdmin)
+router.patch('/profesores/:id/recuperar', recuperarProfesorAdmin)
 
 // =====================================================
 // GRUPOS Y ASIGNACIÓN DE PROFESORES
@@ -265,6 +310,11 @@ router.get(
 )
 
 router.patch(
+    '/moderacion/recursos/retirar-todos',
+    retirarTodosLosRecursosAdmin
+)
+
+router.patch(
     '/moderacion/recursos/:id/retirar',
     retirarRecurso
 )
@@ -279,9 +329,19 @@ router.delete(
     eliminarRecursoAdmin
 )
 
+router.patch(
+    '/moderacion/recursos/:id/recuperar',
+    recuperarRecursoAdmin
+)
+
 // =====================================================
 // MODERACIÓN DE MENSAJES PRIVADOS REPORTADOS
 // =====================================================
+
+router.get(
+    '/moderacion/mensajes-reportados/:reporteId/expediente.pdf',
+    descargarExpedienteMensaje
+)
 
 router.get(
     '/moderacion/mensajes-reportados',
@@ -296,6 +356,76 @@ router.patch(
 router.post(
     '/moderacion/mensajes-reportados/:reporteId/retirar',
     retirarMensajeReportado
+)
+
+// =====================================================
+// RETIRADA Y RECUPERACIÓN AL FINAL DEL CURSO
+// =====================================================
+
+// FOROS
+router.patch(
+    '/eliminacion/foros',
+    retirarTodosLosForos
+)
+
+router.patch(
+    '/eliminacion/foros/recuperar',
+    recuperarTodosLosForos
+)
+
+// MENSAJES
+router.patch(
+    '/eliminacion/mensajes',
+    retirarTodosLosMensajes
+)
+
+router.patch(
+    '/eliminacion/mensajes/recuperar',
+    recuperarTodosLosMensajes
+)
+
+// ESCUELAS
+router.patch(
+    '/eliminacion/escuelas/:id',
+    retirarEscuela
+)
+
+router.patch(
+    '/eliminacion/escuelas/:id/recuperar',
+    recuperarEscuela
+)
+
+// CURSOS
+router.patch(
+    '/eliminacion/cursos',
+    retirarTodosLosCursos
+)
+
+router.patch(
+    '/eliminacion/cursos/recuperar',
+    recuperarTodosLosCursos
+)
+
+// GRUPOS
+router.patch(
+    '/eliminacion/grupos',
+    retirarTodosLosGrupos
+)
+
+router.patch(
+    '/eliminacion/grupos/recuperar',
+    recuperarTodosLosGrupos
+)
+
+// HORARIOS
+router.patch(
+    '/eliminacion/horarios',
+    retirarTodosLosHorarios
+)
+
+router.patch(
+    '/eliminacion/horarios/recuperar',
+    recuperarTodosLosHorarios
 )
 
 module.exports = router

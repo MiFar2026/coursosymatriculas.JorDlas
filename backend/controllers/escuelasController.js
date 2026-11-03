@@ -13,7 +13,9 @@ async function getEscuelas(req, res) {
                 id,
                 nombre
             FROM escuelas
+            
             WHERE activa = TRUE
+  AND oculto_admin = 0
             ORDER BY nombre ASC
         `)
 

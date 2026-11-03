@@ -10,8 +10,9 @@ async function getCursos(req, res) {
                 idioma,
                 nivel
             FROM cursos
-            WHERE activo = TRUE
-            ORDER BY idioma ASC, nivel ASC
+WHERE activo = TRUE
+  AND oculto_admin = 0
+              ORDER BY idioma ASC, nivel ASC
         `)
 
         res.status(200).json({

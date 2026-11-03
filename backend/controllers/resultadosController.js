@@ -28,14 +28,18 @@ async function obtenerGruposProfesor(req, res) {
   try {
     const [grupos] = await pool.execute(
       `SELECT g.id, g.nombre, c.nombre AS curso
-       FROM grupos g
-       INNER JOIN cursos c ON c.id = g.curso_id
-       INNER JOIN escuelas e ON e.id = g.escuela_id
-       WHERE g.profesor_id = ?
-         AND g.escuela_id = ?
-         AND g.activo = 1
-         AND e.activa = 1
-       ORDER BY g.nombre`,
+ FROM grupos g
+ INNER JOIN cursos c ON c.id = g.curso_id
+ INNER JOIN escuelas e ON e.id = g.escuela_id
+ WHERE g.profesor_id = ?
+   AND g.escuela_id = ?
+   AND g.activo = 1
+   AND g.oculto_admin = 0
+   AND c.activo = 1
+   AND c.oculto_admin = 0
+   AND e.activa = 1
+   AND e.oculto_admin = 0
+ ORDER BY g.nombre`,
       [req.profesor.id, req.profesor.escuelaId]
     )
 
@@ -63,13 +67,18 @@ async function obtenerAlumnosGrupo(req, res) {
 
     const [grupos] = await pool.execute(
       `SELECT g.id
-       FROM grupos g
-       INNER JOIN escuelas e ON e.id = g.escuela_id
-       WHERE g.id = ?
-         AND g.profesor_id = ?
-         AND g.escuela_id = ?
-         AND g.activo = 1
-         AND e.activa = 1`,
+ FROM grupos g
+ INNER JOIN escuelas e ON e.id = g.escuela_id
+ INNER JOIN cursos c ON c.id = g.curso_id
+ WHERE g.id = ?
+   AND g.profesor_id = ?
+   AND g.escuela_id = ?
+   AND g.activo = 1
+   AND g.oculto_admin = 0
+   AND e.activa = 1
+   AND e.oculto_admin = 0
+   AND c.activo = 1
+   AND c.oculto_admin = 0`,
       [grupoId, req.profesor.id, req.profesor.escuelaId]
     )
 
@@ -209,19 +218,24 @@ async function guardarResultado(req, res) {
     // y que el alumno pertenece activamente a ese grupo.
     const [autorizados] = await pool.execute(
       `SELECT g.id
-       FROM grupos g
-       INNER JOIN escuelas e ON e.id = g.escuela_id
-       INNER JOIN matriculas m ON m.grupo_id = g.id
-       INNER JOIN alumnos a ON a.id = m.alumno_id
-       WHERE g.id = ?
-         AND a.id = ?
-         AND g.profesor_id = ?
-         AND g.escuela_id = ?
-         AND g.activo = 1
-         AND e.activa = 1
-         AND a.activo = 1
-         AND m.estado = 'ACTIVA'
-       LIMIT 1`,
+ FROM grupos g
+ INNER JOIN escuelas e ON e.id = g.escuela_id
+ INNER JOIN cursos c ON c.id = g.curso_id
+ INNER JOIN matriculas m ON m.grupo_id = g.id
+ INNER JOIN alumnos a ON a.id = m.alumno_id
+ WHERE g.id = ?
+   AND a.id = ?
+   AND g.profesor_id = ?
+   AND g.escuela_id = ?
+   AND g.activo = 1
+   AND g.oculto_admin = 0
+   AND e.activa = 1
+   AND e.oculto_admin = 0
+   AND c.activo = 1
+   AND c.oculto_admin = 0
+   AND a.activo = 1
+   AND m.estado = 'ACTIVA'
+ LIMIT 1`,
       [
         grupoId,
         alumnoId,
@@ -392,16 +406,21 @@ async function descargarArchivo(req, res, modo) {
 
     if (modo === 'profesor') {
       consulta = `SELECT r.archivo_corregido, r.nombre_archivo_corregido
-        FROM resultados r
-        INNER JOIN grupos g ON g.id = r.grupo_id
-        INNER JOIN escuelas e ON e.id = g.escuela_id
-        WHERE r.id = ?
-          AND r.profesor_id = ?
-          AND g.profesor_id = ?
-          AND g.escuela_id = ?
-          AND g.activo = 1
-          AND e.activa = 1
-        LIMIT 1`
+FROM resultados r
+INNER JOIN grupos g ON g.id = r.grupo_id
+INNER JOIN escuelas e ON e.id = g.escuela_id
+INNER JOIN cursos c ON c.id = g.curso_id
+WHERE r.id = ?
+  AND r.profesor_id = ?
+  AND g.profesor_id = ?
+  AND g.escuela_id = ?
+  AND g.activo = 1
+  AND g.oculto_admin = 0
+  AND e.activa = 1
+  AND e.oculto_admin = 0
+  AND c.activo = 1
+  AND c.oculto_admin = 0
+LIMIT 1`
 
       parametros = [
         resultadoId,

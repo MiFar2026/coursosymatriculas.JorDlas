@@ -1,7 +1,6 @@
 
 const db = require('../config/database')
 const bcrypt = require('bcryptjs')
-const fs = require('fs/promises')
 const path = require('path')
 require('dotenv').config()
 
@@ -65,9 +64,9 @@ async function moderarMensaje(req, res, tabla, accion) {
     const { motivo, contrasena } = req.body || {}
 
     const tablasPermitidas = {
-    estudiantes: 'foro_mensajes',
-    profesores: 'foro_profesores'
-}
+        estudiantes: 'foro_mensajes',
+        profesores: 'foro_profesores'
+    }
 
     const tablaReal = tablasPermitidas[tabla]
 
@@ -111,11 +110,11 @@ async function moderarMensaje(req, res, tabla, accion) {
             )
 
             if (!contraseñaCorrecta) {
-    return res.status(400).json({
-        ok: false,
-        mensaje: 'La contraseña del administrador es incorrecta.'
-    })
-}
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'La contraseña del administrador es incorrecta.'
+                })
+            }
         } catch (error) {
             console.error('Error al verificar la contraseña:', error)
 
@@ -132,9 +131,11 @@ async function moderarMensaje(req, res, tabla, accion) {
         conexion = await db.getConnection()
         await conexion.beginTransaction()
 
-        // Bloquea la publicación mientras se procesa la acción.
         const [filas] = await conexion.query(
-            `SELECT * FROM ${tablaReal} WHERE id = ? FOR UPDATE`,
+            `SELECT *
+             FROM ${tablaReal}
+             WHERE id = ?
+             FOR UPDATE`,
             [id]
         )
 
@@ -149,11 +150,12 @@ async function moderarMensaje(req, res, tabla, accion) {
 
         const original = filas[0]
 
-        // Consultar la última acción registrada para este mensaje.
+        // Consultar la última acción registrada.
         const [auditoriaAnterior] = await conexion.query(
             `SELECT accion
              FROM foro_moderacion_auditoria
-             WHERE tabla_origen = ? AND mensaje_id = ?
+             WHERE tabla_origen = ?
+               AND mensaje_id = ?
              ORDER BY id DESC
              LIMIT 1`,
             [tablaReal, id]
@@ -199,15 +201,17 @@ async function moderarMensaje(req, res, tabla, accion) {
             })
         }
 
-        // Retirada lógica: nunca se ejecuta DELETE sobre el mensaje.
+        // Retirada lógica: nunca se ejecuta DELETE.
         const nuevoActivo = accion === 'MOSTRAR' ? 1 : 0
 
         await conexion.query(
-            `UPDATE ${tablaReal} SET activo = ? WHERE id = ?`,
+            `UPDATE ${tablaReal}
+             SET activo = ?
+             WHERE id = ?`,
             [nuevoActivo, id]
         )
 
-        // Guardar una copia del contenido original para auditoría.
+        // Guardar copia del contenido original para auditoría.
         await conexion.query(
             `INSERT INTO foro_moderacion_auditoria
                 (
@@ -242,12 +246,16 @@ async function moderarMensaje(req, res, tabla, accion) {
             ok: true,
             mensaje: mensajesRespuesta[accion]
         })
+
     } catch (error) {
         if (conexion) {
             try {
                 await conexion.rollback()
             } catch (errorRollback) {
-                console.error('Error al deshacer la moderación:', errorRollback)
+                console.error(
+                    'Error al deshacer la moderación:',
+                    errorRollback
+                )
             }
         }
 
@@ -257,6 +265,7 @@ async function moderarMensaje(req, res, tabla, accion) {
             ok: false,
             mensaje: 'No se pudo completar la operación de moderación.'
         })
+
     } finally {
         if (conexion) {
             conexion.release()
@@ -307,6 +316,7 @@ async function getForoEstudiantes(req, res) {
             mensaje: 'Mensajes del foro de estudiantes consultados correctamente.',
             datos: mensajes
         })
+
     } catch (error) {
         console.error('Error al consultar el foro de estudiantes:', error)
 
@@ -365,6 +375,7 @@ async function getForoProfesores(req, res) {
             mensaje: 'Mensajes del foro de profesores consultados correctamente.',
             datos: mensajes
         })
+
     } catch (error) {
         console.error('Error al consultar el foro de profesores:', error)
 
@@ -391,7 +402,6 @@ function eliminarMensajeProfesor(req, res) {
 // MATERIALES PUBLICADOS
 // =====================================================
 
-
 async function getRecursosAdmin(req, res) {
     try {
         const [recursos] = await db.query(`
@@ -408,6 +418,7 @@ async function getRecursosAdmin(req, res) {
                 r.tipo,
                 r.publicado,
                 r.eliminado_profesor,
+                r.oculto_admin,
                 r.fecha_publicacion,
                 e.nombre AS escuela,
                 g.nombre AS grupo,
@@ -428,6 +439,7 @@ async function getRecursosAdmin(req, res) {
             mensaje: 'Materiales consultados correctamente.',
             datos: recursos
         })
+
     } catch (error) {
         console.error('Error al consultar los materiales:', error)
 
@@ -438,6 +450,10 @@ async function getRecursosAdmin(req, res) {
     }
 }
 
+// =====================================================
+// RETIRAR MATERIAL DE LA PUBLICACIÓN
+// CAMBIA publicado, NO oculto_admin
+// =====================================================
 
 async function retirarRecurso(req, res) {
     const id = obtenerIdValido(req.params.id)
@@ -460,7 +476,7 @@ async function retirarRecurso(req, res) {
         if (result.affectedRows === 0) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'El material no existe o ya está retirado.'
+                mensaje: 'El material no existe o ya está retirado de la publicación.'
             })
         }
 
@@ -468,6 +484,7 @@ async function retirarRecurso(req, res) {
             ok: true,
             mensaje: 'Material retirado de la publicación correctamente.'
         })
+
     } catch (error) {
         console.error('Error al retirar un material:', error)
 
@@ -561,7 +578,8 @@ async function descargarRecursoAdmin(req, res) {
 }
 
 // =====================================================
-// ELIMINAR DEFINITIVAMENTE UN MATERIAL COMO ADMIN
+// RETIRAR MATERIAL DE LA APLICACIÓN COMO ADMINISTRADOR
+// CONSERVAR REGISTRO SQL Y ARCHIVO FÍSICO
 // =====================================================
 
 async function eliminarRecursoAdmin(req, res) {
@@ -576,7 +594,7 @@ async function eliminarRecursoAdmin(req, res) {
 
     try {
         const [recursos] = await db.query(
-            `SELECT id, ruta_archivo
+            `SELECT id, oculto_admin
              FROM recursos
              WHERE id = ?
              LIMIT 1`,
@@ -586,86 +604,147 @@ async function eliminarRecursoAdmin(req, res) {
         if (!recursos.length) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'El material no existe o ya fue eliminado.'
+                mensaje: 'El material no existe.'
             })
         }
 
-        const recurso = recursos[0]
-
-        let rutaCompleta = null
-
-        if (recurso.ruta_archivo) {
-            rutaCompleta = obtenerRutaArchivoRecurso(
-                recurso.ruta_archivo
-            )
-
-            if (!rutaCompleta) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: 'La ruta del archivo no es válida. No se ha eliminado el registro.'
-                })
-            }
+        if (Number(recursos[0].oculto_admin) === 1) {
+            return res.status(200).json({
+                ok: true,
+                mensaje: 'El material ya estaba retirado de la aplicación.'
+            })
         }
 
-        // Primero eliminamos el registro de la base de datos.
-        const [resultado] = await db.query(
-            `DELETE FROM recursos
+        await db.query(
+            `UPDATE recursos
+             SET oculto_admin = 1
              WHERE id = ?`,
             [id]
         )
 
-        if (resultado.affectedRows === 0) {
-            return res.status(404).json({
-                ok: false,
-                mensaje: 'El material ya no existe.'
-            })
-        }
-
-        // Después intentamos eliminar el archivo físico.
-        if (rutaCompleta) {
-            try {
-                await fs.unlink(rutaCompleta)
-            } catch (errorArchivo) {
-                if (errorArchivo.code !== 'ENOENT') {
-                    console.error(
-                        'El registro fue eliminado, pero no se pudo borrar el archivo:',
-                        errorArchivo.message
-                    )
-
-                    return res.status(200).json({
-                        ok: true,
-                        mensaje: 'El registro se eliminó, pero no se pudo borrar el archivo físico. Será necesario revisar el almacenamiento.'
-                    })
-                }
-            }
-        }
-
         return res.status(200).json({
             ok: true,
-            mensaje: 'Material y archivo eliminados definitivamente.'
+            mensaje: 'Material retirado de la aplicación. El registro SQL y el archivo siguen conservados.'
         })
 
     } catch (error) {
-        console.error('Error al eliminar definitivamente el material:', error)
+        console.error('Error al retirar el material:', error)
 
         return res.status(500).json({
             ok: false,
-            mensaje: 'No se pudo eliminar definitivamente el material.'
+            mensaje: 'No se pudo retirar el material.'
         })
     }
 }
+
+// =====================================================
+// RECUPERAR MATERIAL RETIRADO POR ADMINISTRACIÓN
+// CONSERVAR REGISTRO SQL Y ARCHIVO FÍSICO
+// =====================================================
+
+async function recuperarRecursoAdmin(req, res) {
+    const id = obtenerIdValido(req.params.id)
+
+    if (!id) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El identificador del material no es válido.'
+        })
+    }
+
+    try {
+        const [recursos] = await db.query(
+            `SELECT id, oculto_admin
+             FROM recursos
+             WHERE id = ?
+             LIMIT 1`,
+            [id]
+        )
+
+        if (!recursos.length) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'El material no existe.'
+            })
+        }
+
+        if (Number(recursos[0].oculto_admin) === 0) {
+            return res.status(200).json({
+                ok: true,
+                mensaje: 'El material ya estaba disponible en la aplicación.'
+            })
+        }
+
+        await db.query(
+            `UPDATE recursos
+             SET oculto_admin = 0
+             WHERE id = ?`,
+            [id]
+        )
+
+        return res.status(200).json({
+            ok: true,
+            mensaje: 'Material recuperado correctamente. El registro y el archivo original se han conservado.'
+        })
+
+    } catch (error) {
+        console.error('Error al recuperar el material:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se pudo recuperar el material.'
+        })
+    }
+}
+
+async function retirarTodosLosRecursosAdmin(req, res) {
+  try {
+    const [resultado] = await db.query(`
+      UPDATE recursos
+      SET oculto_admin = 1
+      WHERE oculto_admin = 0
+    `)
+
+    return res.json({
+      ok: true,
+      mensaje: 'Todos los materiales se han retirado de la aplicación.',
+      afectados: resultado.affectedRows
+    })
+  } catch (error) {
+    console.error('Error al retirar todos los materiales:', error)
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: 'No se pudieron retirar todos los materiales.'
+    })
+  }
+}
+
+// =====================================================
+// EXPORTAR CONTROLADORES
+// =====================================================
+
+// =====================================================
+// EXPORTAR CONTROLADORES
+// =====================================================
 
 module.exports = {
     getForoEstudiantes,
     ocultarMensajeEstudiante,
     mostrarMensajeEstudiante,
     eliminarMensajeEstudiante,
+
     getForoProfesores,
     ocultarMensajeProfesor,
     mostrarMensajeProfesor,
     eliminarMensajeProfesor,
+
     getRecursosAdmin,
     retirarRecurso,
     descargarRecursoAdmin,
-    eliminarRecursoAdmin
+    eliminarRecursoAdmin,
+    recuperarRecursoAdmin,
+
+    // Retirar todos los materiales al finalizar el curso
+    retirarTodosLosRecursosAdmin
 }

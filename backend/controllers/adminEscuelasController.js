@@ -29,7 +29,15 @@ async function crearCursoAdmin(req, res) {
   try {
     // No duplicar cursos: la tabla tiene nombre único.
     const [existentes] = await db.execute(
-      'SELECT id, nombre, idioma, nivel, activo FROM cursos WHERE nombre = ?',
+      `SELECT
+          id,
+          nombre,
+          idioma,
+          nivel,
+          activo,
+          oculto_admin
+       FROM cursos
+       WHERE nombre = ?`,
       [nombre]
     )
 
@@ -43,6 +51,13 @@ async function crearCursoAdmin(req, res) {
         return res.status(409).json({
           ok: false,
           mensaje: 'Ya existe un curso con ese nombre y con otro idioma o nivel.'
+        })
+      }
+
+      if (Number(curso.oculto_admin) === 1) {
+        return res.status(409).json({
+          ok: false,
+          mensaje: 'Ese curso ya existe, pero está retirado. Recupéralo desde administración antes de utilizarlo.'
         })
       }
 
@@ -76,7 +91,8 @@ async function crearCursoAdmin(req, res) {
         nombre,
         idioma,
         nivel,
-        activo: 1
+        activo: 1,
+        oculto_admin: 0
       }
     })
   } catch (error) {
@@ -138,7 +154,11 @@ async function crearGrupoAdmin(req, res) {
     await conexion.beginTransaction()
 
     const [escuelas] = await conexion.execute(
-      'SELECT id FROM escuelas WHERE id = ? AND activa = 1',
+      `SELECT id
+       FROM escuelas
+       WHERE id = ?
+         AND activa = 1
+         AND oculto_admin = 0`,
       [escuelaId]
     )
 
@@ -146,12 +166,16 @@ async function crearGrupoAdmin(req, res) {
       await conexion.rollback()
       return res.status(400).json({
         ok: false,
-        mensaje: 'La escuela no existe o está inactiva.'
+        mensaje: 'La escuela no existe, está inactiva o ha sido retirada.'
       })
     }
 
     const [cursos] = await conexion.execute(
-      'SELECT id FROM cursos WHERE id = ? AND activo = 1',
+      `SELECT id
+       FROM cursos
+       WHERE id = ?
+         AND activo = 1
+         AND oculto_admin = 0`,
       [cursoId]
     )
 
@@ -159,7 +183,7 @@ async function crearGrupoAdmin(req, res) {
       await conexion.rollback()
       return res.status(400).json({
         ok: false,
-        mensaje: 'El curso no existe o está inactivo.'
+        mensaje: 'El curso no existe, está inactivo o ha sido retirado.'
       })
     }
 
@@ -180,19 +204,28 @@ async function crearGrupoAdmin(req, res) {
 
     // Evitar crear dos veces el mismo grupo en la misma escuela.
     const [duplicados] = await conexion.execute(
-      `SELECT id
+      `SELECT id, oculto_admin
        FROM grupos
        WHERE escuela_id = ?
          AND curso_id = ?
          AND nombre = ?
          AND turno = ?
          AND activo = 1
+       ORDER BY oculto_admin ASC
        LIMIT 1`,
       [escuelaId, cursoId, nombre, turno]
     )
 
     if (duplicados.length) {
       await conexion.rollback()
+
+      if (Number(duplicados[0].oculto_admin) === 1) {
+        return res.status(409).json({
+          ok: false,
+          mensaje: 'Ya existe un grupo con esos datos, pero está retirado. Recupéralo desde administración antes de utilizarlo.'
+        })
+      }
+
       return res.status(409).json({
         ok: false,
         mensaje: 'Ya existe un grupo activo con ese curso, nombre, escuela y turno.'

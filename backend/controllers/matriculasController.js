@@ -49,7 +49,7 @@ const createMatricula = async (req, res) => {
             grupo_id: grupoId
         })
 
-        res.status(201).json({
+        return res.status(201).json({
             ok: true,
             mensaje: 'Matrícula creada correctamente.',
             id
@@ -57,21 +57,24 @@ const createMatricula = async (req, res) => {
     } catch (error) {
         console.error('Error al crear matrícula:', error.message)
 
-        res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             ok: false,
-            mensaje: 'No se pudo crear la matrícula.'
+            mensaje: error.statusCode
+                ? error.message
+                : 'No se pudo crear la matrícula.'
         })
     }
 }
 
 // =====================================================
-// ELIMINAR MATRÍCULA
+// RETIRAR MATRÍCULA
+// No se elimina el registro de SQL.
 // =====================================================
 
 const deleteMatricula = async (req, res) => {
     const id = Number(req.params.id)
 
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isSafeInteger(id) || id <= 0) {
         return res.status(400).json({
             ok: false,
             mensaje: 'El identificador de matrícula no es válido.'
@@ -84,20 +87,58 @@ const deleteMatricula = async (req, res) => {
         if (result === 0) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'Matrícula no encontrada.'
+                mensaje: 'Matrícula no encontrada o ya retirada.'
             })
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             ok: true,
-            mensaje: 'Matrícula eliminada correctamente.'
+            mensaje: 'Matrícula retirada de la aplicación. Se conserva en SQL y puede recuperarse.'
         })
     } catch (error) {
-        console.error('Error al eliminar matrícula:', error.message)
+        console.error('Error al retirar matrícula:', error.message)
 
-        res.status(500).json({
+        return res.status(500).json({
             ok: false,
-            mensaje: 'No se pudo eliminar la matrícula.'
+            mensaje: 'No se pudo retirar la matrícula.'
+        })
+    }
+}
+
+// =====================================================
+// RECUPERAR MATRÍCULA
+// =====================================================
+
+const restaurarMatricula = async (req, res) => {
+    const id = Number(req.params.id)
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El identificador de matrícula no es válido.'
+        })
+    }
+
+    try {
+        const result = await Matricula.restaurarMatricula(id)
+
+        if (result === 0) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'Matrícula no encontrada o ya recuperada.'
+            })
+        }
+
+        return res.status(200).json({
+            ok: true,
+            mensaje: 'Matrícula recuperada correctamente.'
+        })
+    } catch (error) {
+        console.error('Error al recuperar matrícula:', error.message)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se pudo recuperar la matrícula.'
         })
     }
 }
@@ -174,7 +215,7 @@ const createSolicitud = async (req, res) => {
             turno_preferido: turnoPreferido || null
         })
 
-        res.status(201).json({
+        return res.status(201).json({
             ok: true,
             mensaje: 'La solicitud se ha enviado correctamente.',
             datos: resultado
@@ -182,7 +223,7 @@ const createSolicitud = async (req, res) => {
     } catch (error) {
         console.error('Error al crear solicitud:', error.message)
 
-        res.status(error.statusCode || 500).json({
+        return res.status(error.statusCode || 500).json({
             ok: false,
             mensaje: error.statusCode
                 ? error.message
@@ -195,5 +236,6 @@ module.exports = {
     getMatriculas,
     createMatricula,
     deleteMatricula,
+    restaurarMatricula,
     createSolicitud
 }

@@ -493,7 +493,8 @@ const ampliarAvisoAdmin = async (req, res) => {
 }
 
 // =====================================================
-// 7. ELIMINAR DEFINITIVAMENTE CUALQUIER AVISO
+// 7. RETIRAR AVISO DE LA APLICACIÓN
+// Conserva todos los datos en SQL.
 // =====================================================
 
 const eliminarAvisoAdmin = async (req, res) => {
@@ -512,21 +513,107 @@ const eliminarAvisoAdmin = async (req, res) => {
         if (!resultado) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'No se ha encontrado el aviso.'
+                mensaje: 'No se ha encontrado el aviso o ya estaba retirado.'
             })
         }
 
         return res.json({
             ok: true,
-            mensaje: 'Aviso eliminado definitivamente.'
+            mensaje: 'El aviso se ha retirado de la aplicación. Sus datos siguen conservados en la base de datos.'
         })
 
     } catch (error) {
-        console.error('Error al eliminar el aviso:', error)
+        console.error('Error al retirar el aviso:', error)
 
         return res.status(500).json({
             ok: false,
-            mensaje: 'No se ha podido eliminar el aviso.'
+            mensaje: 'No se ha podido retirar el aviso.'
+        })
+    }
+}
+
+// =====================================================
+// 8. RECUPERAR AVISO RETIRADO
+// =====================================================
+
+const restaurarAvisoAdmin = async (req, res) => {
+    try {
+        const avisoId = Number(req.params.id)
+
+        if (!Number.isInteger(avisoId) || avisoId < 1) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El aviso seleccionado no es válido.'
+            })
+        }
+
+        const resultado = await Aviso.restaurarAvisoAdmin(avisoId)
+
+        if (!resultado) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'No se ha encontrado el aviso o ya estaba recuperado.'
+            })
+        }
+
+        return res.json({
+            ok: true,
+            mensaje: 'El aviso se ha recuperado correctamente.'
+        })
+
+    } catch (error) {
+        console.error('Error al recuperar el aviso:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se ha podido recuperar el aviso.'
+        })
+    }
+}
+
+// =====================================================
+// 9. RETIRAR TODOS LOS AVISOS DE LA APLICACIÓN
+// Conserva todos los registros en SQL.
+// =====================================================
+
+const retirarTodosAvisosAdmin = async (req, res) => {
+    try {
+        const cantidad = await Aviso.retirarTodosAvisosAdmin()
+
+        return res.json({
+            ok: true,
+            cantidad,
+            mensaje: `Se han retirado ${cantidad} avisos de la aplicación. Los registros siguen conservados en SQL.`
+        })
+    } catch (error) {
+        console.error('Error al retirar todos los avisos:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se han podido retirar todos los avisos.'
+        })
+    }
+}
+
+// =====================================================
+// 10. RECUPERAR TODOS LOS AVISOS RETIRADOS
+// =====================================================
+
+const restaurarTodosAvisosAdmin = async (req, res) => {
+    try {
+        const cantidad = await Aviso.restaurarTodosAvisosAdmin()
+
+        return res.json({
+            ok: true,
+            cantidad,
+            mensaje: `Se han recuperado ${cantidad} avisos.`
+        })
+    } catch (error) {
+        console.error('Error al recuperar todos los avisos:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se han podido recuperar todos los avisos.'
         })
     }
 }
@@ -542,5 +629,8 @@ module.exports = {
     editarAvisoAdmin,
     cambiarFechaExpiracionAdmin,
     ampliarAvisoAdmin,
-    eliminarAvisoAdmin
+    eliminarAvisoAdmin,
+    restaurarAvisoAdmin,
+    retirarTodosAvisosAdmin,
+    restaurarTodosAvisosAdmin
 }

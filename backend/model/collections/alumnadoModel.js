@@ -14,9 +14,11 @@ const getAlumnado = async () => {
       fecha_nacimiento,
       alumno_anterior,
       activo,
+      oculto_admin,
       fecha_creacion,
       fecha_actualizacion
-    FROM alumnos`
+    FROM alumnos
+    ORDER BY apellidos, nombre`
   )
 
   return rows
@@ -35,6 +37,7 @@ const getAlumnoById = async (id) => {
       fecha_nacimiento,
       alumno_anterior,
       activo,
+      oculto_admin,
       fecha_creacion,
       fecha_actualizacion
     FROM alumnos
@@ -80,16 +83,34 @@ const createAlumno = async (alumno) => {
   return result.insertId
 }
 
+// Retirar alumno de la aplicación sin borrar su registro SQL.
 const deleteAlumno = async (id) => {
   const [result] = await db.query(
-    'DELETE FROM alumnos WHERE id = ?',
+    `UPDATE alumnos
+     SET oculto_admin = 1
+     WHERE id = ?
+       AND oculto_admin = 0`,
     [id]
   )
 
   return result.affectedRows
 }
 
+// Recuperar alumno retirado por administración.
+const restaurarAlumno = async (id) => {
+  const [result] = await db.query(
+    `UPDATE alumnos
+     SET oculto_admin = 0
+     WHERE id = ?
+       AND oculto_admin = 1`,
+    [id]
+  )
 
+  return result.affectedRows
+}
+
+// El alumno solo puede iniciar sesión si está activo
+// y no ha sido retirado por administración.
 const buscarAlumnoPorDocumentoYEmail = async (documento, email) => {
   const [rows] = await db.query(
     `SELECT
@@ -99,11 +120,13 @@ const buscarAlumnoPorDocumentoYEmail = async (documento, email) => {
       nombre,
       apellidos,
       email,
-      activo
+      activo,
+      oculto_admin
     FROM alumnos
     WHERE documento = ?
       AND LOWER(TRIM(email)) = LOWER(TRIM(?))
       AND activo = 1
+      AND oculto_admin = 0
     LIMIT 1`,
     [documento, email]
   )
@@ -111,11 +134,11 @@ const buscarAlumnoPorDocumentoYEmail = async (documento, email) => {
   return rows[0] || null
 }
 
-
 module.exports = {
   getAlumnado,
   getAlumnoById,
   createAlumno,
   deleteAlumno,
+  restaurarAlumno,
   buscarAlumnoPorDocumentoYEmail
 }

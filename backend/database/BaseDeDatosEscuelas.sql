@@ -2046,3 +2046,352 @@ SELECT
     @@session.time_zone AS zona_sesion,
     NOW() AS hora_mysql,
     UTC_TIMESTAMP() AS hora_utc;
+    
+    ALTER TABLE recursos
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE avisos
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+
+
+
+-- ============================================================
+-- A. AÑADIR LAS COLUMNAS QUE NECESITA EL ACCESO DE PROFESORES
+-- Ejecutar solo si todavía no existen.
+-- ============================================================
+
+ALTER TABLE profesores
+    ADD COLUMN anio_nacimiento SMALLINT UNSIGNED NULL
+        AFTER apellidos,
+    ADD COLUMN foto VARCHAR(255) NULL
+        AFTER especialidad;
+
+
+-- ============================================================
+-- B. CREAR UN PROFESOR DE PRUEBA PARA CADA ESCUELA
+-- Joan Miró = escuela 1
+-- Ateneu Aula 502 = escuela 2
+-- ============================================================
+
+INSERT INTO profesores (
+    tipo_documento,
+    documento,
+    nombre,
+    apellidos,
+    anio_nacimiento,
+    telefono,
+    email,
+    especialidad,
+    foto,
+    activo
+)
+SELECT
+    'NIE',
+    '00000001R',
+    'Profesor',
+    'Prueba Joan Miro',
+    1980,
+    '600000001',
+    'profesor.joanmiro@example.com',
+    'Castellano',
+    NULL,
+    1
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM profesores
+    WHERE documento = '00000001R'
+       OR email = 'profesor.joanmiro@example.com'
+);
+
+INSERT INTO profesores (
+    tipo_documento,
+    documento,
+    nombre,
+    apellidos,
+    anio_nacimiento,
+    telefono,
+    email,
+    especialidad,
+    foto,
+    activo
+)
+SELECT
+    'NIE',
+    '00000002W',
+    'Profesor',
+    'Prueba Ateneu',
+    1981,
+    '600000002',
+    'profesor.ateneu@example.com',
+    'Castellano',
+    NULL,
+    1
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM profesores
+    WHERE documento = '00000002W'
+       OR email = 'profesor.ateneu@example.com'
+);
+
+
+-- ============================================================
+-- C. ASEGURAR LOS DOS TURNOS PARA CADA CURSO Y ESCUELA
+-- No duplica una combinación curso + escuela + turno que ya exista.
+-- ============================================================
+
+INSERT INTO grupos (
+    curso_id,
+    escuela_id,
+    profesor_id,
+    nombre,
+    aula,
+    turno,
+    activo
+)
+SELECT
+    c.id,
+    e.id,
+    p.id,
+    CONCAT(c.nombre, ' - ', t.turno),
+    'Por asignar',
+    t.turno,
+    1
+FROM cursos c
+CROSS JOIN escuelas e
+CROSS JOIN (
+    SELECT 'Mañana' AS turno
+    UNION ALL
+    SELECT 'Tarde' AS turno
+) t
+INNER JOIN profesores p
+    ON p.documento = CASE
+        WHEN e.id = 1 THEN '00000001R'
+        WHEN e.id = 2 THEN '00000002W'
+    END
+WHERE c.activo = 1
+  AND e.activa = 1
+  AND e.id IN (1, 2)
+  AND NOT EXISTS (
+      SELECT 1
+      FROM grupos g
+      WHERE g.curso_id = c.id
+        AND g.escuela_id = e.id
+        AND g.turno = t.turno
+  );
+
+
+-- ============================================================
+-- D. ASIGNAR CADA PROFESOR DE PRUEBA A LOS GRUPOS DE SU ESCUELA
+-- Y normalizar los nombres de los grupos.
+-- ============================================================
+
+UPDATE grupos g
+INNER JOIN cursos c
+    ON c.id = g.curso_id
+INNER JOIN profesores p
+    ON p.documento = CASE
+        WHEN g.escuela_id = 1 THEN '00000001R'
+        WHEN g.escuela_id = 2 THEN '00000002W'
+    END
+SET
+    g.profesor_id = p.id,
+    g.nombre = CONCAT(c.nombre, ' - ', g.turno),
+    g.activo = 1
+WHERE g.escuela_id IN (1, 2)
+  AND g.turno IN ('Mañana', 'Tarde');
+
+
+-- ============================================================
+-- E. CREAR UN ALUMNO DE PRUEBA PARA CADA ESCUELA
+-- ============================================================
+
+INSERT INTO alumnos (
+    tipo_documento,
+    documento,
+    nombre,
+    apellidos,
+    pais_origen,
+    telefono,
+    email,
+    fecha_nacimiento,
+    alumno_anterior,
+    activo
+)
+SELECT
+    'NIE',
+    'X0000001A',
+    'Alumno',
+    'Prueba Joan Miro',
+    'Prueba',
+    '600000101',
+    'alumno.joanmiro@example.com',
+    '2000-01-15',
+    0,
+    1
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM alumnos
+    WHERE documento = 'X0000001A'
+       OR email = 'alumno.joanmiro@example.com'
+);
+
+INSERT INTO alumnos (
+    tipo_documento,
+    documento,
+    nombre,
+    apellidos,
+    pais_origen,
+    telefono,
+    email,
+    fecha_nacimiento,
+    alumno_anterior,
+    activo
+)
+SELECT
+    'NIE',
+    'X0000002B',
+    'Alumno',
+    'Prueba Ateneu',
+    'Prueba',
+    '600000102',
+    'alumno.ateneu@example.com',
+    '2001-02-20',
+    0,
+    1
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM alumnos
+    WHERE documento = 'X0000002B'
+       OR email = 'alumno.ateneu@example.com'
+);
+
+
+-- ============================================================
+-- F. MATRICULAR CADA ALUMNO EN CASTELLANO A1 - MAÑANA
+-- Joan Miró y Ateneu tienen matrículas independientes.
+-- ============================================================
+
+INSERT INTO matriculas (
+    alumno_id,
+    grupo_id,
+    fecha_matricula,
+    estado
+)
+SELECT
+    a.id,
+    g.id,
+    CURDATE(),
+    'ACTIVA'
+FROM alumnos a
+INNER JOIN grupos g
+    ON g.escuela_id = CASE
+        WHEN a.documento = 'X0000001A' THEN 1
+        WHEN a.documento = 'X0000002B' THEN 2
+    END
+INNER JOIN cursos c
+    ON c.id = g.curso_id
+WHERE (
+        (a.documento = 'X0000001A'
+         AND a.email = 'alumno.joanmiro@example.com')
+     OR (a.documento = 'X0000002B'
+         AND a.email = 'alumno.ateneu@example.com')
+)
+  AND a.activo = 1
+  AND c.idioma = 'Castellano'
+  AND c.nivel = 'A1'
+  AND g.turno = 'Mañana'
+  AND g.activo = 1
+  AND NOT EXISTS (
+      SELECT 1
+      FROM matriculas m
+      WHERE m.alumno_id = a.id
+        AND m.grupo_id = g.id
+  );
+
+
+-- ============================================================
+-- G. COMPROBAR LOS RESULTADOS
+-- ============================================================
+
+SELECT id, nombre, apellidos, documento, email,
+       anio_nacimiento, telefono, activo
+FROM profesores
+WHERE documento IN ('00000001R', '00000002W');
+
+SELECT id, nombre, apellidos, documento, email, activo
+FROM alumnos
+WHERE documento IN ('X0000001A', 'X0000002B');
+
+SELECT
+    e.nombre AS escuela,
+    c.nombre AS curso,
+    g.nombre AS grupo,
+    g.turno,
+    p.nombre AS profesor,
+    p.apellidos AS apellidos_profesor
+FROM grupos g
+INNER JOIN escuelas e ON e.id = g.escuela_id
+INNER JOIN cursos c ON c.id = g.curso_id
+LEFT JOIN profesores p ON p.id = g.profesor_id
+WHERE e.id IN (1, 2)
+ORDER BY e.id, c.id,
+         FIELD(g.turno, 'Mañana', 'Tarde');
+
+SELECT
+    e.nombre AS escuela,
+    a.nombre AS alumno,
+    a.apellidos,
+    c.nombre AS curso,
+    g.turno,
+    m.estado AS estado_matricula
+FROM matriculas m
+INNER JOIN alumnos a ON a.id = m.alumno_id
+INNER JOIN grupos g ON g.id = m.grupo_id
+INNER JOIN escuelas e ON e.id = g.escuela_id
+INNER JOIN cursos c ON c.id = g.curso_id
+WHERE a.documento IN ('X0000001A', 'X0000002B');
+
+
+
+USE BaseDeDatosEscuelas;
+
+ALTER TABLE escuelas
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE cursos
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE grupos
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE horarios
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE foro_mensajes
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE foro_profesores
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE foro_profesores_respuestas
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE mensajes_privados
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE mensajes
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+
+
+ALTER TABLE actividades
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE matriculas
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+ALTER TABLE alumnos
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE profesores
+ADD COLUMN oculto_admin TINYINT(1) NOT NULL DEFAULT 0;

@@ -41,8 +41,11 @@ async function getGrupos(req, res) {
         ON c.id = g.curso_id
 
       WHERE g.activo = 1
+        AND g.oculto_admin = 0
         AND e.activa = 1
+        AND e.oculto_admin = 0
         AND c.activo = 1
+        AND c.oculto_admin = 0
 
       ORDER BY
         e.nombre,
@@ -71,11 +74,6 @@ async function getHorarios(req, res) {
 
   const grupoId = Number(req.query.grupo_id);
 
-  
-// async function getHorarios(req, res) {
-//const grupoId = Number(req.query.grupo_id);
-
-
   try {
     // Si no se ha seleccionado ningún grupo, comprobar
     // si existen grupos activos antes de decidir la respuesta.
@@ -83,9 +81,19 @@ async function getHorarios(req, res) {
       req.query.grupo_id === undefined ||
       req.query.grupo_id === ''
     ) {
-      const [gruposActivos] = await pool.execute(
-        'SELECT id FROM grupos WHERE activo = 1 LIMIT 1'
-      );
+      const [gruposActivos] = await pool.execute(`
+        SELECT g.id
+        FROM grupos g
+        INNER JOIN escuelas e ON e.id = g.escuela_id
+        INNER JOIN cursos c ON c.id = g.curso_id
+        WHERE g.activo = 1
+          AND g.oculto_admin = 0
+          AND e.activa = 1
+          AND e.oculto_admin = 0
+          AND c.activo = 1
+          AND c.oculto_admin = 0
+        LIMIT 1
+      `);
 
       if (gruposActivos.length === 0) {
         return res.json([]);
@@ -105,21 +113,38 @@ async function getHorarios(req, res) {
     }
 
     const [grupos] = await pool.execute(
-      'SELECT id FROM grupos WHERE id = ? AND activo = 1',
+      `SELECT g.id
+       FROM grupos g
+       INNER JOIN escuelas e ON e.id = g.escuela_id
+       INNER JOIN cursos c ON c.id = g.curso_id
+       WHERE g.id = ?
+         AND g.activo = 1
+         AND g.oculto_admin = 0
+         AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0`,
       [grupoId]
     );
 
     if (grupos.length === 0) {
       return res.status(404).json({
         ok: false,
-        mensaje: 'El grupo no existe o está inactivo.'
+        mensaje: 'El grupo no existe, está inactivo o ha sido retirado.'
       });
     }
 
     const [filas] = await pool.execute(
-      `SELECT id, grupo_id, dia_semana, hora_inicio, hora_fin, activo
-FROM horarios
+      `SELECT
+          id,
+          grupo_id,
+          dia_semana,
+          hora_inicio,
+          hora_fin,
+          activo
+       FROM horarios
        WHERE grupo_id = ?
+         AND oculto_admin = 0
        ORDER BY FIELD(
          dia_semana,
          'Lunes', 'Martes', 'Miércoles', 'Jueves',
@@ -128,31 +153,33 @@ FROM horarios
       [grupoId]
     );
 
-  const resultado = DIAS.map(dia => {
-  const fila = filas.find(h => h.dia_semana === dia);
+    const resultado = DIAS.map(dia => {
+      const fila = filas.find(h => h.dia_semana === dia);
 
-  if (!fila) {
-    return {
-      id: null,
-      grupo_id: grupoId,
-      dia_semana: dia,
-      hora_inicio: '09:00',
-      hora_fin: '18:00',
-      activo: false,
-      configurado: false
-    };
-  }
+      if (!fila) {
+        return {
+          id: null,
+          grupo_id: grupoId,
+          dia_semana: dia,
+          hora_inicio: '09:00',
+          hora_fin: '18:00',
+          activo: false,
+          configurado: false
+        };
+      }
 
-  return {
-    ...fila,
-    dia_semana: dia,
-    hora_inicio: String(fila.hora_inicio).slice(0, 5),
-    hora_fin: String(fila.hora_fin).slice(0, 5),
-    activo: Boolean(fila.activo),
-    configurado: true
-  };
-});
+      return {
+        ...fila,
+        dia_semana: dia,
+        hora_inicio: String(fila.hora_inicio).slice(0, 5),
+        hora_fin: String(fila.hora_fin).slice(0, 5),
+        activo: Boolean(fila.activo),
+        configurado: true
+      };
+    });
+
     return res.json(resultado);
+
   } catch (error) {
     console.error('Error al consultar horarios:', error);
 
@@ -230,7 +257,17 @@ async function guardarHorarios(req, res) {
     await conexion.beginTransaction();
 
     const [grupos] = await conexion.execute(
-      'SELECT id FROM grupos WHERE id = ? AND activo = 1',
+      `SELECT g.id
+       FROM grupos g
+       INNER JOIN escuelas e ON e.id = g.escuela_id
+       INNER JOIN cursos c ON c.id = g.curso_id
+       WHERE g.id = ?
+         AND g.activo = 1
+         AND g.oculto_admin = 0
+         AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0`,
       [grupoId]
     );
 
@@ -239,7 +276,7 @@ async function guardarHorarios(req, res) {
 
       return res.status(404).json({
         ok: false,
-        mensaje: 'El grupo no existe o está inactivo.'
+        mensaje: 'El grupo no existe, está inactivo o ha sido retirado.'
       });
     }
 
@@ -255,13 +292,26 @@ async function guardarHorarios(req, res) {
         : '18:00:00';
 
       const [existentes] = await conexion.execute(
-        `SELECT id
+        `SELECT id, oculto_admin
          FROM horarios
-         WHERE grupo_id = ? AND dia_semana = ?
+         WHERE grupo_id = ?
+           AND dia_semana = ?
          ORDER BY id
          LIMIT 1`,
         [grupoId, horario.dia_semana]
       );
+
+      if (
+        existentes.length > 0 &&
+        Number(existentes[0].oculto_admin) === 1
+      ) {
+        await conexion.rollback();
+
+        return res.status(409).json({
+          ok: false,
+          mensaje: 'Este horario está retirado por administración. Recupéralo antes de modificarlo.'
+        });
+      }
 
       if (existentes.length > 0) {
         await conexion.execute(
@@ -269,7 +319,8 @@ async function guardarHorarios(req, res) {
            SET hora_inicio = ?,
                hora_fin = ?,
                activo = ?
-           WHERE id = ?`,
+           WHERE id = ?
+             AND oculto_admin = 0`,
           [
             inicio,
             fin,
@@ -299,6 +350,7 @@ async function guardarHorarios(req, res) {
       ok: true,
       mensaje: 'Los horarios se han guardado correctamente.'
     });
+
   } catch (error) {
     if (conexion) {
       await conexion.rollback();
@@ -310,6 +362,7 @@ async function guardarHorarios(req, res) {
       ok: false,
       mensaje: 'No se pudieron guardar los horarios.'
     });
+
   } finally {
     if (conexion) {
       conexion.release();
@@ -326,9 +379,16 @@ async function getHorariosAlumno(req, res) {
       `SELECT m.grupo_id
        FROM matriculas m
        INNER JOIN grupos g ON g.id = m.grupo_id
+       INNER JOIN escuelas e ON e.id = g.escuela_id
+       INNER JOIN cursos c ON c.id = g.curso_id
        WHERE m.alumno_id = ?
          AND m.estado = 'ACTIVA'
          AND g.activo = 1
+         AND g.oculto_admin = 0
+         AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0
        ORDER BY m.fecha_matricula DESC, m.id DESC
        LIMIT 1`,
       [req.alumnoId]
@@ -345,15 +405,23 @@ async function getHorariosAlumno(req, res) {
     const grupoId = matriculas[0].grupo_id;
 
     const [horarios] = await pool.execute(
-      `SELECT id, grupo_id, dia_semana, hora_inicio, hora_fin
-       FROM horarios
-       WHERE grupo_id = ?
-         AND activo = 1
+      `SELECT
+          h.id,
+          h.grupo_id,
+          h.dia_semana,
+          h.hora_inicio,
+          h.hora_fin
+       FROM horarios h
+       INNER JOIN grupos g ON g.id = h.grupo_id
+       WHERE h.grupo_id = ?
+         AND h.oculto_admin = 0
+         AND h.activo = 1
+         AND g.oculto_admin = 0
        ORDER BY FIELD(
-         dia_semana,
+         h.dia_semana,
          'Lunes', 'Martes', 'Miércoles', 'Jueves',
          'Viernes', 'Sábado', 'Domingo'
-       ), hora_inicio`,
+       ), h.hora_inicio`,
       [grupoId]
     );
 
@@ -365,6 +433,7 @@ async function getHorariosAlumno(req, res) {
         hora_fin: String(horario.hora_fin).slice(0, 5)
       }))
     });
+
   } catch (error) {
     console.error('Error al consultar el horario del alumno:', error);
 

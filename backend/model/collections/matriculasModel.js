@@ -4,6 +4,8 @@ const db = require('../../config/database')
 // =====================================================
 // OBTENER LAS MATRÍCULAS
 // GET /api/matriculas
+// Se incluyen las retiradas para que administración
+// pueda recuperarlas.
 // =====================================================
 
 const getMatriculas = async () => {
@@ -14,6 +16,7 @@ const getMatriculas = async () => {
             m.grupo_id,
             m.fecha_matricula,
             m.estado,
+            m.oculto_admin,
             a.nombre AS alumno,
             a.apellidos,
             g.nombre AS grupo,
@@ -42,6 +45,49 @@ const getMatriculas = async () => {
 const createMatricula = async (matricula) => {
     const { alumno_id, grupo_id } = matricula
 
+    // Comprobar que el alumno existe y está activo.
+    const [alumnos] = await db.query(
+        `SELECT id
+         FROM alumnos
+         WHERE id = ? AND activo = 1
+         LIMIT 1`,
+        [alumno_id]
+    )
+
+    if (alumnos.length === 0) {
+        const error = new Error(
+            'El alumno no existe o no está activo.'
+        )
+        error.statusCode = 400
+        throw error
+    }
+
+    // Comprobar que el grupo, curso y escuela
+    // están activos y no han sido retirados.
+    const [grupos] = await db.query(
+        `SELECT g.id
+         FROM grupos g
+         INNER JOIN cursos c ON c.id = g.curso_id
+         INNER JOIN escuelas e ON e.id = g.escuela_id
+         WHERE g.id = ?
+           AND g.activo = 1
+           AND g.oculto_admin = 0
+           AND c.activo = 1
+           AND c.oculto_admin = 0
+           AND e.activa = 1
+           AND e.oculto_admin = 0
+         LIMIT 1`,
+        [grupo_id]
+    )
+
+    if (grupos.length === 0) {
+        const error = new Error(
+            'El grupo, curso o escuela no está disponible para nuevas matrículas.'
+        )
+        error.statusCode = 400
+        throw error
+    }
+
     const [result] = await db.query(
         `INSERT INTO matriculas
             (alumno_id, grupo_id, fecha_matricula)
@@ -53,13 +99,17 @@ const createMatricula = async (matricula) => {
 }
 
 // =====================================================
-// ELIMINAR UNA MATRÍCULA
+// RETIRAR UNA MATRÍCULA
 // DELETE /api/matriculas/:id
+// No elimina el registro de SQL.
 // =====================================================
 
 const deleteMatricula = async (id) => {
     const [result] = await db.query(
-        'DELETE FROM matriculas WHERE id = ?',
+        `UPDATE matriculas
+         SET oculto_admin = 1
+         WHERE id = ?
+           AND oculto_admin = 0`,
         [id]
     )
 
@@ -67,7 +117,25 @@ const deleteMatricula = async (id) => {
 }
 
 // =====================================================
-// CREAR UNA SOLICITUD DE MATRÍCULA
+// RECUPERAR UNA MATRÍCULA
+// PATCH /api/matriculas/:id/recuperar
+// Conserva el estado original de la matrícula.
+// =====================================================
+
+const restaurarMatricula = async (id) => {
+    const [result] = await db.query(
+        `UPDATE matriculas
+         SET oculto_admin = 0
+         WHERE id = ?
+           AND oculto_admin = 1`,
+        [id]
+    )
+
+    return result.affectedRows
+}
+
+// =====================================================
+// CREAR UNA SOLICITUD DEL FORMULARIO
 // POST /api/matriculas/solicitudes
 // =====================================================
 
@@ -102,19 +170,22 @@ const createSolicitud = async (datos) => {
             throw error
         }
 
-        // Comprobar que la escuela existe y está activa.
+        // Comprobar que la escuela existe, está activa
+        // y no ha sido retirada por administración.
 
         const [escuelas] = await connection.query(
             `SELECT id, nombre
              FROM escuelas
-             WHERE id = ? AND activa = TRUE
+             WHERE id = ?
+               AND activa = TRUE
+               AND oculto_admin = 0
              LIMIT 1`,
             [escuela_id]
         )
 
         if (escuelas.length === 0) {
             const error = new Error(
-                'La escuela seleccionada no existe o no está activa.'
+                'La escuela seleccionada no existe o no está disponible.'
             )
             error.statusCode = 400
             throw error
@@ -172,8 +243,7 @@ const createSolicitud = async (datos) => {
 
         if (alumnos.length > 0) {
             // El alumno ya existe.
-            // No modificar sus datos personales antes de aprobar
-            // la nueva solicitud.
+            // No duplicar ni modificar sus datos personales.
 
             alumnoId = alumnos[0].id
 
@@ -203,7 +273,7 @@ const createSolicitud = async (datos) => {
             alumnoId = resultadoAlumno.insertId
         }
 
-        // Crear la solicitud pendiente con escuela y turno preferidos.
+        // Crear la solicitud pendiente.
 
         const [resultadoSolicitud] = await connection.query(
             `INSERT INTO solicitudes_matricula (
@@ -225,8 +295,6 @@ const createSolicitud = async (datos) => {
                 solicita_test ? 1 : 0
             ]
         )
-
-        // Confirmar las operaciones juntas.
 
         await connection.commit()
 
@@ -252,5 +320,6 @@ module.exports = {
     getMatriculas,
     createMatricula,
     deleteMatricula,
+    restaurarMatricula,
     createSolicitud
 }

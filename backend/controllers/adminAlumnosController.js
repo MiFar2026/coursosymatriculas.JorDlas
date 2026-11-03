@@ -42,6 +42,7 @@ const listarAlumnos = async (req, res) => {
         a.fecha_nacimiento,
         a.alumno_anterior,
         a.activo,
+        a.oculto_admin,
         m.id AS matricula_id,
         m.estado AS estado_matricula,
         g.id AS grupo_id,
@@ -117,7 +118,8 @@ const obtenerAlumno = async (req, res) => {
         a.email,
         a.fecha_nacimiento,
         a.alumno_anterior,
-        a.activo
+        a.activo,
+        a.oculto_admin,
       FROM alumnos a
       WHERE a.id = ?
       LIMIT 1`,
@@ -262,6 +264,7 @@ const actualizarAlumno = async (req, res) => {
         g.escuela_id,
         g.turno,
         g.activo,
+        a.oculto_admin,
         e.nombre AS escuela,
         e.activa AS escuela_activa
       FROM grupos g
@@ -659,10 +662,116 @@ const crearAlumno = async (req, res) => {
   }
 }
 
+// =====================================================
+// RETIRAR UN ALUMNO DE LA APLICACIÓN
+// PATCH /api/admin/alumnos/:id/retirar
+// No elimina el registro ni sus matrículas.
+// =====================================================
+
+const retirarAlumnoAdmin = async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El identificador del alumno no es válido.'
+            })
+        }
+
+        const [resultado] = await db.query(
+            `UPDATE alumnos
+             SET oculto_admin = 1
+             WHERE id = ?`,
+            [id]
+        )
+
+        if (resultado.affectedRows === 0) {
+            const [existente] = await db.query(
+                'SELECT id FROM alumnos WHERE id = ? LIMIT 1',
+                [id]
+            )
+
+            if (existente.length === 0) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: 'Alumno no encontrado.'
+                })
+            }
+        }
+
+        return res.json({
+            ok: true,
+            mensaje: 'Alumno retirado de la aplicación. Sus datos se conservan y puede recuperarse.'
+        })
+    } catch (error) {
+        console.error('Error al retirar alumno:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se pudo retirar el alumno.'
+        })
+    }
+}
+
+
+// =====================================================
+// RECUPERAR UN ALUMNO
+// PATCH /api/admin/alumnos/:id/recuperar
+// =====================================================
+
+const recuperarAlumnoAdmin = async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El identificador del alumno no es válido.'
+            })
+        }
+
+        const [resultado] = await db.query(
+            `UPDATE alumnos
+             SET oculto_admin = 0
+             WHERE id = ?`,
+            [id]
+        )
+
+        if (resultado.affectedRows === 0) {
+            const [existente] = await db.query(
+                'SELECT id FROM alumnos WHERE id = ? LIMIT 1',
+                [id]
+            )
+
+            if (existente.length === 0) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: 'Alumno no encontrado.'
+                })
+            }
+        }
+
+        return res.json({
+            ok: true,
+            mensaje: 'Alumno recuperado correctamente.'
+        })
+    } catch (error) {
+        console.error('Error al recuperar alumno:', error)
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'No se pudo recuperar el alumno.'
+        })
+    }
+}
+
 module.exports = {
-  listarAlumnos,
-  obtenerAlumno,
-  actualizarAlumno,
-  cambiarEstadoAlumno,
-  crearAlumno
+    listarAlumnos,
+    obtenerAlumno,
+    actualizarAlumno,
+    cambiarEstadoAlumno,
+    crearAlumno,
+    retirarAlumnoAdmin,
+    recuperarAlumnoAdmin
 }

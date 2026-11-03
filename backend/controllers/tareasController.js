@@ -1,9 +1,11 @@
 
 const pool = require('../config/database')
 const fs = require('fs/promises')
+const path = require('path')
 
 // Devuelve el grupo activo, su profesor y su escuela
 // para el alumno autenticado.
+// Comprueba también que escuela, grupo y curso no estén retirados.
 async function obtenerGrupoActivo(alumnoId) {
   const [grupos] = await pool.execute(
     `SELECT
@@ -13,10 +15,15 @@ async function obtenerGrupoActivo(alumnoId) {
      FROM matriculas m
      INNER JOIN grupos g ON g.id = m.grupo_id
      INNER JOIN escuelas e ON e.id = g.escuela_id
+     INNER JOIN cursos c ON c.id = g.curso_id
      WHERE m.alumno_id = ?
        AND m.estado = 'ACTIVA'
        AND g.activo = 1
+       AND g.oculto_admin = 0
        AND e.activa = 1
+       AND e.oculto_admin = 0
+       AND c.activo = 1
+       AND c.oculto_admin = 0
      ORDER BY m.fecha_matricula DESC, m.id DESC
      LIMIT 1`,
     [alumnoId]
@@ -26,6 +33,8 @@ async function obtenerGrupoActivo(alumnoId) {
 }
 
 // Consultar las entregas del alumno autenticado.
+// Se conserva todo su historial, aunque el grupo o la actividad
+// hayan sido retirados por Administración.
 async function obtenerMisEntregas(req, res) {
   try {
     const [entregas] = await pool.execute(
@@ -59,7 +68,7 @@ async function obtenerMisEntregas(req, res) {
   }
 }
 
-// Eliminar archivos si la operación no llega a guardarse.
+// Eliminar archivos temporales si la operación no llega a guardarse.
 async function eliminarArchivos(files) {
   await Promise.all(
     (files || []).map(async (archivo) => {
@@ -126,7 +135,7 @@ async function crearEntrega(req, res) {
       return res.status(400).json({
         ok: false,
         mensaje:
-          'No tienes un grupo activo en una escuela activa para entregar trabajos.'
+          'No tienes un grupo activo y disponible para entregar trabajos.'
       })
     }
 
@@ -195,9 +204,8 @@ async function crearEntrega(req, res) {
   }
 }
 
-const path = require('path')
-
 // Listar las entregas de los grupos asignados al profesor.
+// No se muestran grupos, escuelas ni cursos retirados.
 async function obtenerTareasProfesor(req, res) {
   try {
     const [tareas] = await pool.execute(
@@ -217,11 +225,16 @@ async function obtenerTareasProfesor(req, res) {
        FROM tareas t
        INNER JOIN grupos g ON g.id = t.grupo_id
        INNER JOIN escuelas e ON e.id = g.escuela_id
+       INNER JOIN cursos c ON c.id = g.curso_id
        WHERE t.profesor_id = ?
          AND g.profesor_id = ?
          AND g.escuela_id = ?
          AND g.activo = 1
+         AND g.oculto_admin = 0
          AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0
        ORDER BY t.fecha_envio DESC, t.id DESC`,
       [
         req.profesor.id,
@@ -244,7 +257,8 @@ async function obtenerTareasProfesor(req, res) {
   }
 }
 
-// Descargar una entrega solo si pertenece a un grupo del profesor.
+// Descargar una entrega solo si pertenece a un grupo
+// activo y visible del profesor.
 async function descargarTareaProfesor(req, res) {
   try {
     const tareaId = Number(req.params.id)
@@ -263,12 +277,17 @@ async function descargarTareaProfesor(req, res) {
        FROM tareas t
        INNER JOIN grupos g ON g.id = t.grupo_id
        INNER JOIN escuelas e ON e.id = g.escuela_id
+       INNER JOIN cursos c ON c.id = g.curso_id
        WHERE t.id = ?
          AND t.profesor_id = ?
          AND g.profesor_id = ?
          AND g.escuela_id = ?
          AND g.activo = 1
+         AND g.oculto_admin = 0
          AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0
        LIMIT 1`,
       [
         tareaId,
@@ -334,7 +353,6 @@ async function descargarTareaProfesor(req, res) {
   }
 }
 
-
 module.exports = {
   obtenerGrupoActivo,
   obtenerMisEntregas,
@@ -342,4 +360,3 @@ module.exports = {
   obtenerTareasProfesor,
   descargarTareaProfesor
 }
-

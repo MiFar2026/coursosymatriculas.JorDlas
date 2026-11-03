@@ -282,9 +282,218 @@
               </span>
             </button>
 
+            <!-- ELIMINACIÓN DE FINAL DE CURSO -->
+<button
+  type="button"
+  @click="seleccionarModulo('eliminacion')"
+  class="rounded-xl border border-red-300 bg-red-50 p-6 text-left transition hover:bg-red-100"
+>
+  <span class="mb-3 block text-3xl">🗑️</span>
+
+  <h3 class="text-xl font-bold text-gray-900">
+    Eliminar definitivamente
+  </h3>
+
+  <p class="mt-2 text-sm text-gray-700">
+    Limpieza de foros, mensajes, avisos, escuelas, cursos, grupos,
+    horarios y archivos.
+  </p>
+
+  <span class="mt-4 block font-semibold text-red-800">
+    Gestionar eliminación →
+  </span>
+</button>
           
           </div>
         </section>
+
+        
+
+<!-- ELIMINACIÓN DE FINAL DE CURSO -->
+<section
+  v-if="moduloSeleccionado === 'eliminacion'"
+  class="mt-8 space-y-6 rounded-xl border border-red-200 bg-white p-6 shadow-sm"
+>
+  <div class="border-b border-gray-200 pb-5">
+    <h3 class="text-2xl font-bold text-gray-900">
+      Eliminar definitivamente
+    </h3>
+
+    <p class="mt-2 font-bold text-red-700">
+      Solo eliminar al final del curso
+    </p>
+
+    <p class="mt-2 text-sm text-gray-600">
+      Cada apartado tendrá su propia acción y confirmación.
+      Los datos se conservarán y podrán recuperarse.
+    </p>
+  </div>
+
+  <!-- FOROS, MENSAJES Y AVISOS -->
+  <article class="rounded-xl border border-gray-200 p-5">
+    <h4 class="mb-4 text-lg font-bold text-gray-900">
+      Foros, mensajes y avisos
+    </h4>
+
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <button
+        type="button"
+        @click="retirarTodosLosForos"
+        :disabled="procesandoId !== null || cargandoDatos"
+        class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {{ procesandoId === 'retirar-todos-los-foros'
+          ? 'Retirando foros...'
+          : 'Eliminar foros' }}
+      </button>
+
+      <button
+        type="button"
+        @click="retirarTodosLosMensajes"
+        :disabled="procesandoId !== null || cargandoDatos"
+        class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {{ procesandoId === 'retirar-todos-los-mensajes'
+          ? 'Retirando mensajes...'
+          : 'Eliminar mensajes' }}
+      </button>
+
+      <button
+  type="button"
+  @click="retirarTodosLosAvisos"
+  :disabled="procesandoId !== null || cargandoDatos"
+  class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {{ procesandoId === 'retirar-todos-los-avisos'
+    ? 'Retirando avisos...'
+    : 'Eliminar avisos' }}
+</button>
+    </div>
+  </article>
+
+  <!-- ESCUELAS, CURSOS Y GRUPOS -->
+  <article class="rounded-xl border border-gray-200 p-5">
+    <h4 class="mb-4 text-lg font-bold text-gray-900">
+      Escuelas, cursos y grupos
+    </h4>
+
+    <div class="space-y-4">
+      <div>
+        <p class="mb-2 font-semibold text-gray-800">
+          Escuelas
+        </p>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            @click="retirarBibliotecaJoanMiro"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ procesandoId === 'retirar-escuela-1'
+              ? 'Retirando...'
+              : 'Biblioteca Joan Miró' }}
+          </button>
+
+          <button
+            type="button"
+            @click="retirarAteneuAula502"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ procesandoId === 'retirar-escuela-2'
+              ? 'Retirando...'
+              : 'Ateneu Aula 502' }}
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <p class="mb-2 font-semibold text-gray-800">
+          Cursos y grupos
+        </p>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            @click="retirarTodosLosCursos"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ procesandoId === 'retirar-todos-los-cursos'
+              ? 'Retirando cursos...'
+              : 'Eliminar cursos' }}
+          </button>
+
+          <button
+            type="button"
+            @click="retirarTodosLosGrupos"
+            :disabled="procesandoId !== null || cargandoDatos"
+            class="rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ procesandoId === 'retirar-todos-los-grupos'
+              ? 'Retirando grupos...'
+              : 'Eliminar grupos' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- GESTIÓN DE HORARIOS -->
+  <article class="rounded-xl border border-gray-200 p-5">
+    <h4 class="mb-3 text-lg font-bold text-gray-900">
+      Gestión de horarios
+    </h4>
+
+    <p class="mb-4 text-sm text-gray-600">
+      Una única acción para retirar todos los días y horas registrados.
+    </p>
+
+    <button
+      type="button"
+      @click="retirarTodosLosHorarios"
+      :disabled="procesandoId !== null || cargandoDatos"
+      class="w-full rounded-lg border border-red-300 bg-red-50 p-3 font-semibold text-red-800 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+    >
+      {{ procesandoId === 'retirar-todos-los-horarios'
+        ? 'Retirando horarios...'
+        : 'Eliminar todos los días y horas' }}
+    </button>
+  </article>
+
+  <!-- ARCHIVOS Y MATERIALES -->
+  <article class="rounded-xl border border-gray-200 p-5">
+    <h4 class="mb-3 text-lg font-bold text-gray-900">
+      Archivos y materiales
+    </h4>
+
+    <p class="mb-4 text-sm text-gray-600">
+      Retirar todos los archivos y materiales de la aplicación.
+    </p>
+
+    <button
+  type="button"
+  @click="retirarTodosLosMateriales"
+  :disabled="procesandoId !== null || cargandoDatos"
+  class="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  <span v-if="procesandoId === 'todos-los-materiales'">
+    Retirando materiales...
+  </span>
+
+  <span v-else>
+    Eliminar todos los archivos y materiales
+  </span>
+</button>
+  </article>
+
+  <p class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+    Los profesores, alumnos y voluntarios se gestionan individualmente
+    desde sus tarjetas correspondientes. Esta sección no incluye su eliminación masiva.
+  </p>
+</section>
+
 
 <!-- RESULTADOS FINALES Y CERTIFICADOS -->
 <section
@@ -1235,69 +1444,109 @@
     </p>
 
     <article
-      v-for="profesor in profesoresAdmin"
-      :key="profesor.id"
-      class="mb-4 rounded-xl border p-4 last:mb-0"
-    >
-      <div class="flex flex-col justify-between gap-3 sm:flex-row">
-        <div>
-          <h5 class="text-lg font-bold">
-            {{ profesor.nombre }} {{ profesor.apellidos }}
-          </h5>
-          <p class="mt-1 text-sm text-gray-600">
-            {{ profesor.especialidad || 'Especialidad no indicada' }}
-          </p>
-          <p class="text-sm text-gray-600">
-            Correo: {{ profesor.email || 'No indicado' }}
-          </p>
-          <p class="text-sm text-gray-600">
-            Teléfono: {{ profesor.telefono || 'No indicado' }}
-          </p>
-          <p class="mt-2 text-sm">
-            Estado:
-            <span
-              :class="Number(profesor.activo) === 1
-                ? 'font-semibold text-green-700'
-                : 'font-semibold text-red-700'"
-            >
-              {{ Number(profesor.activo) === 1 ? 'Activo' : 'Inactivo' }}
-            </span>
-          </p>
-        </div>
+  v-for="profesor in profesoresAdmin"
+  :key="profesor.id"
+  class="mb-4 rounded-xl border p-4 last:mb-0"
+>
+  <div class="flex flex-col justify-between gap-3 sm:flex-row">
 
-        <div class="flex flex-wrap content-start gap-2">
-          <button
-            type="button"
-            @click="editarProfesorAdmin(profesor)"
-            :disabled="procesandoId !== null || cargandoDatos"
-            class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
-          >
-            Editar datos
-          </button>
+    <!-- INFORMACIÓN DEL PROFESOR -->
+    <div>
+      <h5 class="text-lg font-bold">
+        {{ profesor.nombre }} {{ profesor.apellidos }}
+      </h5>
 
-          <button
-            type="button"
-            @click="cargarHistorialProfesor(profesor)"
-            :disabled="procesandoId !== null || cargandoDatos"
-            class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
-          >
-            Historial
-          </button>
+      <p class="mt-1 text-sm text-gray-600">
+        {{ profesor.especialidad || 'Especialidad no indicada' }}
+      </p>
 
-          <button
-            type="button"
-            @click="cambiarEstadoProfesor(profesor)"
-            :disabled="procesandoId !== null || cargandoDatos"
-            class="rounded-lg px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-            :class="Number(profesor.activo) === 1
-              ? 'bg-red-700 hover:bg-red-800'
-              : 'bg-green-700 hover:bg-green-800'"
-          >
-            {{ Number(profesor.activo) === 1 ? 'Desactivar' : 'Activar' }}
-          </button>
-        </div>
-      </div>
-    </article>
+      <p class="text-sm text-gray-600">
+        Correo: {{ profesor.email || 'No indicado' }}
+      </p>
+
+      <p class="text-sm text-gray-600">
+        Teléfono: {{ profesor.telefono || 'No indicado' }}
+      </p>
+
+      <p class="mt-2 text-sm">
+        Estado:
+        <span
+          :class="Number(profesor.activo) === 1
+            ? 'font-semibold text-green-700'
+            : 'font-semibold text-red-700'"
+        >
+          {{ Number(profesor.activo) === 1 ? 'Activo' : 'Inactivo' }}
+        </span>
+      </p>
+
+      <p
+        v-if="Number(profesor.oculto_admin) === 1"
+        class="mt-2 inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800"
+      >
+        Retirado de la aplicación
+      </p>
+    </div>
+
+    <!-- BOTONES DE GESTIÓN -->
+    <div class="flex flex-wrap content-start gap-2">
+
+      <!-- EDITAR -->
+      <button
+        type="button"
+        @click="editarProfesorAdmin(profesor)"
+        :disabled="Number(profesor.oculto_admin) === 1 || procesandoId !== null || cargandoDatos"
+        class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+      >
+        Editar datos
+      </button>
+
+      <!-- HISTORIAL -->
+      <button
+        type="button"
+        @click="cargarHistorialProfesor(profesor)"
+        :disabled="procesandoId !== null || cargandoDatos"
+        class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+      >
+        Historial
+      </button>
+
+      <!-- ACTIVAR / DESACTIVAR -->
+      <button
+        type="button"
+        @click="cambiarEstadoProfesor(profesor)"
+        :disabled="Number(profesor.oculto_admin) === 1 || procesandoId !== null || cargandoDatos"
+        class="rounded-lg px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+        :class="Number(profesor.activo) === 1
+          ? 'bg-red-700 hover:bg-red-800'
+          : 'bg-green-700 hover:bg-green-800'"
+      >
+        {{ Number(profesor.activo) === 1 ? 'Desactivar' : 'Activar' }}
+      </button>
+
+      <!-- ELIMINAR / RECUPERAR -->
+      <button
+        v-if="Number(profesor.oculto_admin) !== 1"
+        type="button"
+        @click="retirarProfesorAdmin(profesor)"
+        :disabled="procesandoId !== null || cargandoDatos"
+        class="rounded-lg bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+      >
+        {{ procesandoId === `retirar-profesor-${profesor.id}` ? 'Retirando...' : 'Eliminar' }}
+      </button>
+
+      <button
+        v-else
+        type="button"
+        @click="recuperarProfesorAdmin(profesor)"
+        :disabled="procesandoId !== null || cargandoDatos"
+        class="rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-50"
+      >
+        {{ procesandoId === `recuperar-profesor-${profesor.id}` ? 'Recuperando...' : 'Recuperar' }}
+      </button>
+
+    </div>
+  </div>
+</article>
   </details>
 
   <!-- EDITAR PROFESOR -->
@@ -1793,36 +2042,71 @@
             {{ alumnoFila.escuela || 'Sin asignar' }}
           </td>
 
-          <td class="p-3">
-            <span
-              :class="Number(alumnoFila.activo) === 1
-                ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-gray-100 text-gray-700'"
-              class="rounded-full px-3 py-1 text-xs font-semibold"
-            >
-              {{ Number(alumnoFila.activo) === 1 ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
+        <td class="p-3">
+  <div class="flex flex-col items-start gap-2">
+    <span
+      :class="Number(alumnoFila.activo) === 1
+        ? 'bg-emerald-100 text-emerald-800'
+        : 'bg-gray-100 text-gray-700'"
+      class="rounded-full px-3 py-1 text-xs font-semibold"
+    >
+      {{ Number(alumnoFila.activo) === 1 ? 'Activo' : 'Inactivo' }}
+    </span>
 
+    <span
+      v-if="Number(alumnoFila.oculto_admin) === 1"
+      class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800"
+    >
+      Retirado de la aplicación
+    </span>
+  </div>
+</td>  
+        
           <td class="p-3">
-            <div class="flex flex-col gap-2">
-              <button
-                type="button"
-                @click="editarAlumnoAdmin(alumnoFila)"
-                class="rounded-lg border border-sky-300 px-3 py-2 font-semibold text-sky-800 hover:bg-sky-50"
-              >
-                Editar
-              </button>
+  <div class="flex flex-col gap-2">
+    <button
+      type="button"
+      @click="editarAlumnoAdmin(alumnoFila)"
+      :disabled="Number(alumnoFila.oculto_admin) === 1 || procesandoId !== null"
+      class="rounded-lg border border-sky-300 px-3 py-2 font-semibold text-sky-800 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      Editar
+    </button>
 
-              <button
-                type="button"
-                @click="cambiarEstadoAlumnoAdmin(alumnoFila)"
-                class="rounded-lg border border-gray-300 px-3 py-2 font-semibold hover:bg-gray-50"
-              >
-                {{ Number(alumnoFila.activo) === 1 ? 'Desactivar' : 'Reactivar' }}
-              </button>
-            </div>
-          </td>
+    <button
+      type="button"
+      @click="cambiarEstadoAlumnoAdmin(alumnoFila)"
+      :disabled="Number(alumnoFila.oculto_admin) === 1 || procesandoId !== null"
+      class="rounded-lg border border-gray-300 px-3 py-2 font-semibold hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {{ Number(alumnoFila.activo) === 1 ? 'Desactivar' : 'Reactivar' }}
+    </button>
+
+    <button
+      v-if="Number(alumnoFila.oculto_admin) !== 1"
+      type="button"
+      @click="retirarAlumnoAdmin(alumnoFila)"
+      :disabled="procesandoId !== null || cargandoDatos"
+      class="rounded-lg border border-red-300 bg-red-50 px-3 py-2 font-semibold text-red-800 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {{ procesandoId === `retirar-alumno-${alumnoFila.id}`
+        ? 'Retirando...'
+        : 'Eliminar' }}
+    </button>
+
+    <button
+      v-else
+      type="button"
+      @click="recuperarAlumnoAdmin(alumnoFila)"
+      :disabled="procesandoId !== null || cargandoDatos"
+      class="rounded-lg border border-green-300 bg-green-50 px-3 py-2 font-semibold text-green-800 hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {{ procesandoId === `recuperar-alumno-${alumnoFila.id}`
+        ? 'Recuperando...'
+        : 'Recuperar' }}
+    </button>
+  </div>
+</td>
         </tr>
 
         <tr v-if="!cargandoDatos && alumnosAdminFiltrados.length === 0">
@@ -2993,9 +3277,10 @@
             :disabled="procesandoAvisoAdmin || cargandoAvisosAdmin"
             class="rounded-lg bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
           >
-            Eliminar definitivamente
+            Eliminar
           </button>
         </div>
+
         <!-- FORMULARIO DE EDICIÓN -->
 <div
   v-if="avisoEditandoId === Number(aviso.id)"
@@ -3142,6 +3427,14 @@
       {{ cargandoDatos ? 'Actualizando...' : 'Actualizar' }}
     </button>
   </div>
+<button
+  type="button"
+  @click="retirarTodosLosMateriales"
+  :disabled="procesandoId !== null || cargandoDatos || recursos.length === 0"
+  class="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+>
+  Retirar todos los materiales
+</button>
 
   <!-- FILTROS -->
   <div class="grid grid-cols-1 gap-4 rounded-xl border bg-gray-50 p-5 md:grid-cols-3">
@@ -4513,6 +4806,93 @@ async function cambiarEstadoAlumnoAdmin(alumno) {
 }
 
 // =====================================================
+// RETIRAR Y RECUPERAR ALUMNOS DE LA APLICACIÓN
+// =====================================================
+
+async function retirarAlumnoAdmin(alumno) {
+  const id = Number(alumno?.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) return
+
+  const nombreCompleto =
+    `${alumno.nombre || ''} ${alumno.apellidos || ''}`.trim()
+
+  const confirmar = window.confirm(
+    `¿Quieres retirar a ${nombreCompleto} de la aplicación?\n\n` +
+    'Sus datos, matrículas, resultados y documentos se conservarán en SQL. ' +
+    'Podrás recuperarlo posteriormente.'
+  )
+
+  if (!confirmar) return
+
+  procesandoId.value = `retirar-alumno-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/alumnos/${id}/retirar`,
+      { method: 'PATCH' }
+    )
+
+procesandoId.value = null
+await cargarAlumnosAdmin()
+
+    mensaje.value =
+      resultado?.mensaje || 'Alumno retirado de la aplicación correctamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo retirar al alumno.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+
+async function recuperarAlumnoAdmin(alumno) {
+  const id = Number(alumno?.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) return
+
+  const nombreCompleto =
+    `${alumno.nombre || ''} ${alumno.apellidos || ''}`.trim()
+
+  if (!window.confirm(
+    `¿Quieres recuperar a ${nombreCompleto} en la aplicación?`
+  )) return
+
+  procesandoId.value = `recuperar-alumno-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/alumnos/${id}/recuperar`,
+      { method: 'PATCH' }
+    )
+
+    procesandoId.value = null
+await cargarAlumnosAdmin()
+
+    mensaje.value =
+      resultado?.mensaje || 'Alumno recuperado correctamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo recuperar al alumno.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+// =====================================================
 // EXPORTAR ALUMNOS PARA EXCEL
 // =====================================================
 
@@ -4974,6 +5354,51 @@ async function cargarRecursos() {
   }
 }
 
+// =====================================================
+// RETIRAR TODOS LOS MATERIALES DE LA APLICACIÓN
+// Conserva los registros SQL y los archivos del disco.
+// =====================================================
+
+async function retirarTodosLosMateriales() {
+  if (
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const confirmar = window.confirm(
+    '¿Quieres retirar TODOS los archivos y materiales de la aplicación? ' +
+    'Se incluirán también los que ya no estén publicados. ' +
+    'Los registros de SQL y los archivos originales se conservarán y podrán recuperarse.'
+  )
+
+  if (!confirmar) return
+
+  procesandoId.value = 'todos-los-materiales'
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      '/admin/moderacion/recursos/retirar-todos',
+      {
+        method: 'PATCH'
+      }
+    )
+
+    await cargarRecursos()
+
+    mensaje.value =
+      resultado?.mensaje ||
+      'Todos los materiales se han retirado de la aplicación. Los datos y archivos se conservan.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron retirar todos los materiales.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
 async function retirarMaterial(item) {
   const id = Number(item?.id)
 
@@ -5056,13 +5481,13 @@ async function eliminarMaterialDefinitivamente(item) {
 
   if (procesandoId.value !== null || cargandoDatos.value) return
 
-  const confirmado = window.confirm(
-    'ATENCIÓN: esta operación eliminará definitivamente el registro del material y su archivo asociado. No se podrá recuperar. ¿Quieres continuar?'
-  )
+  if (!window.confirm(
+    '¿Quieres retirar este material de la aplicación? Se conservarán el registro y el archivo para poder recuperarlos posteriormente.'
+  )) {
+    return
+  }
 
-  if (!confirmado) return
-
-  procesandoId.value = `eliminar-${id}`
+  procesandoId.value = `retirar-${id}`
   mensaje.value = ''
 
   try {
@@ -5082,10 +5507,11 @@ async function eliminarMaterialDefinitivamente(item) {
       : []
 
     mensaje.value =
-      resultado?.mensaje || 'Material eliminado definitivamente.'
+      resultado?.mensaje ||
+      'El material se ha retirado de la aplicación. Sus datos siguen conservados.'
   } catch (error) {
     mensaje.value =
-      error.message || 'No se pudo eliminar el material.'
+      error.message || 'No se pudo retirar el material.'
   } finally {
     procesandoId.value = null
   }
@@ -5104,6 +5530,229 @@ function esUrlExterna(valor) {
   } catch {
     return false
   }
+}
+
+
+// =====================================================
+// ELIMINACIÓN REVERSIBLE DE DATOS
+// Se ocultan de la aplicación, pero NO se borran de SQL.
+// Los archivos del disco también se conservan.
+// =====================================================
+
+async function ejecutarRetiradaAdmin(ruta, confirmacion, mensajeExito, operacion) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  if (!window.confirm(confirmacion)) return
+
+  procesandoId.value = operacion
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(ruta, {
+      method: 'PATCH'
+    })
+
+    mensaje.value =
+      resultado?.mensaje || mensajeExito
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo completar la retirada.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+async function ejecutarRecuperacionAdmin(ruta, confirmacion, mensajeExito, operacion) {
+  if (procesandoId.value !== null || cargandoDatos.value) return
+
+  if (!window.confirm(confirmacion)) return
+
+  procesandoId.value = operacion
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(ruta, {
+      method: 'PATCH'
+    })
+
+    mensaje.value =
+      resultado?.mensaje || mensajeExito
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudieron recuperar los datos.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+// =====================================================
+// FOROS
+// Incluye foro de estudiantes, foro de profesores
+// y respuestas del foro de profesores.
+// =====================================================
+
+async function retirarTodosLosForos() {
+  await ejecutarRetiradaAdmin(
+    '/admin/eliminacion/foros',
+    '¿Quieres retirar todos los mensajes de los foros de la aplicación? Los registros se conservarán y podrán recuperarse.',
+    'Todos los foros se han retirado de la aplicación.',
+    'retirar-todos-los-foros'
+  )
+}
+
+async function recuperarTodosLosForos() {
+  await ejecutarRecuperacionAdmin(
+    '/admin/eliminacion/foros/recuperar',
+    '¿Quieres recuperar todos los mensajes de los foros?',
+    'Los foros se han recuperado correctamente.',
+    'recuperar-todos-los-foros'
+  )
+}
+
+// =====================================================
+// MENSAJES
+// Incluye mensajes privados y mensajes entre alumnos
+// y profesores. No modifica las denuncias ni auditorías.
+// =====================================================
+
+async function retirarTodosLosMensajes() {
+  await ejecutarRetiradaAdmin(
+    '/admin/eliminacion/mensajes',
+    '¿Quieres retirar todos los mensajes de la aplicación? Los registros se conservarán y podrán recuperarse.',
+    'Todos los mensajes se han retirado de la aplicación.',
+    'retirar-todos-los-mensajes'
+  )
+}
+
+async function recuperarTodosLosMensajes() {
+  await ejecutarRecuperacionAdmin(
+    '/admin/eliminacion/mensajes/recuperar',
+    '¿Quieres recuperar todos los mensajes?',
+    'Los mensajes se han recuperado correctamente.',
+    'recuperar-todos-los-mensajes'
+  )
+}
+
+// =====================================================
+// ESCUELAS
+// Biblioteca Joan Miró = ID 1
+// Ateneu Aula 502 = ID 2
+// Cada escuela se retira por separado.
+// =====================================================
+
+async function retirarEscuelaAdmin(escuelaId, nombreEscuela) {
+  const id = Number(escuelaId)
+
+  if (![1, 2].includes(id)) {
+    mensaje.value = 'El identificador de la escuela no es válido.'
+    return
+  }
+
+  await ejecutarRetiradaAdmin(
+    `/admin/eliminacion/escuelas/${id}`,
+    `¿Quieres retirar ${nombreEscuela} de la aplicación? Sus registros se conservarán y podrán recuperarse.`,
+    `${nombreEscuela} se ha retirado de la aplicación.`,
+    `retirar-escuela-${id}`
+  )
+}
+
+async function recuperarEscuelaAdmin(escuelaId, nombreEscuela) {
+  const id = Number(escuelaId)
+
+  if (![1, 2].includes(id)) {
+    mensaje.value = 'El identificador de la escuela no es válido.'
+    return
+  }
+
+  await ejecutarRecuperacionAdmin(
+    `/admin/eliminacion/escuelas/${id}/recuperar`,
+    `¿Quieres recuperar ${nombreEscuela} y volver a mostrarla en la aplicación?`,
+    `${nombreEscuela} se ha recuperado correctamente.`,
+    `recuperar-escuela-${id}`
+  )
+}
+
+async function retirarBibliotecaJoanMiro() {
+  await retirarEscuelaAdmin(1, 'Biblioteca Joan Miró')
+}
+
+async function recuperarBibliotecaJoanMiro() {
+  await recuperarEscuelaAdmin(1, 'Biblioteca Joan Miró')
+}
+
+async function retirarAteneuAula502() {
+  await retirarEscuelaAdmin(2, 'Ateneu Aula 502')
+}
+
+async function recuperarAteneuAula502() {
+  await recuperarEscuelaAdmin(2, 'Ateneu Aula 502')
+}
+
+// =====================================================
+// CURSOS
+// =====================================================
+
+async function retirarTodosLosCursos() {
+  await ejecutarRetiradaAdmin(
+    '/admin/eliminacion/cursos',
+    '¿Quieres retirar todos los cursos de la aplicación? Los registros se conservarán y podrán recuperarse.',
+    'Todos los cursos se han retirado de la aplicación.',
+    'retirar-todos-los-cursos'
+  )
+}
+
+async function recuperarTodosLosCursos() {
+  await ejecutarRecuperacionAdmin(
+    '/admin/eliminacion/cursos/recuperar',
+    '¿Quieres recuperar todos los cursos?',
+    'Los cursos se han recuperado correctamente.',
+    'recuperar-todos-los-cursos'
+  )
+}
+
+// =====================================================
+// GRUPOS
+// =====================================================
+
+async function retirarTodosLosGrupos() {
+  await ejecutarRetiradaAdmin(
+    '/admin/eliminacion/grupos',
+    '¿Quieres retirar todos los grupos de la aplicación? Los registros se conservarán y podrán recuperarse.',
+    'Todos los grupos se han retirado de la aplicación.',
+    'retirar-todos-los-grupos'
+  )
+}
+
+async function recuperarTodosLosGrupos() {
+  await ejecutarRecuperacionAdmin(
+    '/admin/eliminacion/grupos/recuperar',
+    '¿Quieres recuperar todos los grupos?',
+    'Los grupos se han recuperado correctamente.',
+    'recuperar-todos-los-grupos'
+  )
+}
+
+// =====================================================
+// HORARIOS
+// Incluye todos los días y horas.
+// =====================================================
+
+async function retirarTodosLosHorarios() {
+  await ejecutarRetiradaAdmin(
+    '/admin/eliminacion/horarios',
+    '¿Quieres retirar todos los horarios de la aplicación? Los registros se conservarán y podrán recuperarse.',
+    'Todos los horarios se han retirado de la aplicación.',
+    'retirar-todos-los-horarios'
+  )
+}
+
+async function recuperarTodosLosHorarios() {
+  await ejecutarRecuperacionAdmin(
+    '/admin/eliminacion/horarios/recuperar',
+    '¿Quieres recuperar todos los horarios?',
+    'Los horarios se han recuperado correctamente.',
+    'recuperar-todos-los-horarios'
+  )
 }
 
 /* =====================================================
@@ -5395,6 +6044,101 @@ async function cambiarEstadoProfesor(profesor) {
   } catch (error) {
     mensaje.value =
       error.message || 'No se pudo cambiar el estado del profesor.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+/* =====================================================
+   RETIRAR UN PROFESOR DE LA APLICACIÓN
+   ===================================================== */
+
+async function retirarProfesorAdmin(profesor) {
+  const id = Number(profesor.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const confirmacion = window.confirm(
+    `¿Quieres retirar a ${profesor.nombre} ${profesor.apellidos} de la aplicación? Sus datos, historial y asignaciones se conservarán y podrás recuperarlo posteriormente.`
+  )
+
+  if (!confirmacion) return
+
+  procesandoId.value = `retirar-profesor-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/profesores/${id}/retirar`,
+      {
+        method: 'PATCH'
+      }
+    )
+
+    profesor.oculto_admin = 1
+
+    if (Number(profesorEditando.value) === id) {
+      profesorEditando.value = null
+      formProfesor.value = {}
+    }
+
+    mensaje.value =
+      resultado?.mensaje || 'Profesor retirado correctamente. Sus datos se conservan.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo retirar al profesor.'
+  } finally {
+    procesandoId.value = null
+  }
+}
+
+/* =====================================================
+   RECUPERAR UN PROFESOR
+   ===================================================== */
+
+async function recuperarProfesorAdmin(profesor) {
+  const id = Number(profesor.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoId.value !== null ||
+    cargandoDatos.value
+  ) {
+    return
+  }
+
+  const confirmacion = window.confirm(
+    `¿Quieres recuperar a ${profesor.nombre} ${profesor.apellidos}? Volverá a aparecer en la aplicación.`
+  )
+
+  if (!confirmacion) return
+
+  procesandoId.value = `recuperar-profesor-${id}`
+  mensaje.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/profesores/${id}/recuperar`,
+      {
+        method: 'PATCH'
+      }
+    )
+
+    profesor.oculto_admin = 0
+
+    mensaje.value =
+      resultado?.mensaje || 'Profesor recuperado correctamente.'
+  } catch (error) {
+    mensaje.value =
+      error.message || 'No se pudo recuperar al profesor.'
   } finally {
     procesandoId.value = null
   }
@@ -5804,6 +6548,15 @@ async function publicarAvisoAdmin() {
 // AVISOS - ABRIR EDICIÓN
 // =====================================================
 
+async function retirarTodosLosAvisos() {
+  await ejecutarRetiradaAdmin(
+    '/admin/avisos/retirar-todos',
+    '¿Quieres retirar TODOS los avisos de la aplicación? Los registros se conservarán en SQL y podrán recuperarse.',
+    'Todos los avisos se han retirado de la aplicación.',
+    'retirar-todos-los-avisos'
+  )
+}
+
 async function abrirEdicionAvisoAdmin(aviso) {
   if (procesandoAvisoAdmin.value || cargandoAvisosAdmin.value) return
 
@@ -6079,6 +6832,46 @@ async function ampliarAvisoAdmin(aviso) {
   }
 }
 
+async function recuperarAvisoAdmin(aviso) {
+  const id = Number(aviso?.id)
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoAvisoAdmin.value ||
+    cargandoAvisosAdmin.value
+  ) {
+    return
+  }
+
+  if (!window.confirm(
+    '¿Quieres recuperar este aviso y volver a mostrarlo en la aplicación?'
+  )) {
+    return
+  }
+
+  procesandoAvisoAdmin.value = true
+  mensajeAvisosAdmin.value = ''
+
+  try {
+    const resultado = await peticionAdmin(
+      `/admin/avisos/${id}/recuperar`,
+      {
+        method: 'PATCH'
+      }
+    )
+
+    await cargarAvisosAdmin()
+
+    mensajeAvisosAdmin.value =
+      resultado?.mensaje || 'El aviso se ha recuperado correctamente.'
+  } catch (error) {
+    mensajeAvisosAdmin.value =
+      error.message || 'No se pudo recuperar el aviso.'
+  } finally {
+    procesandoAvisoAdmin.value = false
+  }
+}
 // =====================================================
 // AVISOS - ELIMINAR AVISO DE PROFESOR
 // =====================================================
@@ -6087,16 +6880,16 @@ async function eliminarAvisoAdmin(aviso) {
   const id = Number(aviso?.id)
 
   if (
-  !Number.isSafeInteger(id) ||
-  id <= 0 ||
-  procesandoAvisoAdmin.value ||
-  cargandoAvisosAdmin.value
-) {
-  return
-}
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    procesandoAvisoAdmin.value ||
+    cargandoAvisosAdmin.value
+  ) {
+    return
+  }
 
   if (!window.confirm(
-    '¿Quieres eliminar definitivamente este aviso del profesor? Esta operación no se puede deshacer.'
+    '¿Quieres retirar este aviso de la aplicación? Se conservará en la base de datos y podrás recuperarlo posteriormente.'
   )) {
     return
   }
@@ -6115,11 +6908,11 @@ async function eliminarAvisoAdmin(aviso) {
     await cargarAvisosAdmin()
 
     mensajeAvisosAdmin.value =
-      resultado?.mensaje || 'Aviso eliminado definitivamente.'
-
+      resultado?.mensaje ||
+      'El aviso se ha retirado de la aplicación y se conserva en la base de datos.'
   } catch (error) {
     mensajeAvisosAdmin.value =
-      error.message || 'No se pudo eliminar el aviso.'
+      error.message || 'No se pudo retirar el aviso.'
   } finally {
     procesandoAvisoAdmin.value = false
   }
@@ -6160,4 +6953,5 @@ function cerrarSesion() {
 
   cancelarModeracion()
 }
+
 </script>

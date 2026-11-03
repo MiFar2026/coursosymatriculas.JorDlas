@@ -1,16 +1,24 @@
 
 const db = require('../config/database')
 
-// Comprueba que el grupo pertenece a la escuela del profesor
-// y que el profesor tiene asignado ese grupo.
+// Comprueba que el grupo pertenece a la escuela del profesor,
+// que está activo y que ni el grupo, ni la escuela ni el curso
+// han sido retirados por administración.
 async function comprobarGrupoProfesor(profesorId, escuelaId, grupoId) {
   const [grupos] = await db.query(
-    `SELECT id
-     FROM grupos
-     WHERE id = ?
-       AND profesor_id = ?
-       AND escuela_id = ?
-       AND activo = 1
+    `SELECT g.id
+     FROM grupos g
+     INNER JOIN escuelas e ON e.id = g.escuela_id
+     INNER JOIN cursos c ON c.id = g.curso_id
+     WHERE g.id = ?
+       AND g.profesor_id = ?
+       AND g.escuela_id = ?
+       AND g.activo = 1
+       AND g.oculto_admin = 0
+       AND e.activa = 1
+       AND e.oculto_admin = 0
+       AND c.activo = 1
+       AND c.oculto_admin = 0
      LIMIT 1`,
     [grupoId, profesorId, escuelaId]
   )
@@ -39,11 +47,19 @@ async function listarMisActividades(req, res) {
          c.nivel
        FROM actividades a
        INNER JOIN grupos g ON g.id = a.grupo_id
+       INNER JOIN escuelas e ON e.id = g.escuela_id
        INNER JOIN cursos c ON c.id = g.curso_id
        WHERE a.profesor_id = ?
          AND a.escuela_id = ?
          AND g.profesor_id = ?
          AND g.escuela_id = ?
+         AND a.oculto_admin = 0
+         AND g.activo = 1
+         AND g.oculto_admin = 0
+         AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0
        ORDER BY a.fecha_publicacion DESC, a.id DESC`,
       [profesorId, escuelaId, profesorId, escuelaId]
     )
@@ -142,7 +158,7 @@ async function publicarActividad(req, res) {
     if (!grupoValido) {
       return res.status(403).json({
         ok: false,
-        mensaje: 'No tienes permiso para publicar actividades en este grupo.'
+        mensaje: 'No tienes permiso para publicar actividades en este grupo o el grupo está retirado.'
       })
     }
 
@@ -171,7 +187,8 @@ async function publicarActividad(req, res) {
         titulo,
         descripcion: descripcion || null,
         fecha_entrega: fechaEntrega,
-        publicado: 1
+        publicado: 1,
+        oculto_admin: 0
       }
     })
   } catch (error) {
@@ -184,7 +201,8 @@ async function publicarActividad(req, res) {
   }
 }
 
-// Retirar una actividad sin borrar su historial.
+// Retirar una actividad de la publicación del profesor.
+// No borra la actividad ni las entregas de los alumnos.
 async function retirarActividad(req, res) {
   try {
     const profesorId = req.profesor.id
@@ -201,12 +219,21 @@ async function retirarActividad(req, res) {
     const [resultado] = await db.query(
       `UPDATE actividades a
        INNER JOIN grupos g ON g.id = a.grupo_id
+       INNER JOIN escuelas e ON e.id = g.escuela_id
+       INNER JOIN cursos c ON c.id = g.curso_id
        SET a.publicado = 0
        WHERE a.id = ?
          AND a.profesor_id = ?
          AND a.escuela_id = ?
          AND g.profesor_id = ?
-         AND g.escuela_id = ?`,
+         AND g.escuela_id = ?
+         AND a.oculto_admin = 0
+         AND g.activo = 1
+         AND g.oculto_admin = 0
+         AND e.activa = 1
+         AND e.oculto_admin = 0
+         AND c.activo = 1
+         AND c.oculto_admin = 0`,
       [
         actividadId,
         profesorId,

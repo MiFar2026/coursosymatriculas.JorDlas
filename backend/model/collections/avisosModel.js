@@ -37,6 +37,7 @@ const getAvisosByEscuela = async (escuelaId) => {
               OR e.activa = 1
           )
           AND a.activo = 1
+          AND a.oculto_admin = 0
           AND (
               a.grupo_id IS NULL
               OR g.activo = 1
@@ -88,6 +89,7 @@ const getAvisosAdminByEscuela = async (escuelaId) => {
               OR e.activa = 1
           )
           AND a.activo = 1
+          AND a.oculto_admin = 0
           AND (
               a.grupo_id IS NULL
               OR g.activo = 1
@@ -143,6 +145,7 @@ const getAvisosByAlumno = async (alumnoId) => {
             OR e.activa = 1
         )
           AND a.activo = 1
+          AND a.oculto_admin = 0
           AND (
               a.fecha_expiracion IS NULL
               OR a.fecha_expiracion > NOW()
@@ -393,7 +396,8 @@ const getTodosAvisosAdmin = async () => {
             a.tipo,
             a.fecha_publicacion,
             a.fecha_expiracion,
-            a.activo
+            a.activo,
+            a.oculto_admin
         FROM avisos a
         LEFT JOIN escuelas e
             ON e.id = a.escuela_id
@@ -492,15 +496,61 @@ const cambiarFechaExpiracionAdmin = async (
 }
 
 // =====================================================
-// 12. ELIMINAR DEFINITIVAMENTE CUALQUIER AVISO
-// Funciona para ADMIN y PROFESOR.
+// RETIRAR UN AVISO DE LA APLICACIÓN
+// No elimina el registro de SQL.
 // =====================================================
 
 const eliminarAvisoAdmin = async (avisoId) => {
     const [resultado] = await db.query(
-        `DELETE FROM avisos
+        `UPDATE avisos
+         SET oculto_admin = 1
          WHERE id = ?`,
         [avisoId]
+    )
+
+    return resultado.affectedRows
+}
+
+// =====================================================
+// RECUPERAR UN AVISO RETIRADO
+// Vuelve a mostrarlo en la aplicación.
+// =====================================================
+
+const restaurarAvisoAdmin = async (avisoId) => {
+    const [resultado] = await db.query(
+        `UPDATE avisos
+         SET oculto_admin = 0
+         WHERE id = ?`,
+        [avisoId]
+    )
+
+    return resultado.affectedRows
+}
+
+// =====================================================
+// RETIRAR TODOS LOS AVISOS DE LA APLICACIÓN
+// Conserva todos los registros en SQL.
+// =====================================================
+
+const retirarTodosAvisosAdmin = async () => {
+    const [resultado] = await db.query(
+        `UPDATE avisos
+         SET oculto_admin = 1
+         WHERE oculto_admin = 0`
+    )
+
+    return resultado.affectedRows
+}
+
+// =====================================================
+// RECUPERAR TODOS LOS AVISOS RETIRADOS
+// =====================================================
+
+const restaurarTodosAvisosAdmin = async () => {
+    const [resultado] = await db.query(
+        `UPDATE avisos
+         SET oculto_admin = 0
+         WHERE oculto_admin = 1`
     )
 
     return resultado.affectedRows
@@ -537,9 +587,16 @@ const ampliarAvisoProfesor = async (avisoId) => {
 // Se conserva por compatibilidad.
 // =====================================================
 
+// =====================================================
+// RETIRAR AVISO PUBLICADO POR UN PROFESOR
+// Se desactiva, pero permanece en SQL.
+// Administración puede volver a activarlo.
+// =====================================================
+
 const eliminarAvisoProfesor = async (avisoId) => {
     const [resultado] = await db.query(
-        `DELETE FROM avisos
+        `UPDATE avisos
+         SET activo = 0
          WHERE id = ?
            AND origen = 'PROFESOR'`,
         [avisoId]
@@ -579,7 +636,10 @@ module.exports = {
     editarAvisoAdmin,
     cambiarFechaExpiracionAdmin,
     eliminarAvisoAdmin,
+    restaurarAvisoAdmin,
     ampliarAvisoProfesor,
     eliminarAvisoProfesor,
-    fechaExpiracionEsFutura
+    fechaExpiracionEsFutura,
+    retirarTodosAvisosAdmin,
+    restaurarTodosAvisosAdmin,
 }
